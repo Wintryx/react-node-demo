@@ -46,12 +46,14 @@ Build a modern task management app with:
   - protected route with session-based auth (`sessionStorage`)
   - authenticated employee switcher
   - task list and kanban board views
+  - timeline/gantt-style view (due-date sorted, status-colored, overdue highlight)
   - task CRUD modal (with date picker and subtask handling)
   - inline subtask toggle/add/remove
   - responsive dashboard shell
 - Verification status:
   - lint/test/build successful
   - API e2e covers health + auth + employees + tasks
+  - web tests include mapper/helper units + dashboard CRUD integration tests with mocked API
 
 ## Key Decisions
 
@@ -159,8 +161,8 @@ docs/
 
 ## Roadmap (Next Chunks)
 
-1. Timeline/Gantt view
-2. Additional frontend mutation/error tests
+1. Extend frontend integration tests with additional edge cases
+2. Timeline UX polish
 3. Docker Compose + final documentation polish
 
 ## Documentation Mode

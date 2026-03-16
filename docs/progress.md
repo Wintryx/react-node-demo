@@ -103,6 +103,23 @@ Stand: 2026-03-16
   - API-Client in fachliche Module aufgeteilt (`auth`, `employees`, `tasks`)
   - Dashboard-Datenlogik als eigener Hook (`useDashboardData`)
   - List + Kanban View fuer Tasks
+  - Timeline/Gantt-like View fuer Tasks:
+    - nach `dueDate` sortiert
+    - status-farbige Balken
+    - Overdue-Highlighting
+    - Klick auf Task oeffnet Edit-Modal
+  - Timeline-Helper mit Unit-Tests (`task-timeline-utils.spec.ts`)
+  - Mapper/Helper-Unit-Tests ergaenzt:
+    - `task-request-mapper.spec.ts`
+    - `task-utils.spec.ts`
+    - `shared/lib/date.spec.ts`
+  - Dashboard-Refactor (Smart/Dumb-Aufteilung):
+    - `dashboard-page.tsx` als orchestrierender Container
+    - `dashboard-header.tsx`, `dashboard-controls-panel.tsx`, `dashboard-task-section.tsx`
+    - `use-task-mutations.ts` fuer Task-Mutationslogik
+  - Frontend-Integrationstests mit gemockter API ergaenzt:
+    - `dashboard-crud.integration.spec.tsx`
+    - Create / Update / Delete / Error-Feedback / Inline-Subtask-Toggle
   - Task Create/Edit/Delete ueber Modal mit `react-day-picker`
   - Inline Subtask-Interaktionen (Toggle/Add/Remove) in List und Kanban
   - Frontend README erstellt (`packages/apps/web/README.md`)
@@ -124,6 +141,6 @@ Stand: 2026-03-16
 
 ## Naechste Schritte
 
-1. Timeline/Gantt View mit Overdue-Highlighting und Edit-Modal-Entry
-2. Zusaetzliche Frontend-Tests fuer Task-Mutationen und Error-Flows
+1. Frontend-Integrationstests um weitere Edge-Cases erweitern
+2. Timeline UX-Polish (Skalierung/Zoom/Grouping)
 3. Docker Compose + finale Doku

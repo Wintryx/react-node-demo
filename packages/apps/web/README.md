@@ -31,10 +31,12 @@ It consumes the NestJS backend and provides:
   - access token stored in `sessionStorage`
   - token attached as `Authorization: Bearer ...` via Axios interceptor
 - Task management UI:
-  - list and kanban views
+  - list, kanban, and timeline views
   - create/edit task modal with date picker
   - delete confirmation
   - inline subtask toggle/add/remove in list and kanban
+  - timeline ordered by due date, status color coding, overdue highlighting
+  - timeline task click opens edit modal
 
 ## Security Notes (Demo Scope)
 
@@ -77,8 +79,21 @@ npx nx test web
 npx nx build web
 ```
 
+## Test Coverage Highlights
+
+- Unit tests:
+  - date helpers
+  - task mappers/helpers
+  - timeline helpers
+- Integration tests (mocked `tasksApi` / `employeesApi`):
+  - create task
+  - update task
+  - delete task with confirmation
+  - create error feedback
+  - inline subtask toggle update
+
 ## Next Frontend Steps
 
-1. Timeline/Gantt view with overdue highlighting and edit-modal integration
-2. Additional frontend tests for task mutations and error flows
-3. Optional UX polish (drag/drop board interactions, richer validation hints)
+1. Extend integration tests for more edge cases (subtask add/remove errors, modal validation paths)
+2. Optional UX polish (drag/drop board interactions, richer validation hints)
+3. Timeline enhancement options (scale markers, zoom presets, grouping)
