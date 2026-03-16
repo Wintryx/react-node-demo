@@ -1,6 +1,8 @@
 import { X } from 'lucide-react';
 import { SyntheticEvent, useEffect, useState } from 'react';
 
+import { getEmployeeDisplayName } from './employee-display-name';
+import { taskPriorityLabels, taskStatusLabels } from './task-utils';
 import { Alert } from '../../components/ui/alert';
 import { Button } from '../../components/ui/button';
 import { DatePickerField } from '../../components/ui/date-picker-field';
@@ -118,7 +120,7 @@ const mapError = (error: unknown): string => {
     return error.message;
   }
 
-  return 'Request failed. Please try again.';
+  return 'Anfrage fehlgeschlagen. Bitte erneut versuchen.';
 };
 
 export function TaskFormDialog({
@@ -163,17 +165,17 @@ export function TaskFormDialog({
 
     const trimmedTitle = formState.title.trim();
     if (!trimmedTitle) {
-      setErrorMessage('Title is required.');
+      setErrorMessage('Titel ist erforderlich.');
       return;
     }
 
     if (!formState.startDate) {
-      setErrorMessage('Start date is required.');
+      setErrorMessage('Startdatum ist erforderlich.');
       return;
     }
 
     if (!formState.employeeId) {
-      setErrorMessage('Employee is required.');
+      setErrorMessage('Mitarbeitende Person ist erforderlich.');
       return;
     }
 
@@ -181,7 +183,7 @@ export function TaskFormDialog({
       (subtask) => subtask.title.trim().length === 0 || subtask.startDate.length === 0,
     );
     if (hasInvalidSubtask) {
-      setErrorMessage('Each subtask requires a title and a start date.');
+      setErrorMessage('Jede Teilaufgabe braucht einen Titel und ein Startdatum.');
       return;
     }
 
@@ -201,7 +203,7 @@ export function TaskFormDialog({
         });
       } else {
         if (!task) {
-          setErrorMessage('Task context is missing.');
+          setErrorMessage('Aufgabenkontext fehlt.');
           return;
         }
 
@@ -228,7 +230,7 @@ export function TaskFormDialog({
       <div className="w-full max-w-4xl rounded-xl border border-border bg-card shadow-2xl">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h3 className="font-display text-lg font-semibold">
-            {mode === 'create' ? 'Create Task' : `Edit Task #${task?.id ?? ''}`}
+            {mode === 'create' ? 'Aufgabe erstellen' : `Aufgabe #${task?.id ?? ''} bearbeiten`}
           </h3>
           <Button type="button" variant="ghost" size="sm" onClick={onClose}>
             <X className="h-4 w-4" />
@@ -239,7 +241,7 @@ export function TaskFormDialog({
           {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
           <div className="space-y-2">
-            <Label htmlFor="task-title">Title</Label>
+            <Label htmlFor="task-title">Titel</Label>
             <Input
               id="task-title"
               value={formState.title}
@@ -255,7 +257,7 @@ export function TaskFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="task-description">Description</Label>
+            <Label htmlFor="task-description">Beschreibung</Label>
             <textarea
               id="task-description"
               value={formState.description}
@@ -288,13 +290,13 @@ export function TaskFormDialog({
               >
                 {TASK_STATUSES.map((option) => (
                   <option key={option} value={option}>
-                    {option}
+                    {taskStatusLabels[option]}
                   </option>
                 ))}
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="task-priority">Priority</Label>
+              <Label htmlFor="task-priority">Priorität</Label>
               <Select
                 id="task-priority"
                 value={formState.priority}
@@ -308,13 +310,13 @@ export function TaskFormDialog({
               >
                 {TASK_PRIORITIES.map((option) => (
                   <option key={option} value={option}>
-                    {option}
+                    {taskPriorityLabels[option]}
                   </option>
                 ))}
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="task-employee">Employee</Label>
+              <Label htmlFor="task-employee">Mitarbeitende</Label>
               <Select
                 id="task-employee"
                 value={formState.employeeId?.toString() ?? ''}
@@ -328,7 +330,7 @@ export function TaskFormDialog({
               >
                 {employees.map((employee) => (
                   <option key={employee.id} value={employee.id}>
-                    {employee.firstName} {employee.lastName}
+                    {getEmployeeDisplayName(employee)}
                   </option>
                 ))}
               </Select>
@@ -337,7 +339,7 @@ export function TaskFormDialog({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label>Start Date</Label>
+              <Label>Startdatum</Label>
               <DatePickerField
                 value={formState.startDate}
                 disabled={isSubmitting}
@@ -350,7 +352,7 @@ export function TaskFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label>Due Date</Label>
+              <Label>Fälligkeitsdatum</Label>
               <DatePickerField
                 value={formState.dueDate}
                 disabled={isSubmitting}
@@ -367,7 +369,7 @@ export function TaskFormDialog({
 
           <div className="space-y-3 border-t border-border pt-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold">Subtasks</p>
+              <p className="text-sm font-semibold">Teilaufgaben</p>
               <Button
                 type="button"
                 size="sm"
@@ -380,12 +382,12 @@ export function TaskFormDialog({
                   }))
                 }
               >
-                Add subtask
+                Teilaufgabe hinzufügen
               </Button>
             </div>
 
             {formState.subtasks.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No subtasks added.</p>
+              <p className="text-sm text-muted-foreground">Keine Teilaufgaben hinzugefügt.</p>
             ) : (
               <div className="space-y-3">
                 {formState.subtasks.map((subtask, index) => (
@@ -393,7 +395,7 @@ export function TaskFormDialog({
                     <div className="flex items-center justify-between gap-3">
                       <Input
                         value={subtask.title}
-                        placeholder="Subtask title"
+                        placeholder="Titel der Teilaufgabe"
                         disabled={isSubmitting}
                         onChange={(event) =>
                           setFormState((current) => ({
@@ -416,13 +418,13 @@ export function TaskFormDialog({
                           }))
                         }
                       >
-                        Remove
+                        Entfernen
                       </Button>
                     </div>
 
                     <div className="grid gap-3 md:grid-cols-3">
                       <div className="space-y-2">
-                        <Label>Subtask Start</Label>
+                        <Label>Start Teilaufgabe</Label>
                         <DatePickerField
                           value={subtask.startDate}
                           disabled={isSubmitting}
@@ -437,7 +439,7 @@ export function TaskFormDialog({
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Subtask End</Label>
+                        <Label>Ende Teilaufgabe</Label>
                         <DatePickerField
                           value={subtask.endDate}
                           disabled={isSubmitting}
@@ -453,7 +455,7 @@ export function TaskFormDialog({
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Assignee</Label>
+                        <Label>Zugewiesen an</Label>
                         <Select
                           value={subtask.assigneeId?.toString() ?? ''}
                           disabled={isSubmitting}
@@ -472,10 +474,10 @@ export function TaskFormDialog({
                             }))
                           }
                         >
-                          <option value="">Unassigned</option>
+                          <option value="">Nicht zugewiesen</option>
                           {employees.map((employee) => (
                             <option key={employee.id} value={employee.id}>
-                              {employee.firstName} {employee.lastName}
+                              {getEmployeeDisplayName(employee)}
                             </option>
                           ))}
                         </Select>
@@ -497,7 +499,7 @@ export function TaskFormDialog({
                           }))
                         }
                       />
-                      Completed
+                      Erledigt
                     </label>
                   </div>
                 ))}
@@ -507,10 +509,10 @@ export function TaskFormDialog({
 
           <div className="flex items-center justify-end gap-3 border-t border-border pt-4">
             <Button type="button" variant="outline" disabled={isSubmitting} onClick={onClose}>
-              Cancel
+              Abbrechen
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {mode === 'create' ? 'Create task' : 'Save changes'}
+              {mode === 'create' ? 'Aufgabe erstellen' : 'Änderungen speichern'}
             </Button>
           </div>
         </form>

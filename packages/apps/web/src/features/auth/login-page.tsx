@@ -50,10 +50,10 @@ export function LoginPage() {
 
   return (
     <AuthPageShell
-      title="Welcome back"
-      description="Melde dich an, um auf das Task Board zuzugreifen."
+      title="Willkommen zurück"
+      description="Melde dich an, um auf das Aufgaben-Board zuzugreifen."
       footerLabel="Noch kein Account?"
-      footerLinkLabel="Register"
+      footerLinkLabel="Registrieren"
       footerLinkTo="/register"
     >
       <CardContent>
@@ -93,10 +93,10 @@ export function LoginPage() {
             {loginMutation.isPending ? (
               <span className="inline-flex items-center gap-2">
                 <Spinner />
-                Signing in...
+                Anmeldung läuft...
               </span>
             ) : (
-              'Sign in'
+              'Anmelden'
             )}
           </Button>
         </form>

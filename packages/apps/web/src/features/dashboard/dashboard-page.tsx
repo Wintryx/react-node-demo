@@ -58,7 +58,9 @@ export function DashboardPage() {
   if (isEmployeesError) {
     return (
       <div className="mx-auto max-w-2xl p-6">
-        <Alert variant="danger">Failed to load employees. {employeesError?.message}</Alert>
+        <Alert variant="danger">
+          Mitarbeitende konnten nicht geladen werden. {employeesError?.message}
+        </Alert>
       </div>
     );
   }

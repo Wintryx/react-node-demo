@@ -49,13 +49,13 @@ describe('task utils', () => {
 
   it('provides stable task status and priority maps', () => {
     expect(taskStatusOrder).toEqual(['todo', 'in-progress', 'done']);
-    expect(taskStatusLabels['in-progress']).toBe('In Progress');
+    expect(taskStatusLabels['in-progress']).toBe('In Bearbeitung');
     expect(taskStatusVariant.done).toBe('success');
     expect(taskPriorityVariant.high).toBe('danger');
   });
 
   it('returns fallback text for empty due date', () => {
-    expect(formatTaskDate(null)).toBe('No due date');
+    expect(formatTaskDate(null)).toBe('Kein Fälligkeitsdatum');
   });
 
   it('marks task as overdue only when due date is before now and status is not done', () => {

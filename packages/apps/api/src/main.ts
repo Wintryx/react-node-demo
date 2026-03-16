@@ -5,12 +5,26 @@ import helmet from 'helmet';
 
 import { AppModule } from './app/app.module';
 
+const parseCorsOrigins = (rawOrigins: string | undefined): string[] => {
+  if (!rawOrigins || rawOrigins.trim().length === 0) {
+    return ['http://localhost:4200', 'http://localhost:5173', 'http://localhost:8080'];
+  }
+
+  return rawOrigins
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
+};
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.use(helmet());
+  const corsOrigins = parseCorsOrigins(process.env.CORS_ORIGIN);
   app.enableCors({
-    origin: process.env.CORS_ORIGIN?.split(',') ?? ['http://localhost:5173'],
+    origin: corsOrigins,
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: false,
   });
   app.useGlobalPipes(
@@ -40,6 +54,7 @@ async function bootstrap() {
   await app.listen(port);
   Logger.log(`Application is running on: http://localhost:${port}`);
   Logger.log(`Swagger docs: http://localhost:${port}/api`);
+  Logger.log(`CORS origins: ${corsOrigins.join(', ')}`);
 }
 
 bootstrap();

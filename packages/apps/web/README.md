@@ -34,6 +34,7 @@ It consumes the NestJS backend and provides:
   - list, kanban, and timeline views
   - create/edit task modal with date picker
   - delete confirmation
+  - toast notifications for create/update/delete success actions
   - inline subtask toggle/add/remove in list and kanban
   - timeline ordered by due date, status color coding, overdue highlighting
   - timeline zoom presets (`compact`, `balanced`, `expanded`)

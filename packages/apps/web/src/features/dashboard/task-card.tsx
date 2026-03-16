@@ -5,7 +5,9 @@ import {
   formatTaskDate,
   getCompletedSubtasksCount,
   isTaskOverdue,
+  taskPriorityLabels,
   taskPriorityVariant,
+  taskStatusLabels,
   taskStatusVariant,
 } from './task-utils';
 import { Badge } from '../../components/ui/badge';
@@ -41,19 +43,19 @@ export function TaskCard({
           <div className="space-y-1">
             <h3 className="font-display text-lg font-semibold">{task.title}</h3>
             <div className="flex items-center gap-2">
-              <Badge variant={taskStatusVariant[task.status]}>{task.status}</Badge>
-              <Badge variant={taskPriorityVariant[task.priority]}>{task.priority}</Badge>
-              {overdue ? <Badge variant="danger">Overdue</Badge> : null}
+              <Badge variant={taskStatusVariant[task.status]}>{taskStatusLabels[task.status]}</Badge>
+              <Badge variant={taskPriorityVariant[task.priority]}>{taskPriorityLabels[task.priority]}</Badge>
+              {overdue ? <Badge variant="danger">Überfällig</Badge> : null}
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Button type="button" variant="outline" size="sm" disabled={isPending} onClick={() => onEdit(task)}>
               <Pencil className="mr-1 h-3.5 w-3.5" />
-              Edit
+              Bearbeiten
             </Button>
             <Button type="button" variant="danger" size="sm" disabled={isPending} onClick={() => onDelete(task)}>
               <Trash2 className="mr-1 h-3.5 w-3.5" />
-              Delete
+              Löschen
             </Button>
           </div>
         </div>
@@ -63,15 +65,15 @@ export function TaskCard({
         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
             <CalendarClock className="h-4 w-4" />
-            Due: {formatTaskDate(task.dueDate)}
+            Fällig: {formatTaskDate(task.dueDate)}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <Clock3 className="h-4 w-4" />
-            Subtasks: {task.subtasks.length}
+            Teilaufgaben: {task.subtasks.length}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <CircleCheckBig className="h-4 w-4" />
-            Done: {getCompletedSubtasksCount(task)}
+            Erledigt: {getCompletedSubtasksCount(task)}
           </span>
         </div>
 

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { toUpsertSubtaskRequests } from './task-request-mapper';
 import { tasksApi } from '../../shared/api';
 import { CreateTaskRequest, Task, UpdateTaskRequest, UpsertSubtaskRequest } from '../../shared/api/types';
+import { useToast } from '../notifications/toast-context';
 
 interface UseTaskMutationsResult {
   actionError: string | null;
@@ -22,11 +23,12 @@ const mapError = (error: unknown): string => {
     return error.message;
   }
 
-  return 'Request failed. Please try again.';
+  return 'Anfrage fehlgeschlagen. Bitte erneut versuchen.';
 };
 
 export const useTaskMutations = (): UseTaskMutationsResult => {
   const queryClient = useQueryClient();
+  const { success } = useToast();
   const [actionError, setActionError] = useState<string | null>(null);
 
   const invalidateTasks = async (): Promise<void> => {
@@ -74,23 +76,36 @@ export const useTaskMutations = (): UseTaskMutationsResult => {
   const createTask = async (payload: CreateTaskRequest): Promise<void> => {
     await runMutation(async () => {
       await createTaskMutation.mutateAsync(payload);
+      success('Aufgabe erstellt', `"${payload.title.trim()}" wurde erfolgreich erstellt.`);
+    });
+  };
+
+  const updateTaskInternal = async (
+    taskId: number,
+    payload: UpdateTaskRequest,
+    notifySuccess: boolean,
+  ): Promise<void> => {
+    await runMutation(async () => {
+      await updateTaskMutation.mutateAsync({ taskId, payload });
+      if (notifySuccess) {
+        success('Aufgabe aktualisiert', 'Deine Änderungen wurden gespeichert.');
+      }
     });
   };
 
   const updateTask = async (taskId: number, payload: UpdateTaskRequest): Promise<void> => {
-    await runMutation(async () => {
-      await updateTaskMutation.mutateAsync({ taskId, payload });
-    });
+    await updateTaskInternal(taskId, payload, true);
   };
 
   const deleteTask = async (task: Task): Promise<void> => {
-    const confirmed = window.confirm(`Delete task "${task.title}"?`);
+    const confirmed = window.confirm(`Aufgabe "${task.title}" löschen?`);
     if (!confirmed) {
       return;
     }
 
     await runMutation(async () => {
       await deleteTaskMutation.mutateAsync(task.id);
+      success('Aufgabe gelöscht', `"${task.title}" wurde gelöscht.`);
     });
   };
 
@@ -99,9 +114,9 @@ export const useTaskMutations = (): UseTaskMutationsResult => {
     subtasks: UpsertSubtaskRequest[],
   ): Promise<void> => {
     try {
-      await updateTask(task.id, { subtasks });
+      await updateTaskInternal(task.id, { subtasks }, false);
     } catch {
-      // Error state is already managed inside updateTask.
+      // Error state is already managed inside updateTaskInternal.
     }
   };
 

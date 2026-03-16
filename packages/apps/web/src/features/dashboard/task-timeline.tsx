@@ -35,9 +35,9 @@ const timelineBarColorClass: Record<TaskStatus, string> = {
 };
 
 const timelineZoomLabels: Record<TimelineZoomPreset, string> = {
-  compact: 'Compact',
-  balanced: 'Balanced',
-  expanded: 'Expanded',
+  compact: 'Kompakt',
+  balanced: 'Ausgewogen',
+  expanded: 'Erweitert',
 };
 
 const timelineGroupOrder: TaskStatus[] = ['todo', 'in-progress', 'done'];
@@ -52,7 +52,7 @@ const groupTimelineTasks = (tasks: Task[], grouped: boolean): TaskTimelineGroup[
     return [
       {
         key: 'all',
-        label: 'All Tasks',
+        label: 'Alle Aufgaben',
         tasks,
       },
     ];
@@ -75,7 +75,7 @@ export function TaskTimeline({ tasks, onTaskClick }: TaskTimelineProps) {
     return (
       <Card>
         <CardContent className="flex min-h-48 items-center justify-center text-sm text-muted-foreground">
-          No tasks found for the selected employee.
+          Keine Aufgaben für die ausgewählte Person gefunden.
         </CardContent>
       </Card>
     );
@@ -93,7 +93,7 @@ export function TaskTimeline({ tasks, onTaskClick }: TaskTimelineProps) {
       <CardContent className="space-y-4 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-muted/30 p-3">
           <p className="text-xs text-muted-foreground">
-            Timeline scale and grouping controls.
+            Steuerung für Zeitachsen-Skalierung und Gruppierung.
           </p>
           <div className="flex items-center gap-2">
             <Select
@@ -113,13 +113,15 @@ export function TaskTimeline({ tasks, onTaskClick }: TaskTimelineProps) {
               variant={groupByStatus ? 'default' : 'outline'}
               onClick={() => setGroupByStatus((current) => !current)}
             >
-              {groupByStatus ? 'Grouped' : 'Group by status'}
+              {groupByStatus ? 'Gruppiert' : 'Nach Status gruppieren'}
             </Button>
           </div>
         </div>
 
         <div className="hidden grid-cols-[260px_1fr] gap-3 px-2 md:grid">
-          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Task</span>
+          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Aufgabe
+          </span>
           <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             <span>{formatAxisDate(timelineRange.startMs)}</span>
             <span>{formatAxisDate(timelineRange.endMs)}</span>
@@ -154,12 +156,14 @@ export function TaskTimeline({ tasks, onTaskClick }: TaskTimelineProps) {
                       <div className="space-y-2">
                         <p className="font-display text-sm font-semibold">{task.title}</p>
                         <div className="flex flex-wrap items-center gap-2">
-                          <Badge variant={taskStatusVariant[task.status]}>{task.status}</Badge>
-                          {overdue ? <Badge variant="danger">Overdue</Badge> : null}
+                          <Badge variant={taskStatusVariant[task.status]}>
+                            {taskStatusLabels[task.status]}
+                          </Badge>
+                          {overdue ? <Badge variant="danger">Überfällig</Badge> : null}
                         </div>
                         <p className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
                           <CalendarClock className="h-3.5 w-3.5" />
-                          Due: {formatTaskDate(task.dueDate)}
+                          Fällig: {formatTaskDate(task.dueDate)}
                         </p>
                       </div>
 
@@ -194,7 +198,7 @@ export function TaskTimeline({ tasks, onTaskClick }: TaskTimelineProps) {
                           />
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          Start: {formatTaskDate(task.startDate)} | Due: {formatTaskDate(task.dueDate)}
+                          Start: {formatTaskDate(task.startDate)} | Fällig: {formatTaskDate(task.dueDate)}
                         </p>
                       </div>
                     </button>

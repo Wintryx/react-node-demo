@@ -50,6 +50,7 @@ Build a modern task management app with:
   - timeline UX controls (zoom presets, status grouping, tick markers, today marker)
   - task CRUD modal (with date picker and subtask handling)
   - inline subtask toggle/add/remove
+  - toast notifications for task create/update/delete success actions
   - responsive dashboard shell
 - Docker:
   - `docker-compose.yml` for one-command startup

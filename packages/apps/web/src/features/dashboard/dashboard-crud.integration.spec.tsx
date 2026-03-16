@@ -87,7 +87,7 @@ const renderAuthenticatedApp = async (): Promise<void> => {
     </MemoryRouter>,
   );
 
-  await screen.findByText('Task Console');
+  await screen.findByText('Aufgaben-Dashboard');
 };
 
 describe('Dashboard CRUD integration', () => {
@@ -105,15 +105,15 @@ describe('Dashboard CRUD integration', () => {
   it('creates a task from the modal', async () => {
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'New Task' }));
-    await screen.findByRole('heading', { name: 'Create Task' });
+    fireEvent.click(await screen.findByRole('button', { name: 'Neue Aufgabe' }));
+    await screen.findByRole('heading', { name: 'Aufgabe erstellen' });
 
-    fireEvent.change(screen.getByLabelText('Title'), {
+    fireEvent.change(screen.getByLabelText('Titel'), {
       target: {
         value: 'Newly created task',
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Create task' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Aufgabe erstellen' }));
 
     await waitFor(() => {
       expect(createTaskMock).toHaveBeenCalledTimes(1);
@@ -137,37 +137,37 @@ describe('Dashboard CRUD integration', () => {
   it('shows modal validation errors for empty task title and invalid subtasks', async () => {
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'New Task' }));
-    await screen.findByRole('heading', { name: 'Create Task' });
+    fireEvent.click(await screen.findByRole('button', { name: 'Neue Aufgabe' }));
+    await screen.findByRole('heading', { name: 'Aufgabe erstellen' });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create task' }));
-    expect(await screen.findByText('Title is required.')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Aufgabe erstellen' }));
+    expect(await screen.findByText('Titel ist erforderlich.')).toBeTruthy();
     expect(createTaskMock).not.toHaveBeenCalled();
 
-    fireEvent.change(screen.getByLabelText('Title'), {
+    fireEvent.change(screen.getByLabelText('Titel'), {
       target: {
         value: 'Task with invalid subtask',
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Add subtask' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Create task' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Teilaufgabe hinzufügen' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Aufgabe erstellen' }));
 
-    expect(await screen.findByText('Each subtask requires a title and a start date.')).toBeTruthy();
+    expect(await screen.findByText('Jede Teilaufgabe braucht einen Titel und ein Startdatum.')).toBeTruthy();
     expect(createTaskMock).not.toHaveBeenCalled();
   });
 
   it('updates a task through the edit modal', async () => {
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Edit' }));
-    await screen.findByRole('heading', { name: 'Edit Task #11' });
+    fireEvent.click(await screen.findByRole('button', { name: 'Bearbeiten' }));
+    await screen.findByRole('heading', { name: 'Aufgabe #11 bearbeiten' });
 
-    fireEvent.change(screen.getByLabelText('Title'), {
+    fireEvent.change(screen.getByLabelText('Titel'), {
       target: {
         value: 'Updated task title',
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Änderungen speichern' }));
 
     await waitFor(() => {
       expect(updateTaskMock).toHaveBeenCalled();
@@ -188,15 +188,15 @@ describe('Dashboard CRUD integration', () => {
     updateTaskMock.mockRejectedValueOnce(new Error('Task update failed.'));
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Edit' }));
-    await screen.findByRole('heading', { name: 'Edit Task #11' });
+    fireEvent.click(await screen.findByRole('button', { name: 'Bearbeiten' }));
+    await screen.findByRole('heading', { name: 'Aufgabe #11 bearbeiten' });
 
-    fireEvent.change(screen.getByLabelText('Title'), {
+    fireEvent.change(screen.getByLabelText('Titel'), {
       target: {
         value: 'Updated but failing',
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Änderungen speichern' }));
 
     const errorMessages = await screen.findAllByText('Task update failed.');
     expect(errorMessages.length > 0).toBe(true);
@@ -206,7 +206,7 @@ describe('Dashboard CRUD integration', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Delete' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Löschen' }));
 
     await waitFor(() => {
       expect(deleteTaskMock).toHaveBeenCalledWith(11);
@@ -220,7 +220,7 @@ describe('Dashboard CRUD integration', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Delete' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Löschen' }));
 
     await waitFor(() => {
       expect(confirmSpy).toHaveBeenCalledTimes(1);
@@ -235,7 +235,7 @@ describe('Dashboard CRUD integration', () => {
     deleteTaskMock.mockRejectedValueOnce(new Error('Task delete failed.'));
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Delete' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Löschen' }));
 
     const errorMessage = await screen.findByText('Task delete failed.');
     expect(errorMessage).toBeTruthy();
@@ -247,15 +247,15 @@ describe('Dashboard CRUD integration', () => {
     createTaskMock.mockRejectedValueOnce(new Error('Task creation failed.'));
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'New Task' }));
-    await screen.findByRole('heading', { name: 'Create Task' });
+    fireEvent.click(await screen.findByRole('button', { name: 'Neue Aufgabe' }));
+    await screen.findByRole('heading', { name: 'Aufgabe erstellen' });
 
-    fireEvent.change(screen.getByLabelText('Title'), {
+    fireEvent.change(screen.getByLabelText('Titel'), {
       target: {
         value: 'Broken task',
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Create task' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Aufgabe erstellen' }));
 
     const errorMessages = await screen.findAllByText('Task creation failed.');
     expect(errorMessages.length > 0).toBe(true);
@@ -264,13 +264,13 @@ describe('Dashboard CRUD integration', () => {
   it('updates task subtasks inline when adding and removing subtasks', async () => {
     await renderAuthenticatedApp();
 
-    const addInput = await screen.findByPlaceholderText('Add subtask...');
+    const addInput = await screen.findByPlaceholderText('Teilaufgabe hinzufügen...');
     fireEvent.change(addInput, {
       target: {
         value: 'Inline added subtask',
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Hinzufügen' }));
 
     await waitFor(() => {
       expect(updateTaskMock).toHaveBeenCalled();
@@ -285,7 +285,7 @@ describe('Dashboard CRUD integration', () => {
     expect(addPayload.subtasks[1].title).toBe('Inline added subtask');
 
     updateTaskMock.mockClear();
-    fireEvent.click(await screen.findByRole('button', { name: 'Remove subtask Initial subtask' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Teilaufgabe Initial subtask entfernen' }));
 
     await waitFor(() => {
       expect(updateTaskMock).toHaveBeenCalled();
@@ -327,9 +327,9 @@ describe('Dashboard CRUD integration', () => {
   it('opens the edit modal when clicking a task in timeline view', async () => {
     await renderAuthenticatedApp();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Zeitachse' }));
     fireEvent.click(await screen.findByRole('button', { name: /Initial task/i }));
 
-    expect(await screen.findByRole('heading', { name: 'Edit Task #11' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Aufgabe #11 bearbeiten' })).toBeTruthy();
   });
 });

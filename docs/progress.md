@@ -155,6 +155,8 @@ Stand: 2026-03-16
 
 ## Naechste Schritte
 
-1. Optional: E2E UI-Smoke-Tests
-2. TypeORM-Migrationsstrategie fuer Produktion
-3. Optional: Auth-Hardening (Refresh/Rotation/Revocation)
+1. API-Fehlerstrategie refactoren: stabile Fehlercodes + strukturierte Payload (`code`, `message`, `params`) statt Text-Matching im Frontend
+2. Frontend-Error-Mapping auf Code-basierte Uebersetzung umstellen (anstatt Regex-/Replace-Ketten)
+3. Optional: E2E UI-Smoke-Tests
+4. TypeORM-Migrationsstrategie fuer Produktion
+5. Optional: Auth-Hardening (Refresh/Rotation/Revocation)
