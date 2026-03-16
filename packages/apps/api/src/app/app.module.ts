@@ -4,10 +4,10 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'node:path';
 
-
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EmployeesModule } from '../modules/employees/employees.module';
+import { TasksModule } from '../modules/tasks/tasks.module';
 
 @Module({
   imports: [
@@ -32,6 +32,7 @@ import { EmployeesModule } from '../modules/employees/employees.module';
       }),
     }),
     EmployeesModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

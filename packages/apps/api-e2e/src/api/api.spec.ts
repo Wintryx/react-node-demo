@@ -142,4 +142,178 @@ describe('Employees API', () => {
       expect(error.response?.status).toBe(404);
     }
   });
+
+  it('returns 409 when deleting employee with assigned tasks', async () => {
+    const payload = buildEmployeePayload(buildUniqueSuffix());
+    const createdEmployee = await axios.post<EmployeeResponse>('/employees', payload);
+    await axios.post('/tasks', buildTaskPayload(createdEmployee.data.id, buildUniqueSuffix()));
+
+    try {
+      await axios.delete(`/employees/${createdEmployee.data.id}`);
+      fail('Expected deleting employee with assigned tasks to fail with 409.');
+    } catch (error: unknown) {
+      if (!axios.isAxiosError(error)) {
+        throw error;
+      }
+      expect(error.response?.status).toBe(409);
+    }
+  });
+});
+
+type TaskStatus = 'todo' | 'in-progress' | 'done';
+type TaskPriority = 'low' | 'medium' | 'high';
+
+interface SubtaskResponse {
+  id: number;
+  title: string;
+  completed: boolean;
+  startDate: string;
+  endDate: string | null;
+  assignee: { id: number; name: string } | null;
+}
+
+interface CreateSubtaskRequest {
+  id?: number;
+  title: string;
+  completed?: boolean;
+  startDate: string;
+  endDate?: string;
+  assigneeId?: number;
+}
+
+interface CreateTaskRequest {
+  title: string;
+  description?: string;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  startDate: string;
+  dueDate?: string;
+  employeeId: number;
+  subtasks?: CreateSubtaskRequest[];
+}
+
+interface TaskResponse {
+  id: number;
+  title: string;
+  description: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  startDate: string;
+  dueDate: string | null;
+  createdAt: string;
+  employeeId: number;
+  subtasks: SubtaskResponse[];
+}
+
+const buildTaskPayload = (employeeId: number, suffix: string): CreateTaskRequest => ({
+  title: `Task-${suffix}`,
+  description: 'Initial task for API e2e',
+  startDate: '2026-04-01T08:00:00.000Z',
+  dueDate: '2026-04-03T18:00:00.000Z',
+  employeeId,
+  subtasks: [
+    {
+      title: `Subtask-${suffix}`,
+      completed: false,
+      startDate: '2026-04-01T09:00:00.000Z',
+      endDate: '2026-04-02T17:00:00.000Z',
+      assigneeId: employeeId,
+    },
+  ],
+});
+
+describe('Tasks API', () => {
+  it('creates a task and filters by employeeId', async () => {
+    const employee = await axios.post<EmployeeResponse>(
+      '/employees',
+      buildEmployeePayload(buildUniqueSuffix()),
+    );
+    const payload = buildTaskPayload(employee.data.id, buildUniqueSuffix());
+
+    const createRes = await axios.post<TaskResponse>('/tasks', payload);
+    expect(createRes.status).toBe(201);
+    expect(createRes.data.title).toBe(payload.title);
+    expect(createRes.data.employeeId).toBe(employee.data.id);
+    expect(createRes.data.subtasks).toHaveLength(1);
+
+    const listRes = await axios.get<TaskResponse[]>(`/tasks?employeeId=${employee.data.id}`);
+    expect(listRes.status).toBe(200);
+    expect(listRes.data.some((task) => task.id === createRes.data.id)).toBe(true);
+  });
+
+  it('returns 400 when dueDate is before startDate', async () => {
+    const employee = await axios.post<EmployeeResponse>(
+      '/employees',
+      buildEmployeePayload(buildUniqueSuffix()),
+    );
+
+    try {
+      await axios.post('/tasks', {
+        title: 'Invalid date task',
+        employeeId: employee.data.id,
+        startDate: '2026-04-10T08:00:00.000Z',
+        dueDate: '2026-04-09T08:00:00.000Z',
+      } satisfies CreateTaskRequest);
+      fail('Expected date validation to fail with 400.');
+    } catch (error: unknown) {
+      if (!axios.isAxiosError(error)) {
+        throw error;
+      }
+
+      expect(error.response?.status).toBe(400);
+      expect(String(error.response?.data?.message ?? '')).toContain('dueDate');
+    }
+  });
+
+  it('updates task fields and subtasks', async () => {
+    const employee = await axios.post<EmployeeResponse>(
+      '/employees',
+      buildEmployeePayload(buildUniqueSuffix()),
+    );
+    const payload = buildTaskPayload(employee.data.id, buildUniqueSuffix());
+    const created = await axios.post<TaskResponse>('/tasks', payload);
+
+    const updatedTitle = `Updated-${buildUniqueSuffix()}`;
+    const patchRes = await axios.patch<TaskResponse>(`/tasks/${created.data.id}`, {
+      title: updatedTitle,
+      status: 'in-progress' as TaskStatus,
+      subtasks: created.data.subtasks.map((subtask) => ({
+        id: subtask.id,
+        title: `${subtask.title}-updated`,
+        completed: true,
+        startDate: subtask.startDate,
+        endDate: subtask.endDate ?? undefined,
+        assigneeId: employee.data.id,
+      })),
+    });
+
+    expect(patchRes.status).toBe(200);
+    expect(patchRes.data.title).toBe(updatedTitle);
+    expect(patchRes.data.status).toBe('in-progress');
+    expect(patchRes.data.subtasks[0]?.completed).toBe(true);
+  });
+
+  it('deletes a task and returns 404 on second delete', async () => {
+    const employee = await axios.post<EmployeeResponse>(
+      '/employees',
+      buildEmployeePayload(buildUniqueSuffix()),
+    );
+    const created = await axios.post<TaskResponse>(
+      '/tasks',
+      buildTaskPayload(employee.data.id, buildUniqueSuffix()),
+    );
+
+    const deleteRes = await axios.delete(`/tasks/${created.data.id}`);
+    expect(deleteRes.status).toBe(204);
+
+    try {
+      await axios.delete(`/tasks/${created.data.id}`);
+      fail('Expected deleting non-existing task to fail with 404.');
+    } catch (error: unknown) {
+      if (!axios.isAxiosError(error)) {
+        throw error;
+      }
+      expect(error.response?.status).toBe(404);
+    }
+  });
 });

@@ -30,7 +30,13 @@ Test setup configures the axios base URL to `http://localhost:3000`.
   - enum validation
   - update
   - delete + not-found case
+- Tasks endpoints:
+  - create + list with `employeeId` filter
+  - date range validation
+  - update including subtasks
+  - delete + not-found case
+- Employee delete conflict when tasks are assigned (`409`)
 
 ## Next
 
-- Add E2E coverage for `tasks` and `auth` once those modules are implemented.
+- Add E2E coverage for `auth` once JWT endpoints are implemented.

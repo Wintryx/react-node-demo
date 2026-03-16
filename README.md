@@ -22,10 +22,17 @@ Eine moderne Task-Management-App mit:
   - globale DTO-Validierung
   - Security-Basics (`helmet`, CORS, Throttling-Basis)
   - Employees CRUD (`GET/POST/PATCH/DELETE /employees`)
+  - Tasks CRUD (`GET/POST/PATCH/DELETE /tasks`) inkl. `employeeId`-Filter
+  - Subtasks als eigene Relation (inline anlegbar/aktualisierbar)
+  - Task-Validierung:
+    - `startDate` Pflicht
+    - `dueDate` optional
+    - Datumsregeln (`dueDate >= startDate`, `subtask.endDate >= subtask.startDate`)
   - Employee `role` und `department` als Enums
   - Delete-Policy fuer Employees: blockiert (`409`), wenn Tasks zugeordnet sind
+  - Delete-Policy fuer Tasks: Subtasks werden per Cascade mitgeloescht
 - Lint/Test/Build laufen erfolgreich
-- API-E2E Tests fuer Health + Employees laufen erfolgreich
+- API-E2E Tests fuer Health + Employees + Tasks laufen erfolgreich
 
 ## Wichtige Entscheidungen (mit Begründung)
 
@@ -131,11 +138,10 @@ docs/
 
 ## Roadmap (nächste Häppchen)
 
-1. Tasks/Subtasks CRUD + Filter
-2. Auth (`register` + `login`, JWT Guards)
-3. Frontend Task Board + Employee Switcher
-4. Timeline/Gantt
-5. Docker Compose + finale Doku
+1. Auth (`register` + `login`, JWT Guards)
+2. Frontend Task Board + Employee Switcher
+3. Timeline/Gantt
+4. Docker Compose + finale Doku
 
 ## Dokumentationsmodus (fortlaufend)
 

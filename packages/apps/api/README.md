@@ -17,6 +17,19 @@ Sie stellt die REST-API bereit (z. B. `/employees`) und kapselt:
 - `POST /employees`
 - `PATCH /employees/:id`
 - `DELETE /employees/:id`
+- `GET /tasks?employeeId=`
+- `POST /tasks`
+- `PATCH /tasks/:id`
+- `DELETE /tasks/:id`
+
+## Task-Regeln (aktuell)
+
+- `startDate` ist Pflicht
+- `dueDate` ist optional
+- Datumsvalidierung:
+  - `dueDate >= startDate`
+  - `subtask.endDate >= subtask.startDate`
+- Beim Loeschen einer Task werden Subtasks per Cascade entfernt
 
 ## Lokales Starten
 
