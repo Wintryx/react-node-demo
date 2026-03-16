@@ -1,6 +1,6 @@
 # React + NestJS Task Management Demo
 
-Senior Full-Stack Bewerbungsprojekt (PageStreet) auf Basis der bereitgestellten Anforderungen.
+Full-Stack Demoprojekt auf Basis der bereitgestellten Anforderungen.
 
 ## Projektziel
 
@@ -21,6 +21,9 @@ Eine moderne Task-Management-App mit:
   - `TypeORM + SQLite`
   - globale DTO-Validierung
   - Security-Basics (`helmet`, CORS, Throttling-Basis)
+  - Employees CRUD (`GET/POST/PATCH/DELETE /employees`)
+  - Employee `role` und `department` als Enums
+  - Delete-Policy fuer Employees: blockiert (`409`), wenn Tasks zugeordnet sind
 - Lint/Test/Build laufen erfolgreich
 
 ## Wichtige Entscheidungen (mit Begründung)
@@ -112,6 +115,11 @@ docs/
   progress.md
 ```
 
+## App-spezifische Dokumentation
+
+- Backend API: [`packages/apps/api/README.md`](packages/apps/api/README.md)
+- Backend API E2E Tests: [`packages/apps/api-e2e/README.md`](packages/apps/api-e2e/README.md)
+
 ## Security-Baseline
 
 - `helmet` aktiv
@@ -122,12 +130,11 @@ docs/
 
 ## Roadmap (nächste Häppchen)
 
-1. Employees CRUD
-2. Tasks/Subtasks CRUD + Filter
-3. Auth (`register` + `login`, JWT Guards)
-4. Frontend Task Board + Employee Switcher
-5. Timeline/Gantt
-6. Docker Compose + finale Doku
+1. Tasks/Subtasks CRUD + Filter
+2. Auth (`register` + `login`, JWT Guards)
+3. Frontend Task Board + Employee Switcher
+4. Timeline/Gantt
+5. Docker Compose + finale Doku
 
 ## Dokumentationsmodus (fortlaufend)
 

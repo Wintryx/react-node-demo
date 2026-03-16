@@ -4,8 +4,10 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'node:path';
 
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { EmployeesModule } from '../modules/employees/employees.module';
 
 @Module({
   imports: [
@@ -29,6 +31,7 @@ import { AppService } from './app.service';
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
       }),
     }),
+    EmployeesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -24,7 +24,7 @@ Stand: 2026-03-16
   - `packages/apps/web`
   - `packages/apps/api-e2e`
 - ESLint + Prettier + EditorConfig konfiguriert
-- Skripte für `build`, `lint`, `test`, `dev:web`, `dev:api` eingerichtet
+- Skripte fuer `build`, `lint`, `test`, `dev:web`, `dev:api` eingerichtet
 - API-Skeleton erweitert:
   - `ConfigModule` global
   - `TypeORM` mit `SQLite`
@@ -33,7 +33,15 @@ Stand: 2026-03-16
   - CORS-Basis
   - Swagger unter `/api`
   - Health-Endpoint unter `/health`
-- `.env.example` ergänzt
+- `employees` Modul umgesetzt (DDD-light):
+  - Domain: Model + Repository Port
+  - Enums: `EmployeeRole`, `EmployeeDepartment`
+  - Application: Create/List/Update/Delete Use Cases
+  - Delete-Policy: Blockieren bei zugeordneten Tasks (`409 Conflict`)
+  - Infrastructure: TypeORM Repository + Entity
+  - Presentation: DTOs + Controller (`GET/POST/PATCH/DELETE /employees`)
+  - Unit-Tests fuer wichtige Edge-Cases (Conflict/NotFound)
+- `.env.example` ergaenzt
 
 ## Verifiziert
 
@@ -41,10 +49,18 @@ Stand: 2026-03-16
 - `npm run test` erfolgreich
 - `npm run build` erfolgreich
 
-## Nächste Schritte
+## Offene technische Punkte (relevant)
 
-1. `employees` Modul (DDD-light Schichten + CRUD Endpoints)
-2. `tasks` + `subtasks` Modul (inkl. `employeeId`-Filter)
-3. Auth-Modul (`register` + `login`, JWT Guard)
-4. React Foundation (API-Client, Query-Setup, Layout)
-5. Task-Board + Employee-Switcher + CRUD + Timeline
+- TypeORM Migrations einfuehren (statt langfristig nur `synchronize`)
+- Delete-Policy technisch nachziehen, sobald `tasks` Modul existiert:
+  - aktueller Task-Check im Employees-Repository ist als Uebergang geloest
+  - spaeter sauber ueber Task-Entity/FK und Domain-Regel absichern
+- API-E2E um `employees` Endpunkte erweitern (CRUD + Konflikt-/Validierungsfaelle)
+- Optional: Seed-Daten fuer schnellere lokale UI-Demos
+
+## Naechste Schritte
+
+1. `tasks` + `subtasks` Modul (inkl. `employeeId`-Filter)
+2. Auth-Modul (`register` + `login`, JWT Guard)
+3. React Foundation (API-Client, Query-Setup, Layout)
+4. Task-Board + Employee-Switcher + CRUD + Timeline
