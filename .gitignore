@@ -1,6 +1,7 @@
 # Nestjs specific
 /dist
 /node_modules
+node_modules/
 /build
 /tmp
 
@@ -35,6 +36,7 @@ vitest.config.*.timestamp*
 
 # test and coverage artifacts
 /coverage
+/packages/apps/dist/
 
 # local IDE/editor files
 .vscode/

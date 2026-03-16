@@ -1,50 +1,44 @@
-// Uncomment this line to use CSS modules
-// import styles from './app.module.css';
-import { Route, Routes, Link } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
-import NxWelcome from './nx-welcome';
+import { AppProviders } from './providers';
+import { LoginPage } from '../features/auth/login-page';
+import { ProtectedRoute } from '../features/auth/protected-route';
+import { PublicAuthRoute } from '../features/auth/public-auth-route';
+import { RegisterPage } from '../features/auth/register-page';
+import { DashboardPage } from '../features/dashboard/dashboard-page';
 
 export function App() {
   return (
-    <div>
-      <NxWelcome title="web" />
-
-      {/* START: routes */}
-      {/* These routes and navigation have been generated for you */}
-      {/* Feel free to move and update them to fit your needs */}
-      <br />
-      <hr />
-      <br />
-      <div role="navigation">
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/page-2">Page 2</Link>
-          </li>
-        </ul>
-      </div>
+    <AppProviders>
       <Routes>
+        <Route path="/" element={<Navigate to="/app" replace />} />
         <Route
-          path="/"
+          path="/login"
           element={
-            <div>
-              This is the generated root route. <Link to="/page-2">Click here for page 2.</Link>
-            </div>
+            <PublicAuthRoute>
+              <LoginPage />
+            </PublicAuthRoute>
           }
         />
         <Route
-          path="/page-2"
+          path="/register"
           element={
-            <div>
-              <Link to="/">Click here to go back to root page.</Link>
-            </div>
+            <PublicAuthRoute>
+              <RegisterPage />
+            </PublicAuthRoute>
           }
         />
+        <Route
+          path="/app"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/app" replace />} />
       </Routes>
-      {/* END: routes */}
-    </div>
+    </AppProviders>
   );
 }
 
