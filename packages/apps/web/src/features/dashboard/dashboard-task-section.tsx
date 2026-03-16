@@ -52,7 +52,7 @@ export function DashboardTaskSection({
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-xl font-semibold">Tasks</h2>
+        <h2 className="font-display text-xl font-semibold">Aufgaben</h2>
         <div className="flex items-center gap-2">
           <Button
             type="button"
@@ -60,7 +60,7 @@ export function DashboardTaskSection({
             size="sm"
             onClick={() => onChangeViewMode('list')}
           >
-            List
+            Liste
           </Button>
           <Button
             type="button"
@@ -76,7 +76,7 @@ export function DashboardTaskSection({
             size="sm"
             onClick={() => onChangeViewMode('timeline')}
           >
-            Timeline
+            Zeitachse
           </Button>
           <Button
             type="button"
@@ -84,12 +84,12 @@ export function DashboardTaskSection({
             disabled={employeesCount === 0}
             onClick={onOpenCreateTask}
           >
-            New Task
+            Neue Aufgabe
           </Button>
           {isTasksFetching ? (
             <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
               <Spinner />
-              Updating...
+              Aktualisierung...
             </span>
           ) : null}
         </div>
@@ -100,7 +100,7 @@ export function DashboardTaskSection({
       {selectedEmployeeId === null ? (
         <Card>
           <CardContent className="flex min-h-40 items-center justify-center text-muted-foreground">
-            Select an employee to load tasks.
+            Wähle eine mitarbeitende Person, um Aufgaben zu laden.
           </CardContent>
         </Card>
       ) : isTasksLoading ? (

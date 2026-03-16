@@ -34,8 +34,12 @@ It consumes the NestJS backend and provides:
   - list, kanban, and timeline views
   - create/edit task modal with date picker
   - delete confirmation
+  - toast notifications for create/update/delete success actions
   - inline subtask toggle/add/remove in list and kanban
   - timeline ordered by due date, status color coding, overdue highlighting
+  - timeline zoom presets (`compact`, `balanced`, `expanded`)
+  - optional timeline grouping by status
+  - timeline tick markers and today marker line
   - timeline task click opens edit modal
 
 ## Security Notes (Demo Scope)
@@ -87,13 +91,17 @@ npx nx build web
   - timeline helpers
 - Integration tests (mocked `tasksApi` / `employeesApi`):
   - create task
+  - modal validation (required title, invalid subtask)
   - update task
   - delete task with confirmation
+  - delete cancel flow
   - create error feedback
-  - inline subtask toggle update
+  - update/delete error feedback
+  - inline subtask toggle/add/remove update
+  - timeline task click opens edit modal
 
 ## Next Frontend Steps
 
-1. Extend integration tests for more edge cases (subtask add/remove errors, modal validation paths)
-2. Optional UX polish (drag/drop board interactions, richer validation hints)
-3. Timeline enhancement options (scale markers, zoom presets, grouping)
+1. Optional UX polish (drag/drop board interactions, richer validation hints)
+2. End-to-end UI smoke test strategy (optional future hardening)
+3. Optional state persistence for active view/filter preferences

@@ -13,11 +13,18 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBody,
   ApiBearerAuth,
+  ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 import { CreateTaskUseCase } from '../application/create-task.use-case';
@@ -26,6 +33,7 @@ import { ListTasksUseCase } from '../application/list-tasks.use-case';
 import { UpdateTaskUseCase } from '../application/update-task.use-case';
 import { Task } from '../domain/task.model';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { TaskResponseDto } from './dto/task-response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { toCreateTaskInput, toUpdateTaskInput } from './task-input.mapper';
 
@@ -40,26 +48,142 @@ export class TasksController {
     private readonly deleteTaskUseCase: DeleteTaskUseCase,
   ) {}
 
-  @ApiOkResponse({ description: 'Returns tasks. Optionally filtered by employeeId.' })
+  @ApiOperation({
+    summary: 'List tasks',
+    description: 'Returns all tasks or filters tasks by employee id.',
+  })
+  @ApiQuery({
+    name: 'employeeId',
+    required: false,
+    type: Number,
+    description: 'Optional employee id to filter tasks.',
+    example: 1,
+  })
+  @ApiOkResponse({
+    description: 'Tasks returned successfully.',
+    type: TaskResponseDto,
+    isArray: true,
+  })
+  @ApiBadRequestResponse({ description: 'Invalid query parameter "employeeId".' })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid bearer token.' })
   @Get()
   listTasks(@Query('employeeId') employeeId?: string): Promise<Task[]> {
     const parsedEmployeeId = this.parseEmployeeId(employeeId);
     return this.listTasksUseCase.execute(parsedEmployeeId);
   }
 
-  @ApiCreatedResponse({ description: 'Creates a new task with optional subtasks.' })
+  @ApiOperation({
+    summary: 'Create task',
+    description:
+      'Creates a task for an employee, including optional subtasks and subtask assignees.',
+  })
+  @ApiBody({
+    description: 'Task creation payload.',
+    type: CreateTaskDto,
+    required: true,
+    examples: {
+      default: {
+        summary: 'Task with subtasks',
+        value: {
+          title: 'Build employee board',
+          description: 'Implement all requested task management flows.',
+          status: 'todo',
+          priority: 'medium',
+          startDate: '2026-03-16T08:00:00.000Z',
+          dueDate: '2026-03-25T17:00:00.000Z',
+          employeeId: 1,
+          subtasks: [
+            {
+              title: 'Prepare API contract',
+              completed: false,
+              startDate: '2026-03-16T08:00:00.000Z',
+              endDate: '2026-03-17T18:00:00.000Z',
+              assigneeId: 1,
+            },
+          ],
+        },
+      },
+    },
+  })
+  @ApiCreatedResponse({
+    description: 'Task created successfully.',
+    type: TaskResponseDto,
+  })
+  @ApiBadRequestResponse({ description: 'Validation failed or invalid task date ranges.' })
+  @ApiNotFoundResponse({
+    description: 'Referenced employee or one or more subtask assignees were not found.',
+  })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid bearer token.' })
   @Post()
   createTask(@Body() dto: CreateTaskDto): Promise<Task> {
     return this.createTaskUseCase.execute(toCreateTaskInput(dto));
   }
 
-  @ApiOkResponse({ description: 'Updates a task and its subtasks.' })
+  @ApiOperation({
+    summary: 'Update task',
+    description: 'Updates task fields and replaces the full subtask list when provided.',
+  })
+  @ApiBody({
+    description: 'Task update payload (partial update supported).',
+    type: UpdateTaskDto,
+    required: true,
+    examples: {
+      default: {
+        summary: 'Partial task update',
+        value: {
+          status: 'in-progress',
+          priority: 'high',
+          dueDate: '2026-03-27T17:00:00.000Z',
+          subtasks: [
+            {
+              id: 10,
+              title: 'Prepare API contract',
+              completed: true,
+              startDate: '2026-03-16T08:00:00.000Z',
+              endDate: '2026-03-17T18:00:00.000Z',
+              assigneeId: 1,
+            },
+          ],
+        },
+      },
+    },
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'Task id.',
+    example: 1,
+  })
+  @ApiOkResponse({
+    description: 'Task updated successfully.',
+    type: TaskResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid task id, validation failed, or invalid subtask ownership/date range.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Task, referenced employee, or one or more subtask assignees were not found.',
+  })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid bearer token.' })
   @Patch(':id')
   updateTask(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateTaskDto): Promise<Task> {
     return this.updateTaskUseCase.execute(id, toUpdateTaskInput(dto));
   }
 
+  @ApiOperation({
+    summary: 'Delete task',
+    description: 'Deletes a task and all of its subtasks.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'Task id.',
+    example: 1,
+  })
   @ApiNoContentResponse({ description: 'Deletes a task (subtasks are deleted as well).' })
+  @ApiBadRequestResponse({ description: 'Invalid task id.' })
+  @ApiNotFoundResponse({ description: 'Task not found.' })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid bearer token.' })
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteTask(@Param('id', ParseIntPipe) id: number): Promise<void> {

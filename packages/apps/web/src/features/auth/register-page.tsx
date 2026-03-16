@@ -41,7 +41,7 @@ export function RegisterPage() {
 
   const validateForm = (): boolean => {
     if (formValues.password !== formValues.confirmPassword) {
-      setFormError('Passwoerter stimmen nicht ueberein.');
+      setFormError('Passwörter stimmen nicht überein.');
       return false;
     }
 
@@ -69,10 +69,10 @@ export function RegisterPage() {
 
   return (
     <AuthPageShell
-      title="Create account"
-      description="Registriere dich, um das Task Board zu verwalten."
+      title="Konto erstellen"
+      description="Registriere dich, um das Aufgaben-Board zu verwalten."
       footerLabel="Bereits registriert?"
-      footerLinkLabel="Login"
+      footerLinkLabel="Anmelden"
       footerLinkTo="/login"
     >
       <CardContent>
@@ -110,7 +110,7 @@ export function RegisterPage() {
             <p className="text-xs text-muted-foreground">{passwordPolicyHint}</p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="register-password-confirm">Passwort bestaetigen</Label>
+            <Label htmlFor="register-password-confirm">Passwort bestätigen</Label>
             <Input
               id="register-password-confirm"
               type="password"
@@ -130,10 +130,10 @@ export function RegisterPage() {
             {registerMutation.isPending ? (
               <span className="inline-flex items-center gap-2">
                 <Spinner />
-                Creating account...
+                Konto wird erstellt...
               </span>
             ) : (
-              'Create account'
+              'Konto erstellen'
             )}
           </Button>
         </form>

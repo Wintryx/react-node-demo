@@ -71,3 +71,17 @@ Default URL:
 ```bash
 npx nx test api
 ```
+
+## Docker Compose
+
+From workspace root:
+
+```bash
+docker compose up --build
+```
+
+Default URLs in compose mode:
+
+- API: `http://localhost:3000`
+- Swagger: `http://localhost:3000/api`
+- Web app: `http://localhost:8080`

@@ -47,9 +47,15 @@ Build a modern task management app with:
   - authenticated employee switcher
   - task list and kanban board views
   - timeline/gantt-style view (due-date sorted, status-colored, overdue highlight)
+  - timeline UX controls (zoom presets, status grouping, tick markers, today marker)
   - task CRUD modal (with date picker and subtask handling)
   - inline subtask toggle/add/remove
+  - toast notifications for task create/update/delete success actions
   - responsive dashboard shell
+- Docker:
+  - `docker-compose.yml` for one-command startup
+  - dedicated API and web Dockerfiles
+  - SQLite persistence via Docker volume (`api_data`)
 - Verification status:
   - lint/test/build successful
   - API e2e covers health + auth + employees + tasks
@@ -119,6 +125,18 @@ Default URLs:
 - Swagger: `http://localhost:3000/api`
 - Health: `http://localhost:3000/health`
 
+### Run with Docker Compose
+
+```bash
+docker compose up --build
+```
+
+Compose URLs:
+
+- Web: `http://localhost:8080`
+- API: `http://localhost:3000`
+- Swagger: `http://localhost:3000/api`
+
 ## Useful Scripts
 
 ```bash
@@ -161,9 +179,9 @@ docs/
 
 ## Roadmap (Next Chunks)
 
-1. Extend frontend integration tests with additional edge cases
-2. Timeline UX polish
-3. Docker Compose + final documentation polish
+1. Optional UI smoke E2E tests
+2. TypeORM migration strategy (replace long-term `synchronize` usage)
+3. Optional auth hardening (refresh-token rotation/revocation)
 
 ## Documentation Mode
 

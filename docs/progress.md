@@ -108,6 +108,9 @@ Stand: 2026-03-16
     - status-farbige Balken
     - Overdue-Highlighting
     - Klick auf Task oeffnet Edit-Modal
+    - Zoom-Presets (`compact`, `balanced`, `expanded`)
+    - optionale Gruppierung nach Status
+    - Tick-Marker + Today-Marker
   - Timeline-Helper mit Unit-Tests (`task-timeline-utils.spec.ts`)
   - Mapper/Helper-Unit-Tests ergaenzt:
     - `task-request-mapper.spec.ts`
@@ -119,10 +122,21 @@ Stand: 2026-03-16
     - `use-task-mutations.ts` fuer Task-Mutationslogik
   - Frontend-Integrationstests mit gemockter API ergaenzt:
     - `dashboard-crud.integration.spec.tsx`
-    - Create / Update / Delete / Error-Feedback / Inline-Subtask-Toggle
+    - Create / Update / Delete / Error-Feedback
+    - Modal-Validierung (Pflichtfelder, invalide Subtasks)
+    - Delete-Cancel-Flow
+    - Inline-Subtask Toggle/Add/Remove
+    - Timeline-Klick oeffnet Edit-Modal
   - Task Create/Edit/Delete ueber Modal mit `react-day-picker`
   - Inline Subtask-Interaktionen (Toggle/Add/Remove) in List und Kanban
   - Frontend README erstellt (`packages/apps/web/README.md`)
+- Docker Compose Setup umgesetzt:
+  - `docker-compose.yml`
+  - `docker/api.Dockerfile`
+  - `docker/web.Dockerfile`
+  - `docker/web.nginx.conf`
+  - SPA-Fallback im Web-Container via Nginx `try_files`
+  - persistente SQLite-DB via Volume `api_data`
 
 ## Verifiziert
 
@@ -141,6 +155,8 @@ Stand: 2026-03-16
 
 ## Naechste Schritte
 
-1. Frontend-Integrationstests um weitere Edge-Cases erweitern
-2. Timeline UX-Polish (Skalierung/Zoom/Grouping)
-3. Docker Compose + finale Doku
+1. API-Fehlerstrategie refactoren: stabile Fehlercodes + strukturierte Payload (`code`, `message`, `params`) statt Text-Matching im Frontend
+2. Frontend-Error-Mapping auf Code-basierte Uebersetzung umstellen (anstatt Regex-/Replace-Ketten)
+3. Optional: E2E UI-Smoke-Tests
+4. TypeORM-Migrationsstrategie fuer Produktion
+5. Optional: Auth-Hardening (Refresh/Rotation/Revocation)

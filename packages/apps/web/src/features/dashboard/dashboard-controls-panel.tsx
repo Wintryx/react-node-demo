@@ -22,8 +22,8 @@ export function DashboardControlsPanel({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Workspace Controls</CardTitle>
-        <CardDescription>Filter the board by employee assignment.</CardDescription>
+        <CardTitle className="text-base">Arbeitsbereich-Steuerung</CardTitle>
+        <CardDescription>Filtere das Board nach zugewiesenen Mitarbeitenden.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {employees.length > 0 ? (
@@ -33,11 +33,11 @@ export function DashboardControlsPanel({
             onChange={onEmployeeChange}
           />
         ) : (
-          <Alert>No employees available. Please create one via API/Swagger.</Alert>
+          <Alert>Keine Mitarbeitenden verfügbar. Bitte zuerst über API/Swagger anlegen.</Alert>
         )}
         <Button variant="secondary" className="w-full" onClick={onRefresh}>
           <RefreshCcw className="mr-2 h-4 w-4" />
-          Refresh data
+          Daten aktualisieren
         </Button>
       </CardContent>
     </Card>

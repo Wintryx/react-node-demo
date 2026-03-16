@@ -23,7 +23,7 @@ const formatDisplayDate = (value: string): string =>
 export function DatePickerField({
   value,
   onChange,
-  placeholder = 'Select a date',
+  placeholder = 'Datum wählen',
   disabled = false,
   allowClear = false,
   className,
@@ -69,7 +69,7 @@ export function DatePickerField({
             size="sm"
             disabled={disabled}
             onClick={() => onChange(null)}
-            aria-label="Clear date"
+            aria-label="Datum löschen"
           >
             <X className="h-4 w-4" />
           </Button>

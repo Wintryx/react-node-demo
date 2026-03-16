@@ -38,10 +38,10 @@ export function TaskSubtasksInline({
 
   return (
     <div className="space-y-3 border-t border-border pt-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Subtasks</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Teilaufgaben</p>
       <div className="space-y-2">
         {task.subtasks.length === 0 ? (
-          <p className="text-xs text-muted-foreground">No subtasks yet.</p>
+          <p className="text-xs text-muted-foreground">Noch keine Teilaufgaben.</p>
         ) : (
           task.subtasks.map((subtask) => (
             <div key={subtask.id} className="flex items-center gap-2 rounded-md bg-muted/40 px-2 py-1.5">
@@ -63,7 +63,7 @@ export function TaskSubtasksInline({
                 size="sm"
                 disabled={isPending}
                 onClick={() => onRemoveSubtask(task, subtask.id)}
-                aria-label={`Remove subtask ${subtask.title}`}
+                aria-label={`Teilaufgabe ${subtask.title} entfernen`}
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
@@ -76,11 +76,11 @@ export function TaskSubtasksInline({
         <Input
           value={draftTitle}
           disabled={isPending}
-          placeholder="Add subtask..."
+          placeholder="Teilaufgabe hinzufügen..."
           onChange={(event) => setDraftTitle(event.target.value)}
         />
         <Button type="submit" size="sm" disabled={isPending || draftTitle.trim().length === 0}>
-          Add
+          Hinzufügen
         </Button>
       </form>
     </div>
