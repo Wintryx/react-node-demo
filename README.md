@@ -19,6 +19,7 @@ Build a modern task management app with:
   - Swagger at `/api`
   - Health endpoint at `/health`
   - `TypeORM + SQLite`
+  - migration-based schema management (no long-term `synchronize`)
   - global DTO validation
   - security baseline (`helmet`, CORS, throttling module)
 - Employees module:
@@ -64,20 +65,20 @@ Build a modern task management app with:
 ## Key Decisions
 
 1. Nx monorepo
-Reason: clear separation of frontend/backend, consistent tooling, scalability.
+   Reason: clear separation of frontend/backend, consistent tooling, scalability.
 
 2. TypeORM + SQLite
-Reason: fast local setup with proper relational modeling.
+   Reason: fast local setup with proper relational modeling.
 
 3. Strict typing
-Reason: maintainability and clean code baseline.
-Rules: `strict: true`, `noImplicitAny: true`, ESLint `no-explicit-any: error`.
+   Reason: maintainability and clean code baseline.
+   Rules: `strict: true`, `noImplicitAny: true`, ESLint `no-explicit-any: error`.
 
 4. Vitest for React, Jest for Nest
-Reason: Vite-native frontend test runner and stable Nest ecosystem defaults.
+   Reason: Vite-native frontend test runner and stable Nest ecosystem defaults.
 
 5. DDD-light + SOLID without over-engineering
-Reason: clear domain boundaries and testability with pragmatic scope.
+   Reason: clear domain boundaries and testability with pragmatic scope.
 
 ## Local Setup
 
@@ -108,6 +109,11 @@ Note on committed env files:
 
 - This repository intentionally commits non-sensitive demo env templates/defaults (for example `.env.example`) to keep setup friction low.
 - In real production projects, secrets and real environment values must never be committed to git.
+
+Optional migration toggle:
+
+- `TYPEORM_MIGRATIONS_RUN=true` (default behavior if not set)
+- Set `TYPEORM_MIGRATIONS_RUN=false` only if you explicitly want to skip migration execution on app startup.
 
 ### Run (2 terminals)
 
@@ -151,6 +157,11 @@ npm run build
 npm run graph
 npm run format
 npm run format:write
+npm run db:migration:run
+npm run db:migration:revert
+npm run db:migration:show
+npm run db:migration:create
+npm run db:migration:generate
 ```
 
 `npm run test` includes API E2E and starts the API on a dedicated dynamic test port.
@@ -206,8 +217,8 @@ Frontend error handling maps primarily by `code` and uses `message` only as fall
 ## Roadmap (Next Chunks)
 
 1. Optional UI smoke E2E tests
-2. TypeORM migration strategy (replace long-term `synchronize` usage)
-3. Optional auth hardening (refresh-token rotation/revocation)
+2. Optional auth hardening (refresh-token rotation/revocation)
+3. Optional seed workflow for faster demo resets
 
 ## Documentation Mode
 

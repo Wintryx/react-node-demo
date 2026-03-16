@@ -87,7 +87,23 @@ Default URL:
 ## Database
 
 - SQLite file: `packages/apps/api/data/app.db`
-- The file is created automatically on first startup.
+- Schema management is migration-based (TypeORM migrations), `synchronize` is disabled.
+- Migrations run automatically on API startup by default.
+
+Migration commands (from workspace root):
+
+```bash
+npm run db:migration:run
+npm run db:migration:revert
+npm run db:migration:show
+npm run db:migration:create
+npm run db:migration:generate
+```
+
+Optional env toggle:
+
+- `TYPEORM_MIGRATIONS_RUN=false` skips migration execution on app bootstrap.
+- `DATABASE_PATH=...` controls which SQLite file is used by migration commands.
 
 ## Tests
 

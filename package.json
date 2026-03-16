@@ -8,6 +8,11 @@
   },
   "scripts": {
     "build": "nx run-many -t build -p web api",
+    "db:migration:create": "node scripts/typeorm-cli.cjs migration:create packages/apps/api/src/shared/persistence/migrations/Migration",
+    "db:migration:generate": "node scripts/typeorm-cli.cjs migration:generate packages/apps/api/src/shared/persistence/migrations/Migration",
+    "db:migration:revert": "node scripts/typeorm-cli.cjs migration:revert",
+    "db:migration:run": "node scripts/typeorm-cli.cjs migration:run",
+    "db:migration:show": "node scripts/typeorm-cli.cjs migration:show",
     "dev:api": "nx serve api",
     "dev:web": "nx serve web",
     "format": "prettier --check .",
