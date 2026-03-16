@@ -23,9 +23,15 @@ async function bootstrap() {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Task Management API')
-    .setDescription('API for employee and task management')
+    .setDescription(
+      'REST API for authentication, employee management, and task management with subtasks.',
+    )
     .setVersion('1.0.0')
     .addBearerAuth()
+    .addTag('health', 'Operational health checks for monitoring and uptime probes.')
+    .addTag('auth', 'Authentication endpoints for user registration and login.')
+    .addTag('employees', 'CRUD endpoints to manage employees.')
+    .addTag('tasks', 'CRUD endpoints to manage tasks and subtasks.')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);

@@ -16,45 +16,77 @@ import { UpsertSubtaskDto } from './upsert-subtask.dto';
 import { TaskPriority, TaskStatus } from '../../domain/task.enums';
 
 export class UpdateTaskDto {
-  @ApiPropertyOptional({ example: 'Build employee board' })
+  @ApiPropertyOptional({
+    description: 'Updated task title.',
+    example: 'Build employee board',
+    maxLength: 200,
+  })
   @IsOptional()
   @IsString()
   @MaxLength(200)
   title?: string;
 
-  @ApiPropertyOptional({ example: 'Implement all requested task management flows.' })
+  @ApiPropertyOptional({
+    description: 'Updated task description.',
+    example: 'Implement all requested task management flows.',
+    maxLength: 2000,
+  })
   @IsOptional()
   @IsString()
   @MaxLength(2000)
   description?: string;
 
-  @ApiPropertyOptional({ enum: TaskStatus, example: TaskStatus.IN_PROGRESS })
+  @ApiPropertyOptional({
+    description: 'Updated task status.',
+    enum: TaskStatus,
+    example: TaskStatus.IN_PROGRESS,
+  })
   @IsOptional()
   @IsEnum(TaskStatus)
   status?: TaskStatus;
 
-  @ApiPropertyOptional({ enum: TaskPriority, example: TaskPriority.HIGH })
+  @ApiPropertyOptional({
+    description: 'Updated task priority.',
+    enum: TaskPriority,
+    example: TaskPriority.HIGH,
+  })
   @IsOptional()
   @IsEnum(TaskPriority)
   priority?: TaskPriority;
 
-  @ApiPropertyOptional({ example: '2026-03-16T08:00:00.000Z' })
+  @ApiPropertyOptional({
+    description: 'Updated ISO-8601 start date.',
+    example: '2026-03-16T08:00:00.000Z',
+    format: 'date-time',
+  })
   @IsOptional()
   @IsDateString()
   startDate?: string;
 
-  @ApiPropertyOptional({ example: '2026-03-25T17:00:00.000Z' })
+  @ApiPropertyOptional({
+    description: 'Updated ISO-8601 due date.',
+    example: '2026-03-25T17:00:00.000Z',
+    format: 'date-time',
+  })
   @IsOptional()
   @IsDateString()
   dueDate?: string;
 
-  @ApiPropertyOptional({ example: 1 })
+  @ApiPropertyOptional({
+    description: 'Updated employee id that owns the task.',
+    example: 1,
+    minimum: 1,
+  })
   @IsOptional()
   @IsInt()
   @Min(1)
   employeeId?: number;
 
-  @ApiPropertyOptional({ type: [UpsertSubtaskDto] })
+  @ApiPropertyOptional({
+    description:
+      'Full subtask list replacement. Existing subtasks omitted from this array will be removed.',
+    type: [UpsertSubtaskDto],
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

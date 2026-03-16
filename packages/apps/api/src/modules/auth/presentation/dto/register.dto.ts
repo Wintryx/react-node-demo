@@ -3,6 +3,7 @@ import { IsEmail, IsString, Matches, MaxLength, MinLength } from 'class-validato
 
 export class RegisterDto {
   @ApiProperty({
+    description: 'Email address for the new user account.',
     example: 'candidate@example.com',
   })
   @IsEmail()
@@ -10,8 +11,11 @@ export class RegisterDto {
   email!: string;
 
   @ApiProperty({
+    description:
+      'Account password. Must include uppercase, lowercase, number, and special character.',
     example: 'StrongPassword!1',
     minLength: 10,
+    maxLength: 128,
   })
   @IsString()
   @MinLength(10)

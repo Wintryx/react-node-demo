@@ -1,36 +1,30 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 import { EmployeeDepartment, EmployeeRole } from '../../domain/employee.enums';
 
-export class CreateEmployeeDto {
+export class EmployeeResponseDto {
+  @ApiProperty({
+    description: 'Unique identifier of the employee.',
+    example: 1,
+  })
+  id!: number;
+
   @ApiProperty({
     description: 'First name of the employee.',
     example: 'Arne',
-    maxLength: 120,
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(120)
   firstName!: string;
 
   @ApiProperty({
     description: 'Last name of the employee.',
     example: 'Winter',
-    maxLength: 120,
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(120)
   lastName!: string;
 
   @ApiProperty({
     description: 'Unique company email address of the employee.',
     example: 'arne.winter@example.com',
-    maxLength: 255,
   })
-  @IsEmail()
-  @MaxLength(255)
   email!: string;
 
   @ApiProperty({
@@ -38,7 +32,6 @@ export class CreateEmployeeDto {
     enum: EmployeeRole,
     example: EmployeeRole.DEVELOPER,
   })
-  @IsEnum(EmployeeRole)
   role!: EmployeeRole;
 
   @ApiProperty({
@@ -46,6 +39,12 @@ export class CreateEmployeeDto {
     enum: EmployeeDepartment,
     example: EmployeeDepartment.ENGINEERING,
   })
-  @IsEnum(EmployeeDepartment)
   department!: EmployeeDepartment;
+
+  @ApiProperty({
+    description: 'ISO-8601 timestamp when the employee was created.',
+    format: 'date-time',
+    example: '2026-03-16T10:20:30.000Z',
+  })
+  createdAt!: string;
 }
