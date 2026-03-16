@@ -44,7 +44,10 @@ Build a modern task management app with:
   - Tailwind CSS + Shadcn-style component base
   - login + register pages
   - protected route with session-based auth (`sessionStorage`)
-  - authenticated employee switcher + task list view (read-only)
+  - authenticated employee switcher
+  - task list and kanban board views
+  - task CRUD modal (with date picker and subtask handling)
+  - inline subtask toggle/add/remove
   - responsive dashboard shell
 - Verification status:
   - lint/test/build successful
@@ -156,8 +159,8 @@ docs/
 
 ## Roadmap (Next Chunks)
 
-1. Task board + employee switcher + task CRUD UI
-2. Timeline/Gantt view
+1. Timeline/Gantt view
+2. Additional frontend mutation/error tests
 3. Docker Compose + final documentation polish
 
 ## Documentation Mode

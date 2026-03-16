@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { FormEvent, useState } from 'react';
+import { SyntheticEvent, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from './auth-context';
@@ -42,7 +42,7 @@ export function LoginPage() {
     },
   });
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const onSubmit = (event: SyntheticEvent<HTMLFormElement, SubmitEvent>) => {
     event.preventDefault();
     setFormError(null);
     loginMutation.mutate(formValues);

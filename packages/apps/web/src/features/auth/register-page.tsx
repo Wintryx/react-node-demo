@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { FormEvent, useState } from 'react';
+import { SyntheticEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from './auth-context';
@@ -53,7 +53,7 @@ export function RegisterPage() {
     return true;
   };
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const onSubmit = (event: SyntheticEvent<HTMLFormElement, SubmitEvent>) => {
     event.preventDefault();
     setFormError(null);
 

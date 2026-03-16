@@ -99,7 +99,12 @@ Stand: 2026-03-16
   - Session-basierte Auth (`sessionStorage`)
   - Protected Routing
   - Responsive Dashboard-Shell
-  - Employee Switcher + Task-Liste (read-only)
+  - Employee Switcher + Task-Liste
+  - API-Client in fachliche Module aufgeteilt (`auth`, `employees`, `tasks`)
+  - Dashboard-Datenlogik als eigener Hook (`useDashboardData`)
+  - List + Kanban View fuer Tasks
+  - Task Create/Edit/Delete ueber Modal mit `react-day-picker`
+  - Inline Subtask-Interaktionen (Toggle/Add/Remove) in List und Kanban
   - Frontend README erstellt (`packages/apps/web/README.md`)
 
 ## Verifiziert
@@ -119,6 +124,6 @@ Stand: 2026-03-16
 
 ## Naechste Schritte
 
-1. Task-Board + Employee-Switcher + CRUD + Timeline
-2. Timeline/Gantt View
+1. Timeline/Gantt View mit Overdue-Highlighting und Edit-Modal-Entry
+2. Zusaetzliche Frontend-Tests fuer Task-Mutationen und Error-Flows
 3. Docker Compose + finale Doku

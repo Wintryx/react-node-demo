@@ -8,8 +8,9 @@ It consumes the NestJS backend and provides:
 - login + register flow
 - JWT-protected app area
 - employee switcher
-- task list filtered by selected employee
-- responsive UI foundation for upcoming CRUD and timeline work
+- task list and kanban board filtered by selected employee
+- task CRUD with subtask management
+- responsive dashboard layout
 
 ## Stack
 
@@ -17,6 +18,7 @@ It consumes the NestJS backend and provides:
 - React Router
 - TanStack Query (server state)
 - Tailwind CSS + Shadcn-style UI primitives
+- `react-day-picker` for date inputs
 
 ## Current Scope
 
@@ -28,6 +30,11 @@ It consumes the NestJS backend and provides:
 - Session handling:
   - access token stored in `sessionStorage`
   - token attached as `Authorization: Bearer ...` via Axios interceptor
+- Task management UI:
+  - list and kanban views
+  - create/edit task modal with date picker
+  - delete confirmation
+  - inline subtask toggle/add/remove in list and kanban
 
 ## Security Notes (Demo Scope)
 
@@ -72,6 +79,6 @@ npx nx build web
 
 ## Next Frontend Steps
 
-1. Task create/edit/delete modals with inline subtask editing
-2. Timeline/Gantt view with overdue highlighting
-3. Additional frontend tests for data mutations and error flows
+1. Timeline/Gantt view with overdue highlighting and edit-modal integration
+2. Additional frontend tests for task mutations and error flows
+3. Optional UX polish (drag/drop board interactions, richer validation hints)

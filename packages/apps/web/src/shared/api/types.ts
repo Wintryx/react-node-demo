@@ -62,6 +62,37 @@ export interface Subtask {
   assignee: TaskAssignee | null;
 }
 
+export interface UpsertSubtaskRequest {
+  id?: number;
+  title: string;
+  completed?: boolean;
+  startDate: string;
+  endDate?: string;
+  assigneeId?: number;
+}
+
+export interface CreateTaskRequest {
+  title: string;
+  description?: string;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  startDate: string;
+  dueDate?: string;
+  employeeId: number;
+  subtasks?: UpsertSubtaskRequest[];
+}
+
+export interface UpdateTaskRequest {
+  title?: string;
+  description?: string;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  startDate?: string;
+  dueDate?: string;
+  employeeId?: number;
+  subtasks?: UpsertSubtaskRequest[];
+}
+
 export interface Task {
   id: number;
   title: string;

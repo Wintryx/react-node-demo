@@ -1,7 +1,7 @@
 import { createContext, type ReactNode, useContext, useState } from 'react';
 
 import { AuthSession, clearAuthSession, readAuthSession, writeAuthSession } from './auth-storage';
-import { authApi } from '../../shared/api/api-client';
+import { authApi } from '../../shared/api';
 import { AuthUser, LoginRequest, RegisterRequest } from '../../shared/api/types';
 
 interface AuthContextValue {
