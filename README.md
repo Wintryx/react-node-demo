@@ -104,6 +104,11 @@ PowerShell alternative:
 Copy-Item .env.example .env
 ```
 
+Note on committed env files:
+
+- This repository intentionally commits non-sensitive demo env templates/defaults (for example `.env.example`) to keep setup friction low.
+- In real production projects, secrets and real environment values must never be committed to git.
+
 ### Run (2 terminals)
 
 Terminal 1 (backend):
@@ -148,6 +153,8 @@ npm run format
 npm run format:write
 ```
 
+`npm run test` includes API E2E and starts the API on a dedicated dynamic test port.
+
 ## Structure
 
 ```txt
@@ -176,6 +183,25 @@ docs/
 - auth endpoint throttling
 - JWT access tokens for protected routes
 - password policy on register (minimum length + complexity)
+
+## API Error Contract
+
+The backend returns structured error payloads with stable codes:
+
+```json
+{
+  "statusCode": 409,
+  "code": "EMPLOYEE_EMAIL_ALREADY_EXISTS",
+  "message": "Employee with email \"jane.doe@example.com\" already exists.",
+  "params": {
+    "email": "jane.doe@example.com"
+  },
+  "path": "/employees",
+  "timestamp": "2026-03-16T15:30:00.000Z"
+}
+```
+
+Frontend error handling maps primarily by `code` and uses `message` only as fallback.
 
 ## Roadmap (Next Chunks)
 

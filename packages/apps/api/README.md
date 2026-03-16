@@ -42,6 +42,29 @@ It provides the REST API and contains:
   - password is hashed with bcrypt
   - register/login return JWT access token
 
+## Error Contract
+
+API errors use a structured payload with stable `code` values:
+
+```json
+{
+  "statusCode": 404,
+  "code": "TASK_NOT_FOUND",
+  "message": "Task with id \"123\" was not found.",
+  "params": {
+    "taskId": 123
+  },
+  "path": "/tasks/123",
+  "timestamp": "2026-03-16T15:30:00.000Z"
+}
+```
+
+Notes:
+
+- `code` is the stable contract for frontend/client behavior.
+- `message` is human-readable fallback.
+- `params` contains interpolation values for localized client messages.
+
 ## Run Locally
 
 From workspace root:

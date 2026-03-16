@@ -13,8 +13,8 @@
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "graph": "nx graph",
-    "lint": "nx run-many -t lint -p web api",
-    "test": "nx run-many -t test -p web api"
+    "lint": "nx run-many -t lint -p web api api-e2e",
+    "test": "nx run-many -t test -p web api && nx run api-e2e:e2e"
   },
   "repository": {
     "type": "git",

@@ -18,8 +18,8 @@ From workspace root:
 npx nx run api-e2e:e2e
 ```
 
-By default tests expect the API on port `3000`.
-Axios base URL is configured to `http://localhost:3000`.
+The suite starts its own API process on a dedicated dynamic local port
+(or `API_E2E_PORT` when explicitly set) and configures Axios automatically.
 
 ## Current Coverage
 
