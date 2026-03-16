@@ -87,13 +87,17 @@ npx nx build web
   - timeline helpers
 - Integration tests (mocked `tasksApi` / `employeesApi`):
   - create task
+  - modal validation (required title, invalid subtask)
   - update task
   - delete task with confirmation
+  - delete cancel flow
   - create error feedback
-  - inline subtask toggle update
+  - update/delete error feedback
+  - inline subtask toggle/add/remove update
+  - timeline task click opens edit modal
 
 ## Next Frontend Steps
 
-1. Extend integration tests for more edge cases (subtask add/remove errors, modal validation paths)
-2. Optional UX polish (drag/drop board interactions, richer validation hints)
-3. Timeline enhancement options (scale markers, zoom presets, grouping)
+1. Optional UX polish (drag/drop board interactions, richer validation hints)
+2. Timeline enhancement options (scale markers, zoom presets, grouping)
+3. End-to-end UI smoke test strategy (optional future hardening)

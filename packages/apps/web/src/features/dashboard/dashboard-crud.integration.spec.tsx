@@ -134,6 +134,28 @@ describe('Dashboard CRUD integration', () => {
     expect(createPayload.startDate.endsWith('T12:00:00.000Z')).toBe(true);
   });
 
+  it('shows modal validation errors for empty task title and invalid subtasks', async () => {
+    await renderAuthenticatedApp();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'New Task' }));
+    await screen.findByRole('heading', { name: 'Create Task' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create task' }));
+    expect(await screen.findByText('Title is required.')).toBeTruthy();
+    expect(createTaskMock).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: {
+        value: 'Task with invalid subtask',
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Add subtask' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create task' }));
+
+    expect(await screen.findByText('Each subtask requires a title and a start date.')).toBeTruthy();
+    expect(createTaskMock).not.toHaveBeenCalled();
+  });
+
   it('updates a task through the edit modal', async () => {
     await renderAuthenticatedApp();
 
@@ -162,6 +184,24 @@ describe('Dashboard CRUD integration', () => {
     expect(updatePayload.title).toBe('Updated task title');
   });
 
+  it('shows API error feedback when update fails', async () => {
+    updateTaskMock.mockRejectedValueOnce(new Error('Task update failed.'));
+    await renderAuthenticatedApp();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit' }));
+    await screen.findByRole('heading', { name: 'Edit Task #11' });
+
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: {
+        value: 'Updated but failing',
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    const errorMessages = await screen.findAllByText('Task update failed.');
+    expect(errorMessages.length > 0).toBe(true);
+  });
+
   it('deletes a task after confirmation', async () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
     await renderAuthenticatedApp();
@@ -172,6 +212,33 @@ describe('Dashboard CRUD integration', () => {
       expect(deleteTaskMock).toHaveBeenCalledWith(11);
     });
     expect(confirmSpy).toHaveBeenCalledTimes(1);
+
+    confirmSpy.mockRestore();
+  });
+
+  it('does not delete a task when confirmation is cancelled', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    await renderAuthenticatedApp();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Delete' }));
+
+    await waitFor(() => {
+      expect(confirmSpy).toHaveBeenCalledTimes(1);
+    });
+    expect(deleteTaskMock).not.toHaveBeenCalled();
+
+    confirmSpy.mockRestore();
+  });
+
+  it('shows API error feedback when delete fails', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    deleteTaskMock.mockRejectedValueOnce(new Error('Task delete failed.'));
+    await renderAuthenticatedApp();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Delete' }));
+
+    const errorMessage = await screen.findByText('Task delete failed.');
+    expect(errorMessage).toBeTruthy();
 
     confirmSpy.mockRestore();
   });
@@ -192,6 +259,44 @@ describe('Dashboard CRUD integration', () => {
 
     const errorMessages = await screen.findAllByText('Task creation failed.');
     expect(errorMessages.length > 0).toBe(true);
+  });
+
+  it('updates task subtasks inline when adding and removing subtasks', async () => {
+    await renderAuthenticatedApp();
+
+    const addInput = await screen.findByPlaceholderText('Add subtask...');
+    fireEvent.change(addInput, {
+      target: {
+        value: 'Inline added subtask',
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+
+    await waitFor(() => {
+      expect(updateTaskMock).toHaveBeenCalled();
+    });
+
+    const addPayload = updateTaskMock.mock.calls[0][1] as {
+      subtasks: Array<{
+        title: string;
+      }>;
+    };
+    expect(addPayload.subtasks.length).toBe(2);
+    expect(addPayload.subtasks[1].title).toBe('Inline added subtask');
+
+    updateTaskMock.mockClear();
+    fireEvent.click(await screen.findByRole('button', { name: 'Remove subtask Initial subtask' }));
+
+    await waitFor(() => {
+      expect(updateTaskMock).toHaveBeenCalled();
+    });
+
+    const removePayload = updateTaskMock.mock.calls[0][1] as {
+      subtasks: Array<{
+        id?: number;
+      }>;
+    };
+    expect(removePayload.subtasks.some((subtask) => subtask.id === 101)).toBe(false);
   });
 
   it('updates task subtasks inline when toggling a checkbox', async () => {
@@ -217,5 +322,14 @@ describe('Dashboard CRUD integration', () => {
     expect(taskId).toBe(11);
     expect(updatePayload.subtasks[0].id).toBe(101);
     expect(updatePayload.subtasks[0].completed).toBe(true);
+  });
+
+  it('opens the edit modal when clicking a task in timeline view', async () => {
+    await renderAuthenticatedApp();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    fireEvent.click(await screen.findByRole('button', { name: /Initial task/i }));
+
+    expect(await screen.findByRole('heading', { name: 'Edit Task #11' })).toBeTruthy();
   });
 });

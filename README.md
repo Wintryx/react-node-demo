@@ -161,9 +161,9 @@ docs/
 
 ## Roadmap (Next Chunks)
 
-1. Extend frontend integration tests with additional edge cases
-2. Timeline UX polish
-3. Docker Compose + final documentation polish
+1. Timeline UX polish
+2. Docker Compose + final documentation polish
+3. Optional UI smoke E2E tests
 
 ## Documentation Mode
 
