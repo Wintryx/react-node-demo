@@ -143,6 +143,16 @@ Stand: 2026-03-16
   - Fachliche Fehlercodes in Auth/Employees/Tasks eingefuehrt
   - Frontend-Error-Mapping auf code-basierten Ansatz umgestellt (ohne lange Replace-Ketten)
   - API-E2E auf Code-Assertions erweitert
+- Build/Quality-Workflow erweitert:
+  - Root `npm run lint` schliesst `api-e2e` ein
+  - Root `npm run test` schliesst `api-e2e` ein
+- API-E2E Lauf robuster gemacht:
+  - eigener API-Prozess pro Testlauf
+  - dynamischer dedizierter Port (optional ueber `API_E2E_PORT`)
+  - temporaere SQLite-Datei pro Lauf mit Cleanup im Teardown
+- Doku ergaenzt:
+  - API-Error-Contract in Root-README und API-README dokumentiert
+  - Hinweis zu bewusst committeten Demo-ENV-Templates (`.env.example`) hinzugefuegt
 
 ## Verifiziert
 

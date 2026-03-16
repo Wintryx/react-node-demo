@@ -47,3 +47,6 @@ packages/apps/api/data/*.db
 packages/apps/api/data/*.sqlite
 packages/apps/api/data/*.sqlite3
 packages/apps/api/data/*-journal
+
+# api-e2e runtime metadata
+packages/apps/api-e2e/.runtime/
