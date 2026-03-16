@@ -40,6 +40,12 @@ Build a modern task management app with:
   - JWT access token flow
   - global JWT guard with `@Public()` exceptions
   - stricter rate limits on auth endpoints
+- Frontend foundation:
+  - Tailwind CSS + Shadcn-style component base
+  - login + register pages
+  - protected route with session-based auth (`sessionStorage`)
+  - authenticated employee switcher + task list view (read-only)
+  - responsive dashboard shell
 - Verification status:
   - lint/test/build successful
   - API e2e covers health + auth + employees + tasks
@@ -136,6 +142,7 @@ docs/
 ## App-specific Docs
 
 - Backend API: [`packages/apps/api/README.md`](packages/apps/api/README.md)
+- Frontend Web App: [`packages/apps/web/README.md`](packages/apps/web/README.md)
 - Backend API E2E: [`packages/apps/api-e2e/README.md`](packages/apps/api-e2e/README.md)
 
 ## Security Baseline
@@ -149,10 +156,9 @@ docs/
 
 ## Roadmap (Next Chunks)
 
-1. Frontend foundation (API client, query setup, layout)
-2. Task board + employee switcher + task CRUD UI
-3. Timeline/Gantt view
-4. Docker Compose + final documentation polish
+1. Task board + employee switcher + task CRUD UI
+2. Timeline/Gantt view
+3. Docker Compose + final documentation polish
 
 ## Documentation Mode
 

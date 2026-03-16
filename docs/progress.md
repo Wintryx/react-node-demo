@@ -20,6 +20,10 @@ Stand: 2026-03-16
   - `register` ist oeffentlich
   - JWT Access Token sichern geschuetzte Endpunkte
   - `health` und `auth` bleiben per `@Public()` erreichbar
+- Frontend-Auth-Regeln:
+  - Token-Storage in `sessionStorage` (Demo-Entscheidung)
+  - Public Routes: `/login`, `/register`
+  - Protected Route: `/app`
 
 ## Erledigt
 
@@ -88,6 +92,15 @@ Stand: 2026-03-16
     - Update inkl. Subtasks
     - Delete + NotFound (`404`)
 - `.env.example` ergaenzt
+- Frontend Foundation umgesetzt:
+  - Tailwind CSS + Shadcn-style UI-Basis
+  - React Query + Axios API-Client
+  - Login + Register gegen `/auth/*`
+  - Session-basierte Auth (`sessionStorage`)
+  - Protected Routing
+  - Responsive Dashboard-Shell
+  - Employee Switcher + Task-Liste (read-only)
+  - Frontend README erstellt (`packages/apps/web/README.md`)
 
 ## Verifiziert
 
@@ -106,6 +119,6 @@ Stand: 2026-03-16
 
 ## Naechste Schritte
 
-1. React Foundation (API-Client, Query-Setup, Layout)
-2. Task-Board + Employee-Switcher + CRUD + Timeline
+1. Task-Board + Employee-Switcher + CRUD + Timeline
+2. Timeline/Gantt View
 3. Docker Compose + finale Doku

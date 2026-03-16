@@ -1,24 +1,30 @@
-import { render } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 
 import App from './app';
 
 describe('App', () => {
-  it('should render successfully', () => {
-    const { baseElement } = render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>,
-    );
-    expect(baseElement).toBeTruthy();
+  beforeEach(() => {
+    window.sessionStorage.clear();
   });
 
-  it('should have a greeting as the title', () => {
-    const { getAllByText } = render(
-      <BrowserRouter>
+  it('redirects unauthenticated users from /app to /login', async () => {
+    render(
+      <MemoryRouter initialEntries={['/app']}>
         <App />
-      </BrowserRouter>,
+      </MemoryRouter>,
     );
-    expect(getAllByText(new RegExp('Welcome web', 'gi')).length > 0).toBeTruthy();
+
+    expect(await screen.findByRole('button', { name: 'Sign in' })).toBeTruthy();
+  });
+
+  it('renders register page on /register', async () => {
+    render(
+      <MemoryRouter initialEntries={['/register']}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByRole('button', { name: 'Create account' })).toBeTruthy();
   });
 });
