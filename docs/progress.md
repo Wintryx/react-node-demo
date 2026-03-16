@@ -153,6 +153,13 @@ Stand: 2026-03-16
 - Doku ergaenzt:
   - API-Error-Contract in Root-README und API-README dokumentiert
   - Hinweis zu bewusst committeten Demo-ENV-Templates (`.env.example`) hinzugefuegt
+- TypeORM-Migrationsstrategie umgesetzt:
+  - zentrale TypeORM-Konfiguration (`typeorm.config.ts`) eingefuehrt
+  - `synchronize` deaktiviert
+  - initiale SQL-Migration fuer Auth/Employees/Tasks/Subtasks erstellt
+  - zentrale CLI-DataSource fuer TypeORM-Migrationsbefehle angelegt
+  - Root-Skripte fuer `db:migration:*` hinzugefuegt
+  - API startet standardmaessig mit `migrationsRun` (via `TYPEORM_MIGRATIONS_RUN`)
 
 ## Verifiziert
 
@@ -163,7 +170,6 @@ Stand: 2026-03-16
 
 ## Offene technische Punkte (relevant)
 
-- TypeORM Migrations einfuehren (statt langfristig nur `synchronize`)
 - Optional: Seed-Daten fuer schnellere lokale UI-Demos
 - Auth-Hardening in spaeteren Schritten:
   - Refresh-Token-Flow (optional)
@@ -172,5 +178,5 @@ Stand: 2026-03-16
 ## Naechste Schritte
 
 1. Optional: E2E UI-Smoke-Tests
-2. TypeORM-Migrationsstrategie fuer Produktion
+2. Optional: Seed-Workflow fuer reproduzierbare Demo-Daten
 3. Optional: Auth-Hardening (Refresh/Rotation/Revocation)
