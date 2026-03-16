@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { getTimelinePosition, getTimelineRange, sortTasksForTimeline } from './task-timeline-utils';
+import {
+  applyTimelineZoom,
+  createTimelineTicks,
+  getRelativePositionPercent,
+  getTimelinePosition,
+  getTimelineRange,
+  getTodayMarkerPosition,
+  sortTasksForTimeline,
+} from './task-timeline-utils';
 import { Task } from '../../shared/api/types';
 
 const createTask = (overrides: Partial<Task>): Task => ({
@@ -52,5 +60,57 @@ describe('task timeline helpers', () => {
 
     const position = getTimelinePosition(task, range);
     expect(position.widthPercent).toBeGreaterThanOrEqual(2);
+  });
+
+  it('applies zoom padding based on selected preset', () => {
+    const baseRange = {
+      startMs: new Date('2026-03-10T00:00:00.000Z').getTime(),
+      endMs: new Date('2026-03-12T00:00:00.000Z').getTime(),
+      spanMs: 2 * 24 * 60 * 60 * 1000,
+    };
+
+    const compactRange = applyTimelineZoom(baseRange, 'compact');
+    const expandedRange = applyTimelineZoom(baseRange, 'expanded');
+
+    expect(compactRange.startMs).toBeLessThan(baseRange.startMs);
+    expect(compactRange.endMs).toBeGreaterThan(baseRange.endMs);
+    expect(expandedRange.spanMs).toBeGreaterThan(compactRange.spanMs);
+  });
+
+  it('creates requested number of timeline ticks including range bounds', () => {
+    const range = {
+      startMs: new Date('2026-03-10T00:00:00.000Z').getTime(),
+      endMs: new Date('2026-03-20T00:00:00.000Z').getTime(),
+      spanMs: 10 * 24 * 60 * 60 * 1000,
+    };
+
+    const ticks = createTimelineTicks(range, 5);
+    expect(ticks).toHaveLength(5);
+    expect(ticks[0]).toBe(range.startMs);
+    expect(ticks[ticks.length - 1]).toBe(range.endMs);
+  });
+
+  it('returns today marker only when current date is inside range', () => {
+    const range = {
+      startMs: new Date('2026-03-10T00:00:00.000Z').getTime(),
+      endMs: new Date('2026-03-20T00:00:00.000Z').getTime(),
+      spanMs: 10 * 24 * 60 * 60 * 1000,
+    };
+    const inside = new Date('2026-03-15T00:00:00.000Z').getTime();
+    const outside = new Date('2026-03-25T00:00:00.000Z').getTime();
+
+    expect(getTodayMarkerPosition(range, inside)).not.toBeNull();
+    expect(getTodayMarkerPosition(range, outside)).toBeNull();
+  });
+
+  it('clamps relative position percentage to [0, 100]', () => {
+    const range = {
+      startMs: new Date('2026-03-10T00:00:00.000Z').getTime(),
+      endMs: new Date('2026-03-20T00:00:00.000Z').getTime(),
+      spanMs: 10 * 24 * 60 * 60 * 1000,
+    };
+
+    expect(getRelativePositionPercent(range.startMs - 1000, range)).toBe(0);
+    expect(getRelativePositionPercent(range.endMs + 1000, range)).toBe(100);
   });
 });

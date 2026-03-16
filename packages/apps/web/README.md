@@ -36,6 +36,9 @@ It consumes the NestJS backend and provides:
   - delete confirmation
   - inline subtask toggle/add/remove in list and kanban
   - timeline ordered by due date, status color coding, overdue highlighting
+  - timeline zoom presets (`compact`, `balanced`, `expanded`)
+  - optional timeline grouping by status
+  - timeline tick markers and today marker line
   - timeline task click opens edit modal
 
 ## Security Notes (Demo Scope)
@@ -99,5 +102,5 @@ npx nx build web
 ## Next Frontend Steps
 
 1. Optional UX polish (drag/drop board interactions, richer validation hints)
-2. Timeline enhancement options (scale markers, zoom presets, grouping)
-3. End-to-end UI smoke test strategy (optional future hardening)
+2. End-to-end UI smoke test strategy (optional future hardening)
+3. Optional state persistence for active view/filter preferences

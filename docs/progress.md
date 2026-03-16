@@ -108,6 +108,9 @@ Stand: 2026-03-16
     - status-farbige Balken
     - Overdue-Highlighting
     - Klick auf Task oeffnet Edit-Modal
+    - Zoom-Presets (`compact`, `balanced`, `expanded`)
+    - optionale Gruppierung nach Status
+    - Tick-Marker + Today-Marker
   - Timeline-Helper mit Unit-Tests (`task-timeline-utils.spec.ts`)
   - Mapper/Helper-Unit-Tests ergaenzt:
     - `task-request-mapper.spec.ts`
@@ -127,6 +130,13 @@ Stand: 2026-03-16
   - Task Create/Edit/Delete ueber Modal mit `react-day-picker`
   - Inline Subtask-Interaktionen (Toggle/Add/Remove) in List und Kanban
   - Frontend README erstellt (`packages/apps/web/README.md`)
+- Docker Compose Setup umgesetzt:
+  - `docker-compose.yml`
+  - `docker/api.Dockerfile`
+  - `docker/web.Dockerfile`
+  - `docker/web.nginx.conf`
+  - SPA-Fallback im Web-Container via Nginx `try_files`
+  - persistente SQLite-DB via Volume `api_data`
 
 ## Verifiziert
 
@@ -145,6 +155,6 @@ Stand: 2026-03-16
 
 ## Naechste Schritte
 
-1. Timeline UX-Polish (Skalierung/Zoom/Grouping)
-2. Docker Compose + finale Doku
-3. Optional: E2E UI-Smoke-Tests
+1. Optional: E2E UI-Smoke-Tests
+2. TypeORM-Migrationsstrategie fuer Produktion
+3. Optional: Auth-Hardening (Refresh/Rotation/Revocation)
