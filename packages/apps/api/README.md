@@ -1,59 +1,70 @@
 # API App (`packages/apps/api`)
 
-## Zweck
+## Purpose
 
-Diese App ist das **NestJS Backend** der Demo.
-Sie stellt die REST-API bereit (z. B. `/employees`) und kapselt:
+This app is the NestJS backend of the demo.
+It provides the REST API and contains:
 
-- Business-Logik (DDD-light Use Cases)
-- Persistenz mit `TypeORM + SQLite`
-- Request-Validierung (`class-validator`)
-- Swagger-Dokumentation unter `/api`
+- business logic (DDD-light use cases)
+- persistence (`TypeORM + SQLite`)
+- request validation (`class-validator`)
+- Swagger docs at `/api`
+- JWT authentication and route protection
 
-## Wichtige Endpunkte (aktueller Stand)
+## Endpoints (current)
 
-- `GET /health`
-- `GET /employees`
-- `POST /employees`
-- `PATCH /employees/:id`
-- `DELETE /employees/:id`
-- `GET /tasks?employeeId=`
-- `POST /tasks`
-- `PATCH /tasks/:id`
-- `DELETE /tasks/:id`
+- Public:
+  - `GET /health`
+  - `POST /auth/register`
+  - `POST /auth/login`
+- Protected (JWT):
+  - `GET /employees`
+  - `POST /employees`
+  - `PATCH /employees/:id`
+  - `DELETE /employees/:id`
+  - `GET /tasks?employeeId=`
+  - `POST /tasks`
+  - `PATCH /tasks/:id`
+  - `DELETE /tasks/:id`
 
-## Task-Regeln (aktuell)
+## Rules (current)
 
-- `startDate` ist Pflicht
-- `dueDate` ist optional
-- Datumsvalidierung:
+- Task:
+  - `startDate` required
+  - `dueDate` optional
   - `dueDate >= startDate`
   - `subtask.endDate >= subtask.startDate`
-- Beim Loeschen einer Task werden Subtasks per Cascade entfernt
+  - deleting a task cascades to subtasks
+- Employee:
+  - deleting employee with assigned tasks returns `409`
+- Auth:
+  - register is public
+  - password is hashed with bcrypt
+  - register/login return JWT access token
 
-## Lokales Starten
+## Run Locally
 
-Aus dem Workspace-Root:
+From workspace root:
 
 ```bash
 npx nx serve api
 ```
 
-Oder über das Root-Script:
+Or via root script:
 
 ```bash
 npm run dev:api
 ```
 
-Standard-URL:
+Default URL:
 
 - API: `http://localhost:3000`
 - Swagger: `http://localhost:3000/api`
 
-## Datenbank
+## Database
 
-- SQLite-Datei: `packages/apps/api/data/app.db`
-- Die Datei wird beim ersten Start automatisch erzeugt.
+- SQLite file: `packages/apps/api/data/app.db`
+- The file is created automatically on first startup.
 
 ## Tests
 

@@ -2,13 +2,13 @@
 
 ## Purpose
 
-This app contains **end-to-end tests** for the backend API.
-It verifies runtime behavior through HTTP calls (black-box), not just unit-level classes.
+This app contains end-to-end tests for the backend API.
+It validates runtime behavior through real HTTP calls.
 
 In short:
 
-- `api`: implements the backend
-- `api-e2e`: tests the backend against real endpoints
+- `api`: implements backend behavior
+- `api-e2e`: verifies backend behavior from outside
 
 ## Run
 
@@ -18,25 +18,32 @@ From workspace root:
 npx nx run api-e2e:e2e
 ```
 
-By default, tests expect the API on port `3000`.
-Test setup configures the axios base URL to `http://localhost:3000`.
+By default tests expect the API on port `3000`.
+Axios base URL is configured to `http://localhost:3000`.
 
 ## Current Coverage
 
-- Health endpoint smoke test
-- Employees endpoints:
+- Health endpoint
+- Auth:
+  - register success
+  - duplicate email conflict (`409`)
+  - login success
+  - invalid credentials (`401`)
+  - protected route access without token (`401`)
+  - protected route access with token (`200`)
+- Employees:
   - create + list
   - duplicate email conflict
   - enum validation
   - update
   - delete + not-found case
-- Tasks endpoints:
+  - delete conflict when tasks are assigned (`409`)
+- Tasks:
   - create + list with `employeeId` filter
   - date range validation
   - update including subtasks
   - delete + not-found case
-- Employee delete conflict when tasks are assigned (`409`)
 
 ## Next
 
-- Add E2E coverage for `auth` once JWT endpoints are implemented.
+- Extend coverage for frontend integration flow once UI calls are in place.

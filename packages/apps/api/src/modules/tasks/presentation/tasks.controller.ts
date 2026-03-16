@@ -12,7 +12,13 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { CreateTaskUseCase } from '../application/create-task.use-case';
 import { DeleteTaskUseCase } from '../application/delete-task.use-case';
@@ -24,6 +30,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { toCreateTaskInput, toUpdateTaskInput } from './task-input.mapper';
 
 @ApiTags('tasks')
+@ApiBearerAuth()
 @Controller('tasks')
 export class TasksController {
   constructor(

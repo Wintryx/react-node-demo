@@ -10,7 +10,13 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { CreateEmployeeUseCase } from '../application/create-employee.use-case';
 import { DeleteEmployeeUseCase } from '../application/delete-employee.use-case';
@@ -21,6 +27,7 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 
 @ApiTags('employees')
+@ApiBearerAuth()
 @Controller('employees')
 export class EmployeesController {
   constructor(

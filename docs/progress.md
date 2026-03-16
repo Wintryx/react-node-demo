@@ -16,6 +16,10 @@ Stand: 2026-03-16
   - `dueDate` ist optional
   - API-Fieldnamen konsistent in `camelCase`
   - Task-Delete loescht Subtasks per Cascade
+- Auth-Regeln:
+  - `register` ist oeffentlich
+  - JWT Access Token sichern geschuetzte Endpunkte
+  - `health` und `auth` bleiben per `@Public()` erreichbar
 
 ## Erledigt
 
@@ -54,8 +58,23 @@ Stand: 2026-03-16
   - Subtasks als relationale Tabelle, kein JSON-Blob
   - Task-Filter via `GET /tasks?employeeId=...`
   - Task-Delete mit Cascade auf Subtasks
+- `auth` Modul umgesetzt (DDD-light):
+  - Endpunkte: `POST /auth/register`, `POST /auth/login`
+  - Passwort-Hashing mit `bcrypt` (12 rounds)
+  - JWT Access Token Ausgabe bei Register/Login
+  - Globaler JWT Guard via `APP_GUARD`
+  - `@Public()` fuer oeffentliche Endpunkte
+  - Strengeres Throttling auf Auth-Endpunkten
+  - Unit-Tests fuer Register/Login Use Cases
 - API-E2E erweitert:
   - Health endpoint
+  - Auth:
+    - Register success
+    - Duplicate email conflict (`409`)
+    - Login success
+    - Invalid credentials (`401`)
+    - Protected endpoint blocked without token (`401`)
+    - Protected endpoint allowed with token (`200`)
   - Employees:
     - Create + List
     - Duplicate-Email Konflikt (`409`)
@@ -75,19 +94,18 @@ Stand: 2026-03-16
 - `npm run lint` erfolgreich
 - `npm run test` erfolgreich
 - `npm run build` erfolgreich
-- `npx nx run api-e2e:e2e` erfolgreich
+- `npx nx run api-e2e:e2e` erfolgreich (17 Tests)
 
 ## Offene technische Punkte (relevant)
 
 - TypeORM Migrations einfuehren (statt langfristig nur `synchronize`)
 - Optional: Seed-Daten fuer schnellere lokale UI-Demos
-- Auth-Hardening:
-  - Token-Expiry/Secrets finalisieren
-  - Rate-Limits fuer Auth-Endpunkte feinjustieren
+- Auth-Hardening in spaeteren Schritten:
+  - Refresh-Token-Flow (optional)
+  - Rotation/Revocation-Konzept
 
 ## Naechste Schritte
 
-1. Auth-Modul (`register` + `login`, JWT Guard)
-2. React Foundation (API-Client, Query-Setup, Layout)
-3. Task-Board + Employee-Switcher + CRUD + Timeline
-4. Docker Compose + finale Doku
+1. React Foundation (API-Client, Query-Setup, Layout)
+2. Task-Board + Employee-Switcher + CRUD + Timeline
+3. Docker Compose + finale Doku

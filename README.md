@@ -1,104 +1,114 @@
 # React + NestJS Task Management Demo
 
-Full-Stack Demoprojekt auf Basis der bereitgestellten Anforderungen.
+Full-stack demoproject based on the provided assessment requirements.
 
-## Projektziel
+## Project Goal
 
-Eine moderne Task-Management-App mit:
+Build a modern task management app with:
 
-- React + TypeScript Frontend
-- NestJS + TypeScript Backend
-- Employee- und Task-Management inkl. Subtasks
-- Timeline/Gantt-Ansicht
-- Bonus-Features: JWT Auth, Docker Compose, Tests
+- React + TypeScript frontend
+- NestJS + TypeScript backend
+- Employee and task management including subtasks
+- Timeline/Gantt view
+- Bonus features: JWT auth, Docker Compose, tests
 
-## Aktueller Stand
+## Current Status
 
-- Nx Monorepo aufgesetzt (`packages/apps/web`, `packages/apps/api`, `packages/apps/api-e2e`)
-- API-Basis mit:
-  - Swagger unter `/api`
-  - Health-Endpoint unter `/health`
+- Nx monorepo initialized (`packages/apps/web`, `packages/apps/api`, `packages/apps/api-e2e`)
+- API foundation implemented:
+  - Swagger at `/api`
+  - Health endpoint at `/health`
   - `TypeORM + SQLite`
-  - globale DTO-Validierung
-  - Security-Basics (`helmet`, CORS, Throttling-Basis)
-  - Employees CRUD (`GET/POST/PATCH/DELETE /employees`)
-  - Tasks CRUD (`GET/POST/PATCH/DELETE /tasks`) inkl. `employeeId`-Filter
-  - Subtasks als eigene Relation (inline anlegbar/aktualisierbar)
-  - Task-Validierung:
-    - `startDate` Pflicht
+  - global DTO validation
+  - security baseline (`helmet`, CORS, throttling module)
+- Employees module:
+  - CRUD (`GET/POST/PATCH/DELETE /employees`)
+  - enum-based `role` and `department`
+  - delete policy blocks removal if tasks are assigned (`409`)
+- Tasks module:
+  - CRUD (`GET/POST/PATCH/DELETE /tasks`)
+  - optional filter via `employeeId`
+  - subtasks as relational data
+  - validation rules:
+    - `startDate` required
     - `dueDate` optional
-    - Datumsregeln (`dueDate >= startDate`, `subtask.endDate >= subtask.startDate`)
-  - Employee `role` und `department` als Enums
-  - Delete-Policy fuer Employees: blockiert (`409`), wenn Tasks zugeordnet sind
-  - Delete-Policy fuer Tasks: Subtasks werden per Cascade mitgeloescht
-- Lint/Test/Build laufen erfolgreich
-- API-E2E Tests fuer Health + Employees + Tasks laufen erfolgreich
+    - date consistency checks
+  - delete policy cascades to subtasks
+- Auth module:
+  - public `POST /auth/register`
+  - public `POST /auth/login`
+  - JWT access token flow
+  - global JWT guard with `@Public()` exceptions
+  - stricter rate limits on auth endpoints
+- Verification status:
+  - lint/test/build successful
+  - API e2e covers health + auth + employees + tasks
 
-## Wichtige Entscheidungen (mit Begründung)
+## Key Decisions
 
-1. Monorepo mit Nx
-Warum: Klare Struktur für Frontend/Backend, gute Skalierung, Caching, konsistente Tooling-Pipeline.
+1. Nx monorepo
+Reason: clear separation of frontend/backend, consistent tooling, scalability.
 
 2. TypeORM + SQLite
-Warum: Schnell für Demo-Setup, einfache lokale Ausführung, trotzdem saubere relationale Modellierung.
+Reason: fast local setup with proper relational modeling.
 
-3. Strikte Typisierung
-Warum: Clean-Code-Anspruch und langfristige Wartbarkeit.
-Regeln: `strict: true`, `noImplicitAny: true`, ESLint `no-explicit-any: error`.
+3. Strict typing
+Reason: maintainability and clean code baseline.
+Rules: `strict: true`, `noImplicitAny: true`, ESLint `no-explicit-any: error`.
 
-4. React-Test mit Vitest, Backend-Test mit Jest
-Warum: Vitest ist ideal für Vite/React, Jest ist stabiler Standard im Nest-Ökosystem.
+4. Vitest for React, Jest for Nest
+Reason: Vite-native frontend test runner and stable Nest ecosystem defaults.
 
-5. DDD-light + SOLID ohne Over-Engineering
-Warum: Fachliche Trennung und Testbarkeit, aber keine unnötige Komplexität.
+5. DDD-light + SOLID without over-engineering
+Reason: clear domain boundaries and testability with pragmatic scope.
 
-## Lokales Setup
+## Local Setup
 
-## Voraussetzungen
+### Prerequisites
 
 - Node.js 20+
 - npm 10+
 
-## Installation
+### Install
 
 ```bash
 npm install
 ```
 
-## Environment
+### Environment
 
 ```bash
 cp .env.example .env
 ```
 
-Unter Windows PowerShell alternativ:
+PowerShell alternative:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-## Starten (2 Terminals)
+### Run (2 terminals)
 
-Terminal 1 (Backend):
+Terminal 1 (backend):
 
 ```bash
 npm run dev:api
 ```
 
-Terminal 2 (Frontend):
+Terminal 2 (frontend):
 
 ```bash
 npm run dev:web
 ```
 
-Standard-URLs:
+Default URLs:
 
-- Frontend: `http://localhost:4200` oder die von Vite ausgegebene URL
+- Frontend: `http://localhost:4200` (or Vite output URL)
 - API: `http://localhost:3000`
 - Swagger: `http://localhost:3000/api`
 - Health: `http://localhost:3000/health`
 
-## Nützliche Skripte
+## Useful Scripts
 
 ```bash
 npm run lint
@@ -109,44 +119,45 @@ npm run format
 npm run format:write
 ```
 
-## Projektstruktur (aktuell)
+## Structure
 
 ```txt
 packages/
   apps/
     api/      # NestJS API
-    web/      # React App
-    api-e2e/  # API E2E Tests
+    web/      # React app
+    api-e2e/  # API end-to-end tests
 docs/
   requirements.md
   implementation-guide.md
   progress.md
 ```
 
-## App-spezifische Dokumentation
+## App-specific Docs
 
 - Backend API: [`packages/apps/api/README.md`](packages/apps/api/README.md)
-- Backend API E2E Tests: [`packages/apps/api-e2e/README.md`](packages/apps/api-e2e/README.md)
+- Backend API E2E: [`packages/apps/api-e2e/README.md`](packages/apps/api-e2e/README.md)
 
-## Security-Baseline
+## Security Baseline
 
-- `helmet` aktiv
-- DTO-Validierung global (`whitelist`, `forbidNonWhitelisted`)
-- CORS eingeschränkt konfigurierbar
-- Basis-Throttling aktiv
-- JWT ist als nächster Schritt eingeplant
+- `helmet` enabled
+- global DTO validation (`whitelist`, `forbidNonWhitelisted`)
+- restricted CORS configuration
+- auth endpoint throttling
+- JWT access tokens for protected routes
+- password policy on register (minimum length + complexity)
 
-## Roadmap (nächste Häppchen)
+## Roadmap (Next Chunks)
 
-1. Auth (`register` + `login`, JWT Guards)
-2. Frontend Task Board + Employee Switcher
-3. Timeline/Gantt
-4. Docker Compose + finale Doku
+1. Frontend foundation (API client, query setup, layout)
+2. Task board + employee switcher + task CRUD UI
+3. Timeline/Gantt view
+4. Docker Compose + final documentation polish
 
-## Dokumentationsmodus (fortlaufend)
+## Documentation Mode
 
-Diese README ist ein lebendes Dokument.
+This README is a living document.
 
-- Bei jedem Umsetzungsschritt werden Entscheidungen und Änderungen hier ergänzt.
-- Technischer Zwischenstand wird zusätzlich in `docs/progress.md` gepflegt.
-- Architektur- und Umsetzungsdetails stehen in `docs/implementation-guide.md`.
+- It is updated after each implementation chunk.
+- Technical progress is tracked in `docs/progress.md`.
+- Architecture and implementation details live in `docs/implementation-guide.md`.
