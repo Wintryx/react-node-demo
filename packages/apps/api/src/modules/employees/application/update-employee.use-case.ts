@@ -1,5 +1,7 @@
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 
+import { ApiErrorCode } from '../../../shared/errors/api-error-code';
+import { createApiErrorPayload } from '../../../shared/errors/api-error.helpers';
 import { Employee, UpdateEmployeeInput } from '../domain/employee.model';
 import { EMPLOYEE_REPOSITORY, EmployeeRepository } from '../domain/employee.repository';
 
@@ -14,7 +16,11 @@ export class UpdateEmployeeUseCase {
     const currentEmployee = await this.employeeRepository.findById(id);
 
     if (!currentEmployee) {
-      throw new NotFoundException(`Employee with id "${id}" was not found.`);
+      throw new NotFoundException(
+        createApiErrorPayload(ApiErrorCode.EMPLOYEE_NOT_FOUND, `Employee with id "${id}" was not found.`, {
+          employeeId: id,
+        }),
+      );
     }
 
     const normalizedPatch: UpdateEmployeeInput = { ...patch };
@@ -23,7 +29,13 @@ export class UpdateEmployeeUseCase {
       const employeeWithEmail = await this.employeeRepository.findByEmail(normalizedEmail);
 
       if (employeeWithEmail && employeeWithEmail.id !== id) {
-        throw new ConflictException(`Employee with email "${normalizedEmail}" already exists.`);
+        throw new ConflictException(
+          createApiErrorPayload(
+            ApiErrorCode.EMPLOYEE_EMAIL_ALREADY_EXISTS,
+            `Employee with email "${normalizedEmail}" already exists.`,
+            { email: normalizedEmail },
+          ),
+        );
       }
 
       normalizedPatch.email = normalizedEmail;
@@ -31,7 +43,11 @@ export class UpdateEmployeeUseCase {
 
     const updatedEmployee = await this.employeeRepository.update(id, normalizedPatch);
     if (!updatedEmployee) {
-      throw new NotFoundException(`Employee with id "${id}" was not found.`);
+      throw new NotFoundException(
+        createApiErrorPayload(ApiErrorCode.EMPLOYEE_NOT_FOUND, `Employee with id "${id}" was not found.`, {
+          employeeId: id,
+        }),
+      );
     }
 
     return updatedEmployee;

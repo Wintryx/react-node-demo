@@ -1,6 +1,8 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 import { collectAssigneeIds, ensureDateRange, ensureSubtasksValid } from './task-validation';
+import { ApiErrorCode } from '../../../shared/errors/api-error-code';
+import { createApiErrorPayload } from '../../../shared/errors/api-error.helpers';
 import { Task, UpdateTaskInput } from '../domain/task.model';
 import { TASK_REPOSITORY, TaskRepository } from '../domain/task.repository';
 
@@ -14,13 +16,23 @@ export class UpdateTaskUseCase {
   async execute(id: number, patch: UpdateTaskInput): Promise<Task> {
     const currentTask = await this.taskRepository.findById(id);
     if (!currentTask) {
-      throw new NotFoundException(`Task with id "${id}" was not found.`);
+      throw new NotFoundException(
+        createApiErrorPayload(ApiErrorCode.TASK_NOT_FOUND, `Task with id "${id}" was not found.`, {
+          taskId: id,
+        }),
+      );
     }
 
     if (patch.employeeId !== undefined) {
       const employeeExists = await this.taskRepository.employeeExists(patch.employeeId);
       if (!employeeExists) {
-        throw new NotFoundException(`Employee with id "${patch.employeeId}" was not found.`);
+        throw new NotFoundException(
+          createApiErrorPayload(
+            ApiErrorCode.TASK_EMPLOYEE_NOT_FOUND,
+            `Employee with id "${patch.employeeId}" was not found.`,
+            { employeeId: patch.employeeId },
+          ),
+        );
       }
     }
 
@@ -36,7 +48,11 @@ export class UpdateTaskUseCase {
       );
       if (unknownSubtaskId?.id !== undefined) {
         throw new BadRequestException(
-          `Subtask with id "${unknownSubtaskId.id}" does not belong to task "${id}".`,
+          createApiErrorPayload(
+            ApiErrorCode.TASK_SUBTASK_NOT_BELONG_TO_TASK,
+            `Subtask with id "${unknownSubtaskId.id}" does not belong to task "${id}".`,
+            { subtaskId: unknownSubtaskId.id, taskId: id },
+          ),
         );
       }
     }
@@ -45,7 +61,12 @@ export class UpdateTaskUseCase {
     if (assigneeIds.length > 0) {
       const assigneesExist = await this.taskRepository.employeesExist(assigneeIds);
       if (!assigneesExist) {
-        throw new NotFoundException('One or more subtask assignees do not exist.');
+        throw new NotFoundException(
+          createApiErrorPayload(
+            ApiErrorCode.TASK_SUBTASK_ASSIGNEE_NOT_FOUND,
+            'One or more subtask assignees do not exist.',
+          ),
+        );
       }
     }
 
@@ -56,7 +77,11 @@ export class UpdateTaskUseCase {
 
     const updatedTask = await this.taskRepository.update(id, normalizedPatch);
     if (!updatedTask) {
-      throw new NotFoundException(`Task with id "${id}" was not found.`);
+      throw new NotFoundException(
+        createApiErrorPayload(ApiErrorCode.TASK_NOT_FOUND, `Task with id "${id}" was not found.`, {
+          taskId: id,
+        }),
+      );
     }
 
     return updatedTask;

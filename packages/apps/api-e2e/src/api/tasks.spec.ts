@@ -1,14 +1,14 @@
 import { AxiosInstance } from 'axios';
 
-import { AuthContext, createAuthContext } from './support/auth-helpers';
 import {
   CreateTaskRequest,
   EmployeeResponse,
   TaskResponse,
   TaskStatus,
 } from './support/api-types';
+import { AuthContext, createAuthContext } from './support/auth-helpers';
 import { buildEmployeePayload, buildTaskPayload, buildUniqueSuffix } from './support/fixtures';
-import { expectHttpError } from './support/http-assertions';
+import { expectHttpError, expectHttpErrorCode } from './support/http-assertions';
 
 describe('Tasks API', () => {
   let authContext: AuthContext;
@@ -51,7 +51,7 @@ describe('Tasks API', () => {
     };
 
     const invalidDateError = await expectHttpError(client.post('/tasks', invalidDatesPayload), 400);
-    expect(String(invalidDateError.response?.data?.message ?? '')).toContain('dueDate');
+    expectHttpErrorCode(invalidDateError, 'TASK_DATE_RANGE_INVALID');
   });
 
   it('updates task fields and subtasks', async () => {
@@ -95,6 +95,7 @@ describe('Tasks API', () => {
     const deleteRes = await client.delete(`/tasks/${created.data.id}`);
     expect(deleteRes.status).toBe(204);
 
-    await expectHttpError(client.delete(`/tasks/${created.data.id}`), 404);
+    const notFoundError = await expectHttpError(client.delete(`/tasks/${created.data.id}`), 404);
+    expectHttpErrorCode(notFoundError, 'TASK_NOT_FOUND');
   });
 });

@@ -1,5 +1,7 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 
+import { ApiErrorCode } from '../../../shared/errors/api-error-code';
+import { createApiErrorPayload } from '../../../shared/errors/api-error.helpers';
 import { CreateEmployeeInput, Employee } from '../domain/employee.model';
 import { EMPLOYEE_REPOSITORY, EmployeeRepository } from '../domain/employee.repository';
 
@@ -15,7 +17,13 @@ export class CreateEmployeeUseCase {
     const existingEmployee = await this.employeeRepository.findByEmail(normalizedEmail);
 
     if (existingEmployee) {
-      throw new ConflictException(`Employee with email "${normalizedEmail}" already exists.`);
+      throw new ConflictException(
+        createApiErrorPayload(
+          ApiErrorCode.EMPLOYEE_EMAIL_ALREADY_EXISTS,
+          `Employee with email "${normalizedEmail}" already exists.`,
+          { email: normalizedEmail },
+        ),
+      );
     }
 
     return this.employeeRepository.create({

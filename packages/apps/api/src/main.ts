@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 
 import { AppModule } from './app/app.module';
+import { ApiExceptionFilter } from './shared/errors/api-exception.filter';
 
 const parseCorsOrigins = (rawOrigins: string | undefined): string[] => {
   if (!rawOrigins || rawOrigins.trim().length === 0) {
@@ -34,6 +35,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  app.useGlobalFilters(new ApiExceptionFilter());
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Task Management API')

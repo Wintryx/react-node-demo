@@ -107,5 +107,10 @@ export interface Task {
 }
 
 export interface ApiErrorPayload {
+  statusCode?: number;
+  code?: string;
   message?: string | string[];
+  params?: Record<string, unknown>;
+  path?: string;
+  timestamp?: string;
 }

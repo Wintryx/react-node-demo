@@ -36,6 +36,8 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskResponseDto } from './dto/task-response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { toCreateTaskInput, toUpdateTaskInput } from './task-input.mapper';
+import { ApiErrorCode } from '../../../shared/errors/api-error-code';
+import { createApiErrorPayload } from '../../../shared/errors/api-error.helpers';
 
 @ApiTags('tasks')
 @ApiBearerAuth()
@@ -197,7 +199,13 @@ export class TasksController {
 
     const numericId = Number(employeeId);
     if (!Number.isInteger(numericId) || numericId <= 0) {
-      throw new BadRequestException('Query parameter "employeeId" must be a positive integer.');
+      throw new BadRequestException(
+        createApiErrorPayload(
+          ApiErrorCode.TASK_EMPLOYEE_ID_QUERY_INVALID,
+          'Query parameter "employeeId" must be a positive integer.',
+          { employeeId },
+        ),
+      );
     }
 
     return numericId;
