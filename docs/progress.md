@@ -41,6 +41,12 @@ Stand: 2026-03-16
   - Infrastructure: TypeORM Repository + Entity
   - Presentation: DTOs + Controller (`GET/POST/PATCH/DELETE /employees`)
   - Unit-Tests fuer wichtige Edge-Cases (Conflict/NotFound)
+- API-E2E fuer `employees` ergaenzt:
+  - Create + List
+  - Duplicate-Email Konflikt (`409`)
+  - Enum-Validierung (`400`)
+  - Update + Email-Normalisierung
+  - Delete + NotFound (`404`)
 - `.env.example` ergaenzt
 
 ## Verifiziert
@@ -48,6 +54,7 @@ Stand: 2026-03-16
 - `npm run lint` erfolgreich
 - `npm run test` erfolgreich
 - `npm run build` erfolgreich
+- `npx nx run api-e2e:e2e` erfolgreich
 
 ## Offene technische Punkte (relevant)
 

@@ -25,6 +25,7 @@ Eine moderne Task-Management-App mit:
   - Employee `role` und `department` als Enums
   - Delete-Policy fuer Employees: blockiert (`409`), wenn Tasks zugeordnet sind
 - Lint/Test/Build laufen erfolgreich
+- API-E2E Tests fuer Health + Employees laufen erfolgreich
 
 ## Wichtige Entscheidungen (mit Begründung)
 

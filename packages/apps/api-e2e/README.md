@@ -1,27 +1,36 @@
 # API E2E App (`packages/apps/api-e2e`)
 
-## Zweck
+## Purpose
 
-Diese App enthält **End-to-End-Tests** für die Backend-API.
-Sie testet das Verhalten der laufenden API über HTTP (Black-Box), nicht nur einzelne Klassen.
+This app contains **end-to-end tests** for the backend API.
+It verifies runtime behavior through HTTP calls (black-box), not just unit-level classes.
 
-Kurz gesagt:
+In short:
 
-- `api`: implementiert das Backend
-- `api-e2e`: testet das Backend gegen echte Endpunkte
+- `api`: implements the backend
+- `api-e2e`: tests the backend against real endpoints
 
-## Ausführen
+## Run
 
-Aus dem Workspace-Root:
+From workspace root:
 
 ```bash
 npx nx run api-e2e:e2e
 ```
 
-Der E2E-Run erwartet standardmäßig die API auf Port `3000`.
-Die Test-Setup-Dateien setzen dafür die HTTP-Basisadresse auf `http://localhost:3000`.
+By default, tests expect the API on port `3000`.
+Test setup configures the axios base URL to `http://localhost:3000`.
 
-## Aktueller Scope
+## Current Coverage
 
-- Smoke-/Health-Test für die API
-- Basisstruktur für weitere Endpunkt-Tests (Employees, später Tasks/Auth)
+- Health endpoint smoke test
+- Employees endpoints:
+  - create + list
+  - duplicate email conflict
+  - enum validation
+  - update
+  - delete + not-found case
+
+## Next
+
+- Add E2E coverage for `tasks` and `auth` once those modules are implemented.
