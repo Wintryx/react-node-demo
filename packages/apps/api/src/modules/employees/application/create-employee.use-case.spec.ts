@@ -1,60 +1,8 @@
 import { ConflictException } from '@nestjs/common';
 
 import { CreateEmployeeUseCase } from './create-employee.use-case';
+import { InMemoryEmployeeRepository } from './test-helpers/in-memory-employee.repository';
 import { EmployeeDepartment, EmployeeRole } from '../domain/employee.enums';
-import { CreateEmployeeInput, Employee, UpdateEmployeeInput } from '../domain/employee.model';
-import { EmployeeRepository } from '../domain/employee.repository';
-
-class InMemoryEmployeeRepository implements EmployeeRepository {
-  private readonly employees: Employee[] = [];
-  private nextId = 1;
-
-  async findAll(): Promise<Employee[]> {
-    return [...this.employees];
-  }
-
-  async findById(id: number): Promise<Employee | null> {
-    return this.employees.find((employee) => employee.id === id) ?? null;
-  }
-
-  async findByEmail(email: string): Promise<Employee | null> {
-    return this.employees.find((employee) => employee.email === email) ?? null;
-  }
-
-  async hasAssignedTasks(): Promise<boolean> {
-    return false;
-  }
-
-  async create(input: CreateEmployeeInput): Promise<Employee> {
-    const employee: Employee = {
-      id: this.nextId++,
-      createdAt: new Date(),
-      ...input,
-    };
-    this.employees.push(employee);
-    return employee;
-  }
-
-  async update(id: number, patch: UpdateEmployeeInput): Promise<Employee | null> {
-    const employee = this.employees.find((item) => item.id === id);
-    if (!employee) {
-      return null;
-    }
-
-    Object.assign(employee, patch);
-    return employee;
-  }
-
-  async delete(id: number): Promise<boolean> {
-    const index = this.employees.findIndex((employee) => employee.id === id);
-    if (index === -1) {
-      return false;
-    }
-
-    this.employees.splice(index, 1);
-    return true;
-  }
-}
 
 describe('CreateEmployeeUseCase', () => {
   it('normalizes email and creates employee', async () => {

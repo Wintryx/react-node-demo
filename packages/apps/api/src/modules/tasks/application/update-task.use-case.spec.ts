@@ -1,47 +1,9 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
+import { InMemoryTaskRepository } from './test-helpers/in-memory-task.repository';
 import { UpdateTaskUseCase } from './update-task.use-case';
 import { TaskPriority, TaskStatus } from '../domain/task.enums';
-import { Task, UpdateTaskInput } from '../domain/task.model';
-import { TaskRepository } from '../domain/task.repository';
-
-class InMemoryTaskRepository implements TaskRepository {
-  constructor(private readonly tasks: Task[]) {}
-
-  async findAll(): Promise<Task[]> {
-    return [...this.tasks];
-  }
-
-  async findById(id: number): Promise<Task | null> {
-    return this.tasks.find((task) => task.id === id) ?? null;
-  }
-
-  async create(): Promise<Task> {
-    throw new Error('Not implemented for this spec');
-  }
-
-  async update(id: number, patch: UpdateTaskInput): Promise<Task | null> {
-    const task = this.tasks.find((item) => item.id === id);
-    if (!task) {
-      return null;
-    }
-
-    Object.assign(task, patch);
-    return task;
-  }
-
-  async delete(): Promise<boolean> {
-    return false;
-  }
-
-  async employeeExists(id: number): Promise<boolean> {
-    return id === 1;
-  }
-
-  async employeesExist(ids: number[]): Promise<boolean> {
-    return ids.every((id) => id === 1);
-  }
-}
+import { Task } from '../domain/task.model';
 
 const baseTask = (): Task => ({
   id: 1,
@@ -67,14 +29,17 @@ const baseTask = (): Task => ({
 
 describe('UpdateTaskUseCase', () => {
   it('throws NotFoundException when task does not exist', async () => {
-    const repository = new InMemoryTaskRepository([]);
+    const repository = new InMemoryTaskRepository();
     const useCase = new UpdateTaskUseCase(repository);
 
     await expect(useCase.execute(123, { title: 'Updated' })).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('throws BadRequestException when unknown subtask id is submitted', async () => {
-    const repository = new InMemoryTaskRepository([baseTask()]);
+    const repository = new InMemoryTaskRepository({
+      tasks: [baseTask()],
+      employeeIds: [1],
+    });
     const useCase = new UpdateTaskUseCase(repository);
 
     await expect(
@@ -91,7 +56,10 @@ describe('UpdateTaskUseCase', () => {
   });
 
   it('throws NotFoundException for missing assignee ids', async () => {
-    const repository = new InMemoryTaskRepository([baseTask()]);
+    const repository = new InMemoryTaskRepository({
+      tasks: [baseTask()],
+      employeeIds: [1],
+    });
     const useCase = new UpdateTaskUseCase(repository);
 
     await expect(
