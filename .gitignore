@@ -18,7 +18,30 @@ lerna-debug.log*
 .env.development
 .env.test
 .env.production
+.env.local
+.env.*.local
+!.env.example
 
 # temp directory
 .temp
 .tmp
+
+
+
+.nx/cache
+.nx/workspace-data
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
+
+# test and coverage artifacts
+/coverage
+
+# local IDE/editor files
+.vscode/
+.idea/
+
+# local sqlite files
+packages/apps/api/data/*.db
+packages/apps/api/data/*.sqlite
+packages/apps/api/data/*.sqlite3
+packages/apps/api/data/*-journal
