@@ -3,7 +3,7 @@ import axios from 'axios';
 import { AuthResponse, EmployeeResponse } from './support/api-types';
 import { AuthContext, createAuthContext } from './support/auth-helpers';
 import { buildAuthPayload, buildUniqueSuffix } from './support/fixtures';
-import { expectHttpError } from './support/http-assertions';
+import { expectHttpError, expectHttpErrorCode } from './support/http-assertions';
 
 describe('Auth API', () => {
   let authContext: AuthContext;
@@ -23,13 +23,14 @@ describe('Auth API', () => {
   });
 
   it('returns 409 for duplicate email (case-insensitive)', async () => {
-    await expectHttpError(
+    const duplicateError = await expectHttpError(
       axios.post('/auth/register', {
         ...authContext.credentials,
         email: authContext.credentials.email.toUpperCase(),
       }),
       409,
     );
+    expectHttpErrorCode(duplicateError, 'AUTH_EMAIL_ALREADY_EXISTS');
   });
 
   it('logs in an existing user', async () => {
@@ -40,17 +41,19 @@ describe('Auth API', () => {
   });
 
   it('returns 401 for invalid credentials', async () => {
-    await expectHttpError(
+    const invalidCredentialsError = await expectHttpError(
       axios.post('/auth/login', {
         email: authContext.credentials.email,
         password: 'WrongPassword!1',
       }),
       401,
     );
+    expectHttpErrorCode(invalidCredentialsError, 'AUTH_INVALID_CREDENTIALS');
   });
 
   it('blocks protected endpoints without access token', async () => {
-    await expectHttpError(axios.get('/employees'), 401);
+    const unauthorizedError = await expectHttpError(axios.get('/employees'), 401);
+    expectHttpErrorCode(unauthorizedError, 'UNAUTHORIZED');
   });
 
   it('allows protected endpoints with access token', async () => {

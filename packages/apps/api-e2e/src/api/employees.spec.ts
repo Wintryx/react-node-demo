@@ -8,7 +8,7 @@ import {
 } from './support/api-types';
 import { AuthContext, createAuthContext } from './support/auth-helpers';
 import { buildEmployeePayload, buildTaskPayload, buildUniqueSuffix } from './support/fixtures';
-import { expectHttpError } from './support/http-assertions';
+import { expectHttpError, expectHttpErrorCode } from './support/http-assertions';
 
 describe('Employees API', () => {
   let authContext: AuthContext;
@@ -47,7 +47,7 @@ describe('Employees API', () => {
     };
 
     const duplicateError = await expectHttpError(client.post('/employees', duplicatePayload), 409);
-    expect(String(duplicateError.response?.data?.message ?? '')).toContain('already exists');
+    expectHttpErrorCode(duplicateError, 'EMPLOYEE_EMAIL_ALREADY_EXISTS');
   });
 
   it('returns 400 for invalid enum values', async () => {
@@ -60,7 +60,8 @@ describe('Employees API', () => {
       }),
       400,
     );
-    expect(Array.isArray(invalidRoleError.response?.data?.message)).toBe(true);
+    expectHttpErrorCode(invalidRoleError, 'VALIDATION_ERROR');
+    expect(Array.isArray(invalidRoleError.response?.data?.params?.errors)).toBe(true);
   });
 
   it('updates an employee and normalizes email', async () => {
@@ -98,6 +99,7 @@ describe('Employees API', () => {
     const createdEmployee = await client.post<EmployeeResponse>('/employees', payload);
     await client.post('/tasks', buildTaskPayload(createdEmployee.data.id, buildUniqueSuffix()));
 
-    await expectHttpError(client.delete(`/employees/${createdEmployee.data.id}`), 409);
+    const conflictError = await expectHttpError(client.delete(`/employees/${createdEmployee.data.id}`), 409);
+    expectHttpErrorCode(conflictError, 'EMPLOYEE_HAS_ASSIGNED_TASKS');
   });
 });

@@ -1,6 +1,8 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { AuthResponse, toAuthResponse } from './auth-response.mapper';
+import { ApiErrorCode } from '../../../shared/errors/api-error-code';
+import { createApiErrorPayload } from '../../../shared/errors/api-error.helpers';
 import { ACCESS_TOKEN_SIGNER, AccessTokenSigner } from '../domain/access-token-signer';
 import { AUTH_REPOSITORY, AuthRepository } from '../domain/auth.repository';
 import { PASSWORD_HASHER, PasswordHasher } from '../domain/password-hasher';
@@ -28,12 +30,16 @@ export class LoginUseCase {
     const existingUser = await this.authRepository.findByEmail(normalizedEmail);
 
     if (!existingUser) {
-      throw new UnauthorizedException(INVALID_CREDENTIALS_MESSAGE);
+      throw new UnauthorizedException(
+        createApiErrorPayload(ApiErrorCode.AUTH_INVALID_CREDENTIALS, INVALID_CREDENTIALS_MESSAGE),
+      );
     }
 
     const passwordMatches = await this.passwordHasher.compare(input.password, existingUser.passwordHash);
     if (!passwordMatches) {
-      throw new UnauthorizedException(INVALID_CREDENTIALS_MESSAGE);
+      throw new UnauthorizedException(
+        createApiErrorPayload(ApiErrorCode.AUTH_INVALID_CREDENTIALS, INVALID_CREDENTIALS_MESSAGE),
+      );
     }
 
     const accessToken = await this.accessTokenSigner.sign({

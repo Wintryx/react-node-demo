@@ -1,6 +1,8 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 
 import { AuthResponse, toAuthResponse } from './auth-response.mapper';
+import { ApiErrorCode } from '../../../shared/errors/api-error-code';
+import { createApiErrorPayload } from '../../../shared/errors/api-error.helpers';
 import { ACCESS_TOKEN_SIGNER, AccessTokenSigner } from '../domain/access-token-signer';
 import { AUTH_REPOSITORY, AuthRepository } from '../domain/auth.repository';
 import { PASSWORD_HASHER, PasswordHasher } from '../domain/password-hasher';
@@ -26,7 +28,13 @@ export class RegisterUseCase {
     const existingUser = await this.authRepository.findByEmail(normalizedEmail);
 
     if (existingUser) {
-      throw new ConflictException(`User with email "${normalizedEmail}" already exists.`);
+      throw new ConflictException(
+        createApiErrorPayload(
+          ApiErrorCode.AUTH_EMAIL_ALREADY_EXISTS,
+          `User with email "${normalizedEmail}" already exists.`,
+          { email: normalizedEmail },
+        ),
+      );
     }
 
     const passwordHash = await this.passwordHasher.hash(input.password);

@@ -1,5 +1,7 @@
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 
+import { ApiErrorCode } from '../../../shared/errors/api-error-code';
+import { createApiErrorPayload } from '../../../shared/errors/api-error.helpers';
 import { EMPLOYEE_REPOSITORY, EmployeeRepository } from '../domain/employee.repository';
 
 @Injectable()
@@ -13,14 +15,22 @@ export class DeleteEmployeeUseCase {
     const hasAssignedTasks = await this.employeeRepository.hasAssignedTasks(id);
     if (hasAssignedTasks) {
       throw new ConflictException(
-        `Employee with id "${id}" has assigned tasks and cannot be deleted.`,
+        createApiErrorPayload(
+          ApiErrorCode.EMPLOYEE_HAS_ASSIGNED_TASKS,
+          `Employee with id "${id}" has assigned tasks and cannot be deleted.`,
+          { employeeId: id },
+        ),
       );
     }
 
     const deleted = await this.employeeRepository.delete(id);
 
     if (!deleted) {
-      throw new NotFoundException(`Employee with id "${id}" was not found.`);
+      throw new NotFoundException(
+        createApiErrorPayload(ApiErrorCode.EMPLOYEE_NOT_FOUND, `Employee with id "${id}" was not found.`, {
+          employeeId: id,
+        }),
+      );
     }
   }
 }

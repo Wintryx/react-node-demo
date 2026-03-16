@@ -1,5 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 
+import { ApiErrorCode } from '../../../shared/errors/api-error-code';
+import { createApiErrorPayload } from '../../../shared/errors/api-error.helpers';
 import { UpsertSubtaskInput } from '../domain/task.model';
 
 export const ensureDateRange = (
@@ -12,7 +14,15 @@ export const ensureDateRange = (
   }
 
   if (endDate < startDate) {
-    throw new BadRequestException(`${label} must not be before startDate.`);
+    throw new BadRequestException(
+      createApiErrorPayload(
+        ApiErrorCode.TASK_DATE_RANGE_INVALID,
+        `${label} must not be before startDate.`,
+        {
+          field: label,
+        },
+      ),
+    );
   }
 };
 
@@ -23,7 +33,13 @@ export const ensureSubtasksValid = (subtasks: UpsertSubtaskInput[] | undefined):
 
   subtasks.forEach((subtask, index) => {
     if (subtask.endDate && subtask.endDate < subtask.startDate) {
-      throw new BadRequestException(`subtasks[${index}].endDate must not be before startDate.`);
+      throw new BadRequestException(
+        createApiErrorPayload(
+          ApiErrorCode.TASK_SUBTASK_DATE_RANGE_INVALID,
+          `subtasks[${index}].endDate must not be before startDate.`,
+          { subtaskIndex: index },
+        ),
+      );
     }
   });
 };
