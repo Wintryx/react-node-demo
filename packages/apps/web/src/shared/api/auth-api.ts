@@ -20,4 +20,11 @@ export const authApi = {
       throw normalizeApiError(error);
     }
   },
+  logout: async (): Promise<void> => {
+    try {
+      await apiClient.post('/auth/logout');
+    } catch (error: unknown) {
+      throw normalizeApiError(error);
+    }
+  },
 };

@@ -38,7 +38,10 @@ Build a modern task management app with:
 - Auth module:
   - public `POST /auth/register`
   - public `POST /auth/login`
+  - public `POST /auth/refresh` (refresh token cookie)
+  - public `POST /auth/logout` (refresh token invalidation)
   - JWT access token flow
+  - HttpOnly refresh token cookie flow
   - global JWT guard with `@Public()` exceptions
   - stricter rate limits on auth endpoints
 - Frontend foundation:
@@ -131,6 +134,9 @@ Optional migration toggle:
 JWT configuration:
 
 - `JWT_ACCESS_TOKEN_SECRET` is mandatory and must be at least 32 characters.
+- `JWT_REFRESH_TOKEN_SECRET` is mandatory and must be at least 32 characters.
+- `JWT_REFRESH_TOKEN_EXPIRES_IN` controls refresh token lifetime (default `7d`).
+- `AUTH_COOKIE_SAME_SITE` (`lax|strict|none`) and `AUTH_COOKIE_SECURE` (`true|false`) control refresh cookie behavior.
 - API startup fails fast if the secret is missing or too short.
 
 ### Run (2 terminals)
@@ -285,8 +291,10 @@ docs/
 - `helmet` enabled
 - global DTO validation (`whitelist`, `forbidNonWhitelisted`)
 - restricted CORS configuration
+- CORS credentials enabled for cookie-based auth flows
 - auth endpoint throttling
 - JWT access tokens for protected routes
+- HttpOnly refresh token cookie flow (`/auth/refresh`, `/auth/logout`)
 - password policy on register (minimum length + complexity)
 - fail-fast JWT secret validation (no insecure fallback secret)
 - Swagger disabled in production mode

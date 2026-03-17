@@ -71,6 +71,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const logout = (): void => {
+    void authApi.logout().catch(() => undefined);
     clearAuthSession();
     setSession(null);
   };

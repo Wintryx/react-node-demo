@@ -13,6 +13,16 @@ export class TypeOrmAuthRepository implements AuthRepository {
     private readonly repository: Repository<AuthUserOrmEntity>,
   ) {}
 
+  async findById(userId: number): Promise<AuthUser | null> {
+    const entity = await this.repository.findOne({
+      where: {
+        id: userId,
+      },
+    });
+
+    return entity ? this.toDomainModel(entity) : null;
+  }
+
   async findByEmail(email: string): Promise<AuthUser | null> {
     const entity = await this.repository.findOne({
       where: {
@@ -29,11 +39,37 @@ export class TypeOrmAuthRepository implements AuthRepository {
     return this.toDomainModel(savedEntity);
   }
 
+  async updateRefreshToken(
+    userId: number,
+    refreshTokenHash: string,
+    refreshTokenExpiresAt: Date,
+  ): Promise<void> {
+    await this.repository.update(
+      { id: userId },
+      {
+        refreshTokenHash,
+        refreshTokenExpiresAt,
+      },
+    );
+  }
+
+  async clearRefreshToken(userId: number): Promise<void> {
+    await this.repository.update(
+      { id: userId },
+      {
+        refreshTokenHash: null,
+        refreshTokenExpiresAt: null,
+      },
+    );
+  }
+
   private toDomainModel(entity: AuthUserOrmEntity): AuthUser {
     return {
       id: entity.id,
       email: entity.email,
       passwordHash: entity.passwordHash,
+      refreshTokenHash: entity.refreshTokenHash,
+      refreshTokenExpiresAt: entity.refreshTokenExpiresAt,
       createdAt: entity.createdAt,
     };
   }

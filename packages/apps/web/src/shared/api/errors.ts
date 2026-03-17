@@ -81,6 +81,7 @@ const errorCodeTranslators: Record<string, ApiErrorTranslator> = {
       ? `Ein Benutzer mit der E-Mail "${email}" existiert bereits.`
       : 'Ein Benutzer mit dieser E-Mail existiert bereits.';
   },
+  AUTH_REFRESH_TOKEN_INVALID: () => 'Sitzung abgelaufen. Bitte erneut anmelden.',
   EMPLOYEE_EMAIL_ALREADY_EXISTS: (payload) => {
     const email = toStringParam(payload, 'email');
     return email
