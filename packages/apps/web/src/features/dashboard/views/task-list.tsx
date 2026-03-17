@@ -1,6 +1,6 @@
-import { TaskCard } from './task-card';
-import { Card, CardContent } from '../../components/ui/card';
-import { Task } from '../../shared/api/types';
+import { Card, CardContent } from '../../../components/ui/card';
+import { Task } from '../../../shared/api/types';
+import { TaskCard } from '../components';
 
 interface TaskListProps {
   tasks: Task[];

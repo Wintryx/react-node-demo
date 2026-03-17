@@ -1,6 +1,7 @@
+import { AuthResponse, LoginRequest, RegisterRequest } from '@react-node-demo/shared-contracts';
+
 import { apiClient } from './client';
 import { normalizeApiError } from './errors';
-import { AuthResponse, LoginRequest, RegisterRequest } from './types';
 
 export const authApi = {
   register: async (payload: RegisterRequest): Promise<AuthResponse> => {

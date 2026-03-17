@@ -1,6 +1,7 @@
+import { CreateTaskRequest, Task, UpdateTaskRequest } from '@react-node-demo/shared-contracts';
+
 import { apiClient } from './client';
 import { normalizeApiError } from './errors';
-import { CreateTaskRequest, Task, UpdateTaskRequest } from './types';
 
 export const tasksApi = {
   list: async (employeeId?: number): Promise<Task[]> => {

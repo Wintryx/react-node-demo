@@ -1,6 +1,10 @@
 import { CalendarClock, CircleCheckBig, Clock3, Pencil, Trash2 } from 'lucide-react';
 
 import { TaskSubtasksInline } from './task-subtasks-inline';
+import { Badge } from '../../../components/ui/badge';
+import { Button } from '../../../components/ui/button';
+import { Card, CardContent } from '../../../components/ui/card';
+import { Task } from '../../../shared/api/types';
 import {
   formatTaskDate,
   getCompletedSubtasksCount,
@@ -9,11 +13,7 @@ import {
   taskPriorityVariant,
   taskStatusLabels,
   taskStatusVariant,
-} from './task-utils';
-import { Badge } from '../../components/ui/badge';
-import { Button } from '../../components/ui/button';
-import { Card, CardContent } from '../../components/ui/card';
-import { Task } from '../../shared/api/types';
+} from '../utils';
 
 interface TaskCardProps {
   task: Task;

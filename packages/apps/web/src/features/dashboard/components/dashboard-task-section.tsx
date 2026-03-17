@@ -1,14 +1,12 @@
 import { AlertTriangle } from 'lucide-react';
 
-import { DashboardViewMode } from './dashboard-view-mode';
-import { TaskBoard } from './task-board';
-import { TaskList } from './task-list';
-import { TaskTimeline } from './task-timeline';
-import { Alert } from '../../components/ui/alert';
-import { Button } from '../../components/ui/button';
-import { Card, CardContent } from '../../components/ui/card';
-import { Spinner } from '../../components/ui/spinner';
-import { Task } from '../../shared/api/types';
+import { Alert } from '../../../components/ui/alert';
+import { Button } from '../../../components/ui/button';
+import { Card, CardContent } from '../../../components/ui/card';
+import { Spinner } from '../../../components/ui/spinner';
+import { Task } from '../../../shared/api/types';
+import { DashboardViewMode } from '../dashboard-view-mode';
+import { TaskBoard, TaskList, TaskTimeline } from '../views';
 
 interface DashboardTaskSectionProps {
   tasks: Task[];

@@ -1,4 +1,4 @@
-import { Task } from '../../shared/api/types';
+import { Task } from '../../../shared/api/types';
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const MIN_TIMELINE_SPAN_MS = DAY_IN_MS;

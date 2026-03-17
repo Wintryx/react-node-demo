@@ -1,12 +1,9 @@
 import { useState } from 'react';
 
-import { DashboardControlsPanel } from './dashboard-controls-panel';
-import { DashboardHeader } from './dashboard-header';
-import { DashboardTaskSection } from './dashboard-task-section';
+import { DashboardControlsPanel, DashboardHeader, DashboardTaskSection } from './components';
 import { DashboardViewMode } from './dashboard-view-mode';
-import { TaskFormDialog } from './task-form-dialog';
-import { useDashboardData } from './use-dashboard-data';
-import { useTaskMutations } from './use-task-mutations';
+import { TaskFormDialog } from './form';
+import { useDashboardData, useTaskMutations } from './hooks';
 import { Alert } from '../../components/ui/alert';
 import { Spinner } from '../../components/ui/spinner';
 import { Task } from '../../shared/api/types';

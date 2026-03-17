@@ -9,7 +9,7 @@ import {
   taskStatusOrder,
   taskStatusVariant,
 } from './task-utils';
-import { Task } from '../../shared/api/types';
+import { Task } from '../../../shared/api/types';
 
 const createTask = (overrides: Partial<Task> = {}): Task => ({
   id: 1,

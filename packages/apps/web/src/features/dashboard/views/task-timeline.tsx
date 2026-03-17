@@ -1,21 +1,24 @@
 import { CalendarClock } from 'lucide-react';
 import { useState } from 'react';
 
+import { Badge } from '../../../components/ui/badge';
+import { Button } from '../../../components/ui/button';
+import { Card, CardContent } from '../../../components/ui/card';
+import { Select } from '../../../components/ui/select';
+import { Task, TaskStatus } from '../../../shared/api/types';
 import {
   applyTimelineZoom,
   createTimelineTicks,
+  formatTaskDate,
   getTimelinePosition,
   getTimelineRange,
   getTodayMarkerPosition,
+  isTaskOverdue,
   sortTasksForTimeline,
+  taskStatusLabels,
+  taskStatusVariant,
   TimelineZoomPreset,
-} from './task-timeline-utils';
-import { formatTaskDate, isTaskOverdue, taskStatusLabels, taskStatusVariant } from './task-utils';
-import { Badge } from '../../components/ui/badge';
-import { Button } from '../../components/ui/button';
-import { Card, CardContent } from '../../components/ui/card';
-import { Select } from '../../components/ui/select';
-import { Task, TaskStatus } from '../../shared/api/types';
+} from '../utils';
 
 interface TaskTimelineProps {
   tasks: Task[];

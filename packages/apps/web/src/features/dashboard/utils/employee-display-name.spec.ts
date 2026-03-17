@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { getEmployeeDisplayName } from './employee-display-name';
-import { Employee } from '../../shared/api/types';
+import { Employee } from '../../../shared/api/types';
 
 const createEmployee = (overrides: Partial<Employee> = {}): Employee => ({
   id: 1,

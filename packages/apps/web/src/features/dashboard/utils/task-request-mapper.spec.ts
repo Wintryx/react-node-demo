@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { toUpsertSubtaskRequest, toUpsertSubtaskRequests } from './task-request-mapper';
-import { Subtask, Task } from '../../shared/api/types';
+import { Subtask, Task } from '../../../shared/api/types';
 
 const createSubtask = (overrides: Partial<Subtask> = {}): Subtask => ({
   id: 1,

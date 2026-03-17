@@ -35,16 +35,7 @@ export class TypeOrmTaskRepository implements TaskRepository {
   }
 
   async findById(id: number): Promise<Task | null> {
-    const entity = await this.taskRepository.findOne({
-      where: {
-        id,
-      },
-      relations: {
-        subtasks: {
-          assignee: true,
-        },
-      },
-    });
+    const entity = await this.loadTaskWithRelations(id);
 
     return entity ? this.toDomainModel(entity) : null;
   }
@@ -63,16 +54,7 @@ export class TypeOrmTaskRepository implements TaskRepository {
     });
 
     const savedEntity = await this.taskRepository.save(entity);
-    const fullEntity = await this.taskRepository.findOne({
-      where: {
-        id: savedEntity.id,
-      },
-      relations: {
-        subtasks: {
-          assignee: true,
-        },
-      },
-    });
+    const fullEntity = await this.loadTaskWithRelations(savedEntity.id);
 
     if (!fullEntity) {
       throw new Error('Failed to load created task.');
@@ -95,43 +77,10 @@ export class TypeOrmTaskRepository implements TaskRepository {
       return null;
     }
 
-    if (patch.title !== undefined) {
-      entity.title = patch.title;
-    }
-    if (patch.description !== undefined) {
-      entity.description = patch.description;
-    }
-    if (patch.status !== undefined) {
-      entity.status = patch.status;
-    }
-    if (patch.priority !== undefined) {
-      entity.priority = patch.priority;
-    }
-    if (patch.startDate !== undefined) {
-      entity.startDate = patch.startDate;
-    }
-    if (patch.dueDate !== undefined) {
-      entity.dueDate = patch.dueDate;
-    }
-    if (patch.employeeId !== undefined) {
-      entity.employeeId = patch.employeeId;
-      entity.employee = { id: patch.employeeId } as EmployeeOrmEntity;
-    }
-    if (patch.subtasks !== undefined) {
-      entity.subtasks = patch.subtasks.map((subtask) => this.toSubtaskEntity(subtask));
-    }
+    this.applyPatchToEntity(entity, patch);
 
     await this.taskRepository.save(entity);
-    const fullEntity = await this.taskRepository.findOne({
-      where: {
-        id: entity.id,
-      },
-      relations: {
-        subtasks: {
-          assignee: true,
-        },
-      },
-    });
+    const fullEntity = await this.loadTaskWithRelations(entity.id);
 
     if (!fullEntity) {
       return null;
@@ -160,6 +109,47 @@ export class TypeOrmTaskRepository implements TaskRepository {
       },
     });
     return count === ids.length;
+  }
+
+  private async loadTaskWithRelations(id: number): Promise<TaskOrmEntity | null> {
+    return this.taskRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        subtasks: {
+          assignee: true,
+        },
+      },
+    });
+  }
+
+  private applyPatchToEntity(entity: TaskOrmEntity, patch: UpdateTaskInput): void {
+    if (patch.title !== undefined) {
+      entity.title = patch.title;
+    }
+    if (patch.description !== undefined) {
+      entity.description = patch.description;
+    }
+    if (patch.status !== undefined) {
+      entity.status = patch.status;
+    }
+    if (patch.priority !== undefined) {
+      entity.priority = patch.priority;
+    }
+    if (patch.startDate !== undefined) {
+      entity.startDate = patch.startDate;
+    }
+    if (patch.dueDate !== undefined) {
+      entity.dueDate = patch.dueDate;
+    }
+    if (patch.employeeId !== undefined) {
+      entity.employeeId = patch.employeeId;
+      entity.employee = { id: patch.employeeId } as EmployeeOrmEntity;
+    }
+    if (patch.subtasks !== undefined) {
+      entity.subtasks = patch.subtasks.map((subtask) => this.toSubtaskEntity(subtask));
+    }
   }
 
   private toSubtaskEntity(subtask: UpsertSubtaskInput): SubtaskOrmEntity {

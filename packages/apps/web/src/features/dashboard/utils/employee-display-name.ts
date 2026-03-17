@@ -1,4 +1,4 @@
-import { Employee } from '../../shared/api/types';
+import { Employee } from '../../../shared/api/types';
 
 const generatedSuffixPattern =
   /(?:[-_\s]+)(?:[a-f0-9]{8,}|[a-z0-9]{12,}|[a-f0-9]{4}(?:-[a-f0-9]{4}){1,})$/i;

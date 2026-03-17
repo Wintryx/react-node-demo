@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
-import { toUpsertSubtaskRequests } from './task-request-mapper';
-import { tasksApi } from '../../shared/api';
-import { CreateTaskRequest, Task, UpdateTaskRequest, UpsertSubtaskRequest } from '../../shared/api/types';
-import { useToast } from '../notifications/toast-context';
+import { tasksApi } from '../../../shared/api';
+import { CreateTaskRequest, Task, UpdateTaskRequest, UpsertSubtaskRequest } from '../../../shared/api/types';
+import { useToast } from '../../notifications/toast-context';
+import { toUpsertSubtaskRequests } from '../utils';
 
 interface UseTaskMutationsResult {
   actionError: string | null;

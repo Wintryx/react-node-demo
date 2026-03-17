@@ -1,6 +1,6 @@
-import { getEmployeeDisplayName } from './employee-display-name';
-import { Select } from '../../components/ui/select';
-import { Employee } from '../../shared/api/types';
+import { Select } from '../../../components/ui/select';
+import { Employee } from '../../../shared/api/types';
+import { getEmployeeDisplayName } from '../utils';
 
 interface EmployeeSwitcherProps {
   employees: Employee[];

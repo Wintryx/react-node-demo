@@ -1,16 +1,16 @@
 import { RefreshCcw } from 'lucide-react';
 
 import { EmployeeSwitcher } from './employee-switcher';
-import { Alert } from '../../components/ui/alert';
-import { Button } from '../../components/ui/button';
+import { Alert } from '../../../components/ui/alert';
+import { Button } from '../../../components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../../components/ui/card';
-import { Employee } from '../../shared/api/types';
+} from '../../../components/ui/card';
+import { Employee } from '../../../shared/api/types';
 
 interface DashboardControlsPanelProps {
   employees: Employee[];
