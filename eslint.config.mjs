@@ -33,7 +33,20 @@ export default tseslint.config(
         {
           enforceBuildableLibDependency: true,
           allow: [],
-          depConstraints: [{ sourceTag: '*', onlyDependOnLibsWithTags: ['*'] }],
+          depConstraints: [
+            {
+              sourceTag: 'scope:web',
+              onlyDependOnLibsWithTags: ['scope:web', 'scope:shared'],
+            },
+            {
+              sourceTag: 'scope:api',
+              onlyDependOnLibsWithTags: ['scope:api', 'scope:shared'],
+            },
+            {
+              sourceTag: 'scope:api-e2e',
+              onlyDependOnLibsWithTags: ['scope:api-e2e', 'scope:api', 'scope:shared'],
+            },
+          ],
         },
       ],
       '@typescript-eslint/no-explicit-any': 'error',

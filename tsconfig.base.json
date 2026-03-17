@@ -16,7 +16,9 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@react-node-demo/shared-contracts": ["packages/libs/shared-contracts/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

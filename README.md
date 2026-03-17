@@ -61,6 +61,9 @@ Build a modern task management app with:
   - lint/test/build successful
   - API e2e covers health + auth + employees + tasks
   - web tests include mapper/helper units + dashboard CRUD integration tests with mocked API
+  - Nx boundary rules hardened (scope tags + dependency constraints)
+  - shared contract types moved to `packages/libs/shared-contracts`
+  - OpenAPI-based contract type generation available via script
 
 ## Key Decisions
 
@@ -92,6 +95,11 @@ Build a modern task management app with:
 ```bash
 npm install
 ```
+
+Contract type generation note:
+
+- No extra step is required to run the app locally; generated contract types are committed.
+- Run `npm run contracts:generate` only when backend Swagger contracts changed and you want to refresh frontend/shared typings.
 
 ### Environment
 
@@ -188,6 +196,7 @@ npm run build
 npm run graph
 npm run format
 npm run format:write
+npm run contracts:generate
 npm run db:migration:run
 npm run db:migration:revert
 npm run db:migration:show
@@ -252,6 +261,8 @@ packages/
     api/      # NestJS API
     web/      # React app
     api-e2e/  # API end-to-end tests
+  libs/
+    shared-contracts/  # shared API contract types (OpenAPI-based generation)
 docs/
   requirements.md
   implementation-guide.md
