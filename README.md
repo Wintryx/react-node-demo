@@ -90,6 +90,11 @@ Build a modern task management app with:
 - Node.js 20+
 - npm 10+
 
+Workspace root note:
+
+- Open the repository root folder that contains `nx.json` (for example in IntelliJ or VS Code).
+- Run all root scripts (`npm run ...`) from that same folder.
+
 ### Install
 
 ```bash
