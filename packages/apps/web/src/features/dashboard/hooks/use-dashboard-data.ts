@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
-import { employeesApi, tasksApi } from '../../shared/api';
-import { Employee, Task } from '../../shared/api/types';
+import { employeesApi, tasksApi } from '../../../shared/api';
+import { Employee, Task } from '../../../shared/api/types';
 
 interface UseDashboardDataResult {
   employees: Employee[];

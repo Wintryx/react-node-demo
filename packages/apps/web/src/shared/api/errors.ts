@@ -1,6 +1,6 @@
+import { ApiErrorPayload } from '@react-node-demo/shared-contracts';
 import axios from 'axios';
 
-import { ApiErrorPayload } from './types';
 
 type ApiErrorTranslator = (payload: ApiErrorPayload) => string;
 

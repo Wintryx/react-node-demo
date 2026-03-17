@@ -46,6 +46,14 @@ export default tseslint.config(
               sourceTag: 'scope:api-e2e',
               onlyDependOnLibsWithTags: ['scope:api-e2e', 'scope:api', 'scope:shared'],
             },
+            {
+              sourceTag: 'scope:shared',
+              onlyDependOnLibsWithTags: ['scope:shared'],
+            },
+            {
+              sourceTag: 'layer:contracts',
+              onlyDependOnLibsWithTags: ['layer:contracts'],
+            },
           ],
         },
       ],

@@ -42,10 +42,12 @@ Stand: 2026-03-17
 - Nx-Architekturgrenzen geschärft:
   - Projekt-Tags für `api`, `web`, `api-e2e` eingeführt
   - `@nx/enforce-module-boundaries` auf echte Scope-Constraints umgestellt
+  - Layer-Tags (`layer:app`, `layer:test`, `layer:contracts`) und zusätzliche Constraints ergänzt
 - Shared Contract Library eingeführt:
   - `packages/libs/shared-contracts` als gemeinsame Typquelle
   - Web-API-Typen auf Re-Export aus Shared-Lib umgestellt
   - OpenAPI-basierte Typgenerierung via `npm run contracts:generate` eingeführt
+  - API-Layer-Imports im Web teilweise direkt auf `@react-node-demo/shared-contracts` umgestellt
 - API-Skeleton erweitert:
   - `ConfigModule` global
   - `TypeORM` mit `SQLite`
@@ -70,6 +72,8 @@ Stand: 2026-03-17
   - Subtasks als relationale Tabelle, kein JSON-Blob
   - Task-Filter via `GET /tasks?employeeId=...`
   - Task-Delete mit Cascade auf Subtasks
+  - Repository-Refactor:
+    - Duplikate in `TypeOrmTaskRepository` reduziert (zentrale Load-/Patch-Helper)
 - `auth` Modul umgesetzt (DDD-light):
   - Endpunkte: `POST /auth/register`, `POST /auth/login`
   - Passwort-Hashing mit `bcrypt` (12 rounds)
@@ -142,6 +146,10 @@ Stand: 2026-03-17
     - Inline-Subtask Toggle/Add/Remove
     - Timeline-Klick öffnet Edit-Modal
   - Task Create/Edit/Delete über Modal mit `react-day-picker`
+  - Task-Form-Refactor:
+    - `TaskFormDialog` in Hook + Subcomponents aufgeteilt
+    - `use-task-form-state.ts`, `task-form-core-fields.tsx`, `task-form-subtasks-editor.tsx`
+    - Payload-/Validation-Logik in `task-form-state.ts` zentralisiert
   - Inline Subtask-Interaktionen (Toggle/Add/Remove) in List und Kanban
   - Frontend README erstellt (`packages/apps/web/README.md`)
 - Docker Compose Setup umgesetzt:
@@ -177,6 +185,15 @@ Stand: 2026-03-17
   - zentrale CLI-DataSource für TypeORM-Migrationsbefehle angelegt
   - Root-Skripte für `db:migration:*` hinzugefügt
   - API startet standardmäßig mit `migrationsRun` (via `TYPEORM_MIGRATIONS_RUN`)
+
+## Struktur-Update (2026-03-17)
+
+- Dashboard-Feature weiter modularisiert:
+  - `form/` für Task-Form-Dialog + State-Hook + Payload-Mapping
+  - `components/` für Dashboard-UI-Bausteine
+  - `views/` für List/Kanban/Timeline
+  - `hooks/` für Daten- und Mutationslogik
+  - `utils/` für Helper/Mapper und zugehörige Tests
 
 ## Verifiziert
 

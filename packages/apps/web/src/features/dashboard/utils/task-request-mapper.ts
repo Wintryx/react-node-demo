@@ -1,4 +1,4 @@
-import { Subtask, Task, UpsertSubtaskRequest } from '../../shared/api/types';
+import { Subtask, Task, UpsertSubtaskRequest } from '../../../shared/api/types';
 
 export const toUpsertSubtaskRequest = (subtask: Subtask): UpsertSubtaskRequest => ({
   id: subtask.id,

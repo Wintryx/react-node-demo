@@ -1,8 +1,8 @@
-import { TaskCard } from './task-card';
-import { taskStatusLabels, taskStatusOrder } from './task-utils';
-import { Badge } from '../../components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Task, TaskStatus } from '../../shared/api/types';
+import { Badge } from '../../../components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
+import { Task, TaskStatus } from '../../../shared/api/types';
+import { TaskCard } from '../components';
+import { taskStatusLabels, taskStatusOrder } from '../utils';
 
 interface TaskBoardProps {
   tasks: Task[];

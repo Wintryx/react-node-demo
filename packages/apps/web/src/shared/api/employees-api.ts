@@ -1,6 +1,7 @@
+import { Employee } from '@react-node-demo/shared-contracts';
+
 import { apiClient } from './client';
 import { normalizeApiError } from './errors';
-import { Employee } from './types';
 
 export const employeesApi = {
   list: async (): Promise<Employee[]> => {

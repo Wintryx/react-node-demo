@@ -90,6 +90,9 @@ Kontext:
 
 - `dashboard-page.tsx` ist Container/Orchestrator
 - Dashboard-UI in dedizierte Teilkomponenten aufgeteilt
+- Task-Formular folgt Smart/Dumb-Aufteilung:
+  - State/Transformationen in Hook/State-Modul
+  - UI-Segmente in kleine presentational Komponenten
 - API-Client modular (`auth`, `employees`, `tasks`)
 
 ---
@@ -112,6 +115,9 @@ Kontext:
 9. Shared API Contracts:
    - gemeinsame Typen in `packages/libs/shared-contracts`
    - OpenAPI-basierte Typgenerierung via `npm run contracts:generate`
+10. Struktur-Refactors:
+   - Task-Formular in Hook + Subcomponents aufgeteilt
+   - Task-Repository um zentrale Load-/Patch-Helper bereinigt
 
 ---
 

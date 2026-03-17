@@ -1,9 +1,9 @@
 import { Trash2 } from 'lucide-react';
 import { SyntheticEvent, useState } from 'react';
 
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Task } from '../../shared/api/types';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
+import { Task } from '../../../shared/api/types';
 
 interface TaskSubtasksInlineProps {
   task: Task;

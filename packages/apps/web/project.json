@@ -3,7 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/apps/web/src",
   "projectType": "application",
-  "tags": ["scope:web", "type:app"],
+  "tags": ["scope:web", "type:app", "layer:app"],
   "targets": {
     "lint": {
       "executor": "nx:run-commands",

@@ -1,4 +1,4 @@
-import { Task, TaskPriority, TaskStatus } from '../../shared/api/types';
+import { Task, TaskPriority, TaskStatus } from '../../../shared/api/types';
 
 export const taskStatusVariant: Record<TaskStatus, 'warning' | 'secondary' | 'success'> = {
   todo: 'warning',
