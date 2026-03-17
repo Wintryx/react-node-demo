@@ -1,486 +1,193 @@
-# Implementierungsguide (React + NestJS)  
-Senior-Level, DDD/SOLID, ohne Over-Engineering
+# Implementierungsguide (harmonisiert auf Ist-Stand)
 
-## 1. Zielbild
+Stand: 2026-03-17
 
-Wir bauen eine produktionsnahe Demo-App für Task-Management mit:
+## 1. Ziel und Scope
+
+Dieses Projekt liefert eine Senior-level Demo für das Assessment:
 
 - Frontend: React + TypeScript
-- Backend: NestJS + TypeScript (Node.js)
-- Datenbank: SQLite
-- Bonus: JWT Auth, `docker-compose.yml`, Unit-Tests
+- Backend: NestJS + TypeScript
+- DB: SQLite mit TypeORM
+- Bonus: JWT Auth, Docker Compose, Tests
 
-Fokus:
+Architekturziel:
 
-- klare Domänengrenzen (DDD-light)
-- wartbare, testbare Schichten (SOLID)
-- pragmatisch: nur so viel Abstraktion wie notwendig
-
----
-
-## 2. Architekturprinzipien
-
-## DDD-light statt Full-Enterprise-DDD
-
-- Bounded Contexts: `employees`, `tasks`, `auth`
-- Pro Context klare Schichten:
-  - `domain` (Kernlogik, Regeln, Interfaces)
-  - `application` (Use Cases)
-  - `infrastructure` (ORM/Repos/DB-Mapping)
-  - `presentation` (Controller/DTOs)
-
-Wichtig: Wir modellieren **Use Cases explizit**, vermeiden aber unnötige Patterns (keine Event-Sourcing/CQRS-Overhead, solange nicht nötig).
-
-## SOLID konkret
-
-- `S`: Kleine Services/Use Cases mit einem Zweck
-- `O`: Erweiterbar über Interfaces (z. B. Repository-Abstraktion)
-- `L`: Klare Contracts für Repositories/Services
-- `I`: Schmale Interfaces pro Use Case
-- `D`: Controller hängen von Use Cases/Ports, nicht direkt von ORM-Details
+- DDD-light pro Modul (`auth`, `employees`, `tasks`)
+- SOLID-orientierte Trennung in `domain`, `application`, `infrastructure`, `presentation`
+- strikte Typisierung ohne `any`
+- pragmatisch, ohne Over-Engineering
 
 ---
 
-## 3. Zielstruktur im Repository
+## 2. Erfüllungsgrad gegen Anforderungen
+
+### Pflichtanforderungen
+
+Alle Pflichtanforderungen sind umgesetzt:
+
+- Employees CRUD (`GET/POST/PATCH/DELETE /employees`)
+- Tasks CRUD inkl. `employeeId` Filter (`GET/POST/PATCH/DELETE /tasks`)
+- Task-Subtasks inkl. inline Add/Remove/Toggle im Frontend
+- Task Create/Edit/Delete mit Dialogen und Confirm-Flow
+- Employee Switcher als Board-Filter
+- Timeline/Gantt-like View:
+  - nach `dueDate` sortiert
+  - Status-Farbcodes
+  - Overdue Highlight
+  - Klick auf Task öffnet Edit-Modal
+- Swagger unter `/api`
+- DTO-Validierung via `class-validator`
+- Moderne UI mit Tailwind + Shadcn-style Basis
+
+### Bonusanforderungen
+
+Ebenfalls umgesetzt:
+
+- JWT Auth (`/auth/register`, `/auth/login`, geschützte Endpunkte)
+- `docker-compose.yml` (API + Web, persistente SQLite via Volume)
+- Unit-/Integrations-/funktionale E2E-Tests
+
+---
+
+## 3. Reale Architektur im Repository
 
 ```txt
 react-node-demo/
   packages/
     apps/
-      api/                       # NestJS
+      api/
         src/
           modules/
-            employees/
-              domain/
-              application/
-              infrastructure/
-              presentation/
-            tasks/
-              domain/
-              application/
-              infrastructure/
-              presentation/
             auth/
-              domain/
-              application/
-              infrastructure/
-              presentation/
+            employees/
+            tasks/
           shared/
-            domain/
-            infrastructure/
-            presentation/
-      web/                       # React
+            docs/
+            errors/
+            persistence/
+      web/
         src/
           app/
-          pages/
-          widgets/
           features/
-            employee-switcher/
-            task-editor/
-            subtask-inline-editor/
-          entities/
-            employee/
-            task/
+            auth/
+            dashboard/
           shared/
             api/
             lib/
             ui/
+      api-e2e/
+        src/
+          api/
+          support/
   docs/
-  docker-compose.yml
-  README.md
+    requirements.md
+    implementation-guide.md
+    progress.md
 ```
 
-Hinweis: Wir nutzen Nx als Monorepo-Tool, halten die Struktur bewusst klar mit `packages/apps/api` + `packages/apps/web`.
+Kontext:
+
+- `dashboard-page.tsx` ist Container/Orchestrator
+- Dashboard-UI in dedizierte Teilkomponenten aufgeteilt
+- API-Client modular (`auth`, `employees`, `tasks`)
 
 ---
 
-## 4. Technologiewahl (empfohlen)
+## 4. Technische Kernentscheidungen (umgesetzt)
 
-Backend:
-
-- NestJS
-- TypeORM + SQLite
-- `class-validator` + `class-transformer`
-- Swagger via `@nestjs/swagger`
-- JWT via `@nestjs/jwt` + `passport-jwt`
-
-Frontend:
-
-- React + TypeScript + Vite
-- React Query (`@tanstack/react-query`) für Server-State
-- React Hook Form für Formulare
-- Shadcn/UI + TailwindCSS (modern, schnell)
-- Timeline/Gantt: custom mit CSS Grid (leichtgewichtig) oder lib (z. B. `frappe-gantt`) falls Zeit knapp
-
-Qualität:
-
-- ESLint + Prettier
-- Husky + lint-staged (Pre-Commit)
-- Optional: Commitlint + Conventional Commits
+1. Nx Monorepo mit `packages/apps/*`
+2. npm als Paketmanager
+3. SQLite + TypeORM
+4. Migration-based Schema Strategy (kein long-term `synchronize`)
+5. React Query für Server State
+6. Session Storage für JWT (Demo-Tradeoff)
+7. Strikte Typisierung:
+   - TypeScript `strict`
+   - `noImplicitAny`
+   - ESLint `no-explicit-any: error`
 
 ---
 
-## 5. Umsetzung in Häppchen (iterativ)
+## 5. Security- und API-Stand
 
-Jedes Häppchen endet mit: lauffähigem Stand, Commit, kurzer README-Notiz.
+Umgesetzt:
 
-## Häppchen 0: Projekt-Setup & Tooling
+- `helmet`
+- restriktives CORS-Setup
+- globale ValidationPipe (`whitelist`, `forbidNonWhitelisted`, `transform`)
+- JWT Guard global mit `@Public()` Ausnahmen
+- Rate Limiting auf Auth-Endpunkten
+- Passwort-Hashing via `bcrypt`
+- fail-fast JWT Secret Validation (inkl. Mindestlänge)
+- Swagger nur außerhalb Produktion
+- strukturierter API-Error-Contract:
+  - `statusCode`, `code`, `message`, `params`, `path`, `timestamp`
+- Frontend mappt Fehler primär über stabile `code` Werte
 
-Ergebnis:
+Bewusster Demo-Tradeoff:
 
-- Nx Workspace initialisiert
-- Ordnerstruktur (`packages/apps/api`, `packages/apps/web`)
-- Node-Version fixieren (`.nvmrc` / Volta optional)
-- ESLint + Prettier + EditorConfig
-- Basis-Skripte (`dev`, `build`, `lint`, `test`)
-
-Definition of Done:
-
-- `npm run lint` in beiden Apps grün
-- einheitliche Formatierung aktiv
-
-## Häppchen 1: Backend Skeleton (Nest)
-
-Ergebnis:
-
-- Nest App mit globalem Prefix (`/api` optional) und Swagger unter `/api`
-- zentrale Config (`ConfigModule`)
-- Health-Endpoint
-
-Definition of Done:
-
-- App startet lokal
-- Swagger UI verfügbar
-
-## Häppchen 2: Employees CRUD
-
-Ergebnis:
-
-- Endpoints:
-  - `GET /employees`
-  - `POST /employees`
-  - `PATCH /employees/:id`
-  - `DELETE /employees/:id`
-- DTO-Validierung mit `class-validator`
-- Fehlerbehandlung (404, 400)
-
-Definition of Done:
-
-- CRUD manuell über Swagger getestet
-- Basis-Unit-Tests für Service/Use Cases
-
-## Häppchen 3: Tasks + Subtasks CRUD
-
-Ergebnis:
-
-- Endpoints:
-  - `GET /tasks?employeeId=`
-  - `POST /tasks`
-  - `PATCH /tasks/:id`
-  - `DELETE /tasks/:id`
-- Task gehört zu Employee
-- Subtasks inline im Task-Payload
-
-Definition of Done:
-
-- `employeeId`-Filter funktioniert
-- Update von Subtasks robust (add/edit/remove)
-
-## Häppchen 4: Frontend Foundation
-
-Ergebnis:
-
-- React App mit Routing, Layout, Design Tokens
-- API Client + React Query Setup
-- Basis-UI in Shadcn/Tailwind
-
-Definition of Done:
-
-- App startet
-- API-Anbindung zu Nest funktioniert
-
-## Häppchen 5: Task Board + Employee Switcher
-
-Ergebnis:
-
-- Employee-Auswahl
-- Task-Liste gefiltert nach Employee
-- Status/Priority Badges
-
-Definition of Done:
-
-- Wechsel Employee aktualisiert Daten korrekt
-
-## Häppchen 6: Task erstellen/bearbeiten/löschen
-
-Ergebnis:
-
-- Create/Edit Modal mit Feldern laut Anforderungen
-- Delete mit Confirmation Dialog
-- Inline Subtask Editor (toggle/add/remove)
-
-Definition of Done:
-
-- Komplettes Task-Lifecycle im UI nutzbar
-- Formvalidierung und Fehlermeldungen klar
-
-## Häppchen 7: Timeline / Gantt View
-
-Ergebnis:
-
-- Tasks nach `dueDate` sortiert
-- Farbcode nach Status
-- Overdue-Highlight
-- Klick auf Task öffnet Edit-Modal
-
-Definition of Done:
-
-- Timeline interaktiv und visuell klar auf Desktop + Mobile
-
-## Häppchen 8 (Bonus): JWT Auth
-
-Ergebnis:
-
-- Auth-Endpoints (`login`, optional `register`)
-- JWT Guard für Task/Employee-Endpoints
-- Frontend Login-Flow + Token Handling
-
-Definition of Done:
-
-- Ungeschützte Zugriffe auf geschützte Endpoints blockiert
-- User kann einloggen und weiterarbeiten
-
-## Häppchen 9 (Bonus): Docker Compose
-
-Ergebnis:
-
-- `docker-compose.yml` mit `api` und `web` (SQLite läuft in der API, kein separater DB-Container nötig)
-- Env-Handling dokumentiert
-
-Definition of Done:
-
-- One-command Start funktioniert
-
-## Häppchen 10 (Bonus): Tests & Finalisierung
-
-Ergebnis:
-
-- Backend Unit-Tests für zentrale Use Cases
-- Frontend smoke/integration Tests (mind. Kernflows)
-- README mit Setup, Architektur, Entscheidungen
-
-Definition of Done:
-
-- reproduzierbares Setup von Null
-- Bewerbungstaugliche Dokumentation
+- Authentifizierte Nutzer arbeiten in einem globalen Workspace
+- keine Per-User-Ownership-Isolation für Employees/Tasks
 
 ---
 
-## 6. Backend-Detaildesign (pragmatisch)
+## 6. Teststrategie und Qualität
 
-## Domain-Regeln (Beispiele)
+Aktueller Stand:
 
-- `dueDate` darf nicht vor `startDate` liegen
-- Subtask ohne `title` ist ungültig
-- Task muss einem existierenden Employee zugewiesen sein
+- Backend Unit Tests mit Jest (`packages/apps/api`)
+- Frontend Unit + Integration mit Vitest/Testing Library (`packages/apps/web`)
+- API-E2E (funktionale Blackbox-Tests) mit Jest (`packages/apps/api-e2e`)
+- Root-Skripte:
+  - `npm run lint` -> web + api + api-e2e
+  - `npm run test` -> web + api + api-e2e
+  - `npm run build` -> web + api
 
-## API- und DTO-Strategie
+Verifiziert:
 
-- `CreateTaskDto`, `UpdateTaskDto`, `CreateEmployeeDto`, `UpdateEmployeeDto`
-- `ValidationPipe` global mit `whitelist`, `forbidNonWhitelisted`
-- Fehlerformat konsistent halten
-
-## Persistenzmodell (TypeORM-Vorschlag)
-
-- `Employee` 1:n `Task`
-- `Task` 1:n `Subtask` (als eigene Tabelle, nicht JSON)
-
-Warum: sauberere Queries, bessere Erweiterbarkeit, klare Constraints.
+- lint/test/build erfolgreich
+- api-e2e erfolgreich
 
 ---
 
-## 7. Frontend-Detaildesign (Angular -> React Brücke)
+## 7. Was fehlt noch an Umsetzung?
 
-## Denkweise-Mapping für dich
+### Für die Assessment-Abgabe (Pflicht)
 
-- Angular Service + RxJS Store -> React Query + API Client
-- Angular Reactive Forms -> React Hook Form
-- Input/Output + DI -> Props + Hooks + Context (sparsam)
-- Module-lastig -> Feature-first Ordnerstruktur
+Nichts Kritisches. Der Pflichtumfang ist umgesetzt.
+Ein kurzer Demo-Skript-Abschnitt ist in der Root-README enthalten.
 
-## State-Strategie
+### Sinnvolle optionale Abschlusspunkte (kurzfristig)
 
-- Server-State: React Query
-- UI-State (Modals/Filter): lokaler State
-- Kein globaler Store (Redux/Zustand) ohne echten Bedarf
+1. UI Smoke E2E (z. B. Playwright)
+2. Seed-Workflow für reproduzierbare Demo-Daten
+3. CI Workflow (Lint/Test/Build bei Push/PR)
 
-## Komponenten-Schnitt
+### Production-Hardening (bewusst außerhalb Demo-Scope)
 
-- Container-Komponenten: Daten laden, Mutations triggern
-- Presentational-Komponenten: rein UI, props-getrieben
-
----
-
-## 8. Linting, Formatting, Codequalität
-
-## ESLint (sinnvoll, nicht dogmatisch)
-
-- `@typescript-eslint/recommended`
-- `eslint-plugin-import`
-- `eslint-plugin-unused-imports`
-- `no-console`: `warn` (in App-Code), `off` für lokale Scripts
-- `@typescript-eslint/no-explicit-any`: `error` (keine `any`-Deklarationen im Projektcode)
-- `import/order`: konsistente Imports
-
-## Prettier
-
-- `semi: true`
-- `singleQuote: true`
-- `trailingComma: all`
-- `printWidth: 100`
-
-Typisierungsregel:
-
-- `strict: true` + `noImplicitAny: true` als Default-Basis
-
-## Git Hooks
-
-- pre-commit: `lint-staged` (nur geänderte Dateien)
-- optional pre-push: Test-Suite (mindestens Backend Unit-Tests)
+1. Refresh-Token Rotation + Revocation
+2. Ownership/RBAC Autorisierung statt globalem Workspace
+3. Audit Logging sicherheitsrelevanter Aktionen
+4. Security Header/CSP Feintuning pro Deployment
+5. Backup-/Migrations-Runbook
 
 ---
 
-## 9. Risiken und Gegenmaßnahmen
+## 8. Empfohlene Reihenfolge ab jetzt
 
-- Risiko: Zu viele Abstraktionen früh.
-  - Maßnahme: Erst direkte Use Cases + Repo-Interface; nur extrahieren, wenn Wiederholung entsteht.
-- Risiko: Timeline frisst Zeit.
-  - Maßnahme: MVP-Timeline zuerst (sortiert + farbig + click/edit), danach visuelle Verfeinerung.
-- Risiko: JWT + CORS + Token-Handling.
-  - Maßnahme: Früh E2E-Smoke testen (`login -> list tasks -> create task`).
+1. CI Pipeline (schneller Qualitätshebel)
+2. Seed-Workflow (bessere Reproduzierbarkeit)
+3. UI Smoke E2E (Abgabesicherheit)
+4. Optional Auth-Hardening (nur wenn gewünscht)
 
 ---
 
-## 10. Entscheidungen (festgelegt)
+## 9. Agent-Arbeitsmodus (fortlaufend)
 
-Stand: 2026-03-16
+Pro Schritt:
 
-1. Datenbank: `SQLite`
-2. Paketmanager: `npm`
-3. Monorepo-Tool: `Nx`
-4. Auth-Scope: `register + login` und Schutz für alle relevanten Endpoints
-5. Testtiefe: `minimal + wichtige Edge-Cases`
-
-## Empfehlung Timeline/Gantt
-
-Empfehlung: **Custom Timeline MVP** (ohne externe Gantt-Library) mit CSS Grid.
-
-Begründung:
-
-- schneller kontrollierbar für Demo-Anforderungen
-- weniger Abhängigkeiten/Komplexität
-- gutes Signal für Senior-Level (eigene, saubere UI-Logik)
-
-Fallback:
-
-- Falls Zeit knapp oder Layout zu aufwendig wird: `frappe-gantt` als gezielter Ersatz.
-
----
-
-## 10.1 Nx-Baseline (für Angular-Hintergrund)
-
-Ziel: Vorteile von Nx nutzen, ohne Setup-Overhead.
-
-- Workspace als Integrated Monorepo mit `packages/apps/api` und `packages/apps/web`
-- Nx Plugins:
-  - `@nx/nest`
-  - `@nx/react`
-  - `@nx/vite`
-  - `@nx/eslint`
-  - `@nx/jest` (nur falls wir für Backend nicht Vitest nehmen)
-- Aktivieren: `@nx/enforce-module-boundaries` für klare Layer-Grenzen
-- `nx.json`:
-  - `targetDefaults` mit Cache für `build`, `test`, `lint`
-  - `namedInputs` sauber setzen (`production`, `default`)
-- Projekt-Tags für Architekturgrenzen:
-  - Beispiel: `scope:api`, `scope:web`, `layer:domain`, `layer:application`, `layer:infrastructure`, `layer:presentation`
-
-Angular-Mapping:
-
-- Denk an Nx wie an Angular Workspace + stärkere Monorepo-Tooling-Layer.
-- `nx graph` hilft dir sofort bei Abhängigkeiten/Architektur-Checks.
-
----
-
-## 10.2 Security-Baseline (OWASP Top 10 relevant)
-
-Wir setzen bewusst Security-Mindeststandards, ohne unnötige Komplexität:
-
-- `helmet` im Nest Backend (sichere HTTP Header)
-- strikte DTO-Validierung (`ValidationPipe`, `whitelist`, `forbidNonWhitelisted`)
-- `bcrypt` fürs Passwort-Hashing
-- kein Klartext-Passwort-Logging
-- CORS restriktiv auf Frontend-Origin
-- Rate Limiting auf Auth-Endpunkte (`/auth/login`, `/auth/register`)
-- einheitliches Error-Handling ohne interne Stack-Details für Clients
-
-XSS:
-
-- React rendert escaped by default
-- kein `dangerouslySetInnerHTML`
-- serverseitig Input-Validierung + Längenlimits
-
-CSRF:
-
-- Bei JWT im `Authorization` Header ist klassisches CSRF-Risiko deutlich reduziert.
-- Wenn wir Tokens in Cookies nutzen, ergänzen wir CSRF-Token-Strategie (`double submit`).
-
-Passwort-/Token-Policy (pragmatisch):
-
-- Access Token kurzlebig (z. B. 15m)
-- sichere Secret-Verwaltung via `.env`
-- optional später: Refresh Token Rotation
-
----
-
-## 10.3 Teststrategie mit Vitest
-
-Ja, **Vitest passt sehr gut** zu React (Vite-nativ) und ist auch für Node/Nest-Unit-Tests nutzbar.
-
-Empfehlung:
-
-- Frontend: `Vitest + Testing Library`
-- Backend:
-  - Option A: Nest Standard mit Jest (konservativ)
-  - Option B: Vitest auch im Backend (konsistent, schneller)
-
-Für diese Demo empfehle ich:
-
-- Vitest im Frontend sicher
-- Backend zunächst bei Jest lassen oder früh auf Vitest festlegen (wir können beides sauber aufsetzen)
-
-Minimale Testabdeckung + Edge-Cases:
-
-- Task Date Rules (`dueDate >= startDate`)
-- Subtask-Validierung (leerer Titel, inkonsistente Daten)
-- Auth Fehlerfälle (invalid credentials, fehlender Token)
-- Task-Filter nach `employeeId`
-
----
-
-## 11. Arbeitsmodus für den KI-Agenten (Folgeschritte)
-
-Bei jeder Iteration:
-
-1. Kleine Teilaufgabe auswählen.
-2. Implementieren + lokal prüfen.
-3. Kurz dokumentieren (README/`docs/progress.md`).
-4. Nächsten Schritt starten.
-
-Definition “senior-mäßig” für dieses Projekt:
-
-- saubere Struktur, klare Namen, stabile Defaults
-- sinnvolle Validierung und Fehlermeldungen
-- nachvollziehbare Commit-Schritte
-- dokumentierte Architekturentscheidungen
-- keine unnötige Komplexität
+1. Kleine, klar abgegrenzte Aufgabe
+2. Implementierung + lokale Verifikation
+3. README + `docs/progress.md` aktualisieren
+4. Englischer Commit-Text und exakte Git-Befehle

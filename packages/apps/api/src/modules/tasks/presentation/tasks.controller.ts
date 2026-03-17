@@ -36,6 +36,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskResponseDto } from './dto/task-response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { toCreateTaskInput, toUpdateTaskInput } from './task-input.mapper';
+import { DEMO_AUTH_SCOPE_NOTE } from '../../../shared/docs/swagger-notes';
 import { ApiErrorCode } from '../../../shared/errors/api-error-code';
 import { createApiErrorPayload } from '../../../shared/errors/api-error.helpers';
 
@@ -52,7 +53,7 @@ export class TasksController {
 
   @ApiOperation({
     summary: 'List tasks',
-    description: 'Returns all tasks or filters tasks by employee id.',
+    description: `Returns all tasks or filters tasks by employee id. ${DEMO_AUTH_SCOPE_NOTE}`,
   })
   @ApiQuery({
     name: 'employeeId',
@@ -76,8 +77,7 @@ export class TasksController {
 
   @ApiOperation({
     summary: 'Create task',
-    description:
-      'Creates a task for an employee, including optional subtasks and subtask assignees.',
+    description: `Creates a task for an employee, including optional subtasks and subtask assignees. ${DEMO_AUTH_SCOPE_NOTE}`,
   })
   @ApiBody({
     description: 'Task creation payload.',
@@ -123,7 +123,7 @@ export class TasksController {
 
   @ApiOperation({
     summary: 'Update task',
-    description: 'Updates task fields and replaces the full subtask list when provided.',
+    description: `Updates task fields and replaces the full subtask list when provided. ${DEMO_AUTH_SCOPE_NOTE}`,
   })
   @ApiBody({
     description: 'Task update payload (partial update supported).',
@@ -174,7 +174,7 @@ export class TasksController {
 
   @ApiOperation({
     summary: 'Delete task',
-    description: 'Deletes a task and all of its subtasks.',
+    description: `Deletes a task and all of its subtasks. ${DEMO_AUTH_SCOPE_NOTE}`,
   })
   @ApiParam({
     name: 'id',
