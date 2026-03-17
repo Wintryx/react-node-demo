@@ -13,11 +13,23 @@ export type LoginRequest = Schemas['LoginDto'];
 export type RegisterRequest = Schemas['RegisterDto'];
 export type Employee = Schemas['EmployeeResponseDto'];
 export type TaskAssignee = Schemas['SubtaskAssigneeResponseDto'];
-export type Subtask = Schemas['SubtaskResponseDto'];
 export type UpsertSubtaskRequest = Schemas['UpsertSubtaskDto'];
 export type CreateTaskRequest = Schemas['CreateTaskDto'];
 export type UpdateTaskRequest = Schemas['UpdateTaskDto'];
-export type Task = Schemas['TaskResponseDto'];
+
+type NullableApiString = string | null;
+
+// Swagger/OpenAPI generator currently emits nullable string response fields
+// as Record<string, never> | null. Normalize them for strict frontend typing.
+export type Subtask = Omit<Schemas['SubtaskResponseDto'], 'endDate'> & {
+  endDate: NullableApiString;
+};
+
+export type Task = Omit<Schemas['TaskResponseDto'], 'description' | 'dueDate' | 'subtasks'> & {
+  description: NullableApiString;
+  dueDate: NullableApiString;
+  subtasks: Subtask[];
+};
 
 export interface ApiErrorPayload {
   statusCode?: number;

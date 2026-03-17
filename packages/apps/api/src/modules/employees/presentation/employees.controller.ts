@@ -25,15 +25,13 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
+import { CreateEmployeeDto, EmployeeResponseDto, UpdateEmployeeDto } from './dto';
+import { DEMO_AUTH_SCOPE_NOTE } from '../../../shared/docs/swagger-notes';
 import { CreateEmployeeUseCase } from '../application/create-employee.use-case';
 import { DeleteEmployeeUseCase } from '../application/delete-employee.use-case';
 import { ListEmployeesUseCase } from '../application/list-employees.use-case';
 import { UpdateEmployeeUseCase } from '../application/update-employee.use-case';
 import { Employee } from '../domain/employee.model';
-import { CreateEmployeeDto } from './dto/create-employee.dto';
-import { EmployeeResponseDto } from './dto/employee-response.dto';
-import { UpdateEmployeeDto } from './dto/update-employee.dto';
-import { DEMO_AUTH_SCOPE_NOTE } from '../../../shared/docs/swagger-notes';
 
 @ApiTags('employees')
 @ApiBearerAuth()

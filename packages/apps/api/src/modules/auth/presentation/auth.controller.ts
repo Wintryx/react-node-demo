@@ -16,9 +16,7 @@ import { AuthResponse } from '../application/auth-response.mapper';
 import { LoginUseCase } from '../application/login.use-case';
 import { RegisterUseCase } from '../application/register.use-case';
 import { Public } from './decorators/public.decorator';
-import { AuthResponseDto } from './dto/auth-response.dto';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+import { AuthResponseDto, LoginDto, RegisterDto } from './dto';
 
 @ApiTags('auth')
 @Controller('auth')

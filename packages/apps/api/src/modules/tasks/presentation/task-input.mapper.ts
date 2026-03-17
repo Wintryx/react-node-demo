@@ -1,6 +1,5 @@
+import { CreateTaskDto, UpdateTaskDto } from './dto';
 import { CreateTaskInput, UpdateTaskInput, UpsertSubtaskInput } from '../domain/task.model';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
 
 const mapSubtasks = (
   subtasks: { id?: number; title: string; completed?: boolean; startDate: string; endDate?: string; assigneeId?: number }[] | undefined,

@@ -27,18 +27,15 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
+import { CreateTaskDto, TaskResponseDto, UpdateTaskDto } from './dto';
+import { toCreateTaskInput, toUpdateTaskInput } from './task-input.mapper';
+import { DEMO_AUTH_SCOPE_NOTE } from '../../../shared/docs/swagger-notes';
+import { ApiErrorCode, createApiErrorPayload } from '../../../shared/errors';
 import { CreateTaskUseCase } from '../application/create-task.use-case';
 import { DeleteTaskUseCase } from '../application/delete-task.use-case';
 import { ListTasksUseCase } from '../application/list-tasks.use-case';
 import { UpdateTaskUseCase } from '../application/update-task.use-case';
 import { Task } from '../domain/task.model';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { TaskResponseDto } from './dto/task-response.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { toCreateTaskInput, toUpdateTaskInput } from './task-input.mapper';
-import { DEMO_AUTH_SCOPE_NOTE } from '../../../shared/docs/swagger-notes';
-import { ApiErrorCode } from '../../../shared/errors/api-error-code';
-import { createApiErrorPayload } from '../../../shared/errors/api-error.helpers';
 
 @ApiTags('tasks')
 @ApiBearerAuth()

@@ -1,7 +1,6 @@
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 
-import { ApiErrorCode } from '../../../shared/errors/api-error-code';
-import { createApiErrorPayload } from '../../../shared/errors/api-error.helpers';
+import { ApiErrorCode, createApiErrorPayload } from '../../../shared/errors';
 import { Employee, UpdateEmployeeInput } from '../domain/employee.model';
 import { EMPLOYEE_REPOSITORY, EmployeeRepository } from '../domain/employee.repository';
 

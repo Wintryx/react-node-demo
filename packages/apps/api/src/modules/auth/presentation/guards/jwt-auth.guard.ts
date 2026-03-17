@@ -3,8 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
 
-import { ApiErrorCode } from '../../../../shared/errors/api-error-code';
-import { createApiErrorPayload } from '../../../../shared/errors/api-error.helpers';
+import { ApiErrorCode, createApiErrorPayload } from '../../../../shared/errors';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()

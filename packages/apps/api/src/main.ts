@@ -5,7 +5,7 @@ import helmet from 'helmet';
 
 import { AppModule } from './app/app.module';
 import { shouldEnableSwagger } from './shared/docs/swagger-environment';
-import { ApiExceptionFilter } from './shared/errors/api-exception.filter';
+import { ApiExceptionFilter } from './shared/errors';
 
 const parseCorsOrigins = (rawOrigins: string | undefined): string[] => {
   if (!rawOrigins || rawOrigins.trim().length === 0) {
