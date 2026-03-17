@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+import { notifyUnauthorized } from './unauthorized-handler';
 import { clearAuthSession, readAuthSession } from '../../features/auth/auth-storage';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
@@ -23,6 +24,7 @@ apiClient.interceptors.response.use(
   (error: unknown) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
       clearAuthSession();
+      notifyUnauthorized();
     }
 
     return Promise.reject(error);

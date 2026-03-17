@@ -20,6 +20,7 @@ export function DashboardPage() {
   const {
     employees,
     tasks,
+    selectedEmployeeId,
     effectiveSelectedEmployeeId,
     isEmployeesError,
     isEmployeesLoading,
@@ -74,7 +75,7 @@ export function DashboardPage() {
           <section className="space-y-4">
             <DashboardControlsPanel
               employees={employees}
-              selectedEmployeeId={effectiveSelectedEmployeeId}
+              selectedEmployeeId={selectedEmployeeId}
               onEmployeeChange={setSelectedEmployeeId}
               onRefresh={refreshData}
             />
@@ -82,7 +83,6 @@ export function DashboardPage() {
 
           <DashboardTaskSection
             tasks={tasks}
-            selectedEmployeeId={effectiveSelectedEmployeeId}
             employeesCount={employees.length}
             viewMode={viewMode}
             isTasksLoading={isTasksLoading}

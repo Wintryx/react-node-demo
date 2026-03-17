@@ -9,7 +9,7 @@ interface UseDashboardDataResult {
   tasks: Task[];
   selectedEmployeeId: number | null;
   effectiveSelectedEmployeeId: number | null;
-  setSelectedEmployeeId(employeeId: number): void;
+  setSelectedEmployeeId(employeeId: number | null): void;
   isEmployeesLoading: boolean;
   isEmployeesError: boolean;
   employeesError: Error | null;
@@ -29,21 +29,14 @@ export const useDashboardData = (): UseDashboardDataResult => {
   });
 
   const employees = employeesQuery.data ?? [];
-  const selectedEmployeeExists = employees.some((employee) => employee.id === selectedEmployeeId);
-  const effectiveSelectedEmployeeId = selectedEmployeeExists
-    ? selectedEmployeeId
-    : (employees[0]?.id ?? null);
+  const selectedEmployeeExists =
+    selectedEmployeeId === null || employees.some((employee) => employee.id === selectedEmployeeId);
+  const effectiveSelectedEmployeeId = selectedEmployeeExists ? selectedEmployeeId : null;
 
   const tasksQuery = useQuery<Task[], Error>({
     queryKey: ['tasks', effectiveSelectedEmployeeId],
-    queryFn: async () => {
-      if (effectiveSelectedEmployeeId === null) {
-        return [];
-      }
-
-      return tasksApi.listByEmployee(effectiveSelectedEmployeeId);
-    },
-    enabled: effectiveSelectedEmployeeId !== null,
+    queryFn: () => tasksApi.list(effectiveSelectedEmployeeId ?? undefined),
+    enabled: employees.length > 0,
   });
 
   const refreshData = (): void => {

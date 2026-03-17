@@ -12,7 +12,6 @@ import { Task } from '../../shared/api/types';
 
 interface DashboardTaskSectionProps {
   tasks: Task[];
-  selectedEmployeeId: number | null;
   employeesCount: number;
   viewMode: DashboardViewMode;
   isTasksLoading: boolean;
@@ -32,7 +31,6 @@ interface DashboardTaskSectionProps {
 
 export function DashboardTaskSection({
   tasks,
-  selectedEmployeeId,
   employeesCount,
   viewMode,
   isTasksLoading,
@@ -97,10 +95,10 @@ export function DashboardTaskSection({
 
       {actionError ? <Alert variant="danger">{actionError}</Alert> : null}
 
-      {selectedEmployeeId === null ? (
+      {employeesCount === 0 ? (
         <Card>
           <CardContent className="flex min-h-40 items-center justify-center text-muted-foreground">
-            Wähle eine mitarbeitende Person, um Aufgaben zu laden.
+            Keine Mitarbeitenden vorhanden. Bitte zuerst Mitarbeitende anlegen.
           </CardContent>
         </Card>
       ) : isTasksLoading ? (

@@ -8,12 +8,14 @@ import { writeAuthSession } from '../auth/auth-storage';
 
 const {
   listEmployeesMock,
+  listTasksMock,
   listTasksByEmployeeMock,
   createTaskMock,
   updateTaskMock,
   deleteTaskMock,
 } = vi.hoisted(() => ({
   listEmployeesMock: vi.fn(),
+  listTasksMock: vi.fn(),
   listTasksByEmployeeMock: vi.fn(),
   createTaskMock: vi.fn(),
   updateTaskMock: vi.fn(),
@@ -29,6 +31,7 @@ vi.mock('../../shared/api', () => ({
     list: listEmployeesMock,
   },
   tasksApi: {
+    list: listTasksMock,
     listByEmployee: listTasksByEmployeeMock,
     create: createTaskMock,
     update: updateTaskMock,
@@ -96,6 +99,7 @@ describe('Dashboard CRUD integration', () => {
     vi.clearAllMocks();
 
     listEmployeesMock.mockResolvedValue([employeeFixture]);
+    listTasksMock.mockResolvedValue([taskFixture]);
     listTasksByEmployeeMock.mockResolvedValue([taskFixture]);
     createTaskMock.mockResolvedValue(taskFixture);
     updateTaskMock.mockResolvedValue(taskFixture);
@@ -152,7 +156,9 @@ describe('Dashboard CRUD integration', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Teilaufgabe hinzufügen' }));
     fireEvent.click(screen.getByRole('button', { name: 'Aufgabe erstellen' }));
 
-    expect(await screen.findByText('Jede Teilaufgabe braucht einen Titel und ein Startdatum.')).toBeTruthy();
+    expect(
+      await screen.findByText('Jede Teilaufgabe braucht einen Titel und ein Startdatum.'),
+    ).toBeTruthy();
     expect(createTaskMock).not.toHaveBeenCalled();
   });
 
@@ -285,7 +291,9 @@ describe('Dashboard CRUD integration', () => {
     expect(addPayload.subtasks[1].title).toBe('Inline added subtask');
 
     updateTaskMock.mockClear();
-    fireEvent.click(await screen.findByRole('button', { name: 'Teilaufgabe Initial subtask entfernen' }));
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Teilaufgabe Initial subtask entfernen' }),
+    );
 
     await waitFor(() => {
       expect(updateTaskMock).toHaveBeenCalled();
