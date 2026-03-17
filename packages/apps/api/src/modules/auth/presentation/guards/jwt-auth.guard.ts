@@ -1,8 +1,10 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
 
+import { ApiErrorCode } from '../../../../shared/errors/api-error-code';
+import { createApiErrorPayload } from '../../../../shared/errors/api-error.helpers';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
@@ -22,5 +24,22 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     return super.canActivate(context);
+  }
+
+  // Ensure auth guard failures always use the structured API error contract.
+  handleRequest<TUser>(
+    error: unknown,
+    user: TUser | false,
+    _info: unknown,
+    _context: ExecutionContext,
+    _status: unknown,
+  ): TUser {
+    if (error || !user) {
+      throw new UnauthorizedException(
+        createApiErrorPayload(ApiErrorCode.UNAUTHORIZED, 'Unauthorized.'),
+      );
+    }
+
+    return user;
   }
 }

@@ -3,18 +3,17 @@ import { normalizeApiError } from './errors';
 import { CreateTaskRequest, Task, UpdateTaskRequest } from './types';
 
 export const tasksApi = {
-  listByEmployee: async (employeeId: number): Promise<Task[]> => {
+  list: async (employeeId?: number): Promise<Task[]> => {
     try {
       const response = await apiClient.get<Task[]>('/tasks', {
-        params: {
-          employeeId,
-        },
+        params: employeeId ? { employeeId } : undefined,
       });
       return response.data;
     } catch (error: unknown) {
       throw normalizeApiError(error);
     }
   },
+  listByEmployee: async (employeeId: number): Promise<Task[]> => tasksApi.list(employeeId),
   create: async (payload: CreateTaskRequest): Promise<Task> => {
     try {
       const response = await apiClient.post<Task>('/tasks', payload);

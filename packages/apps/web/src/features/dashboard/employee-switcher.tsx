@@ -5,7 +5,7 @@ import { Employee } from '../../shared/api/types';
 interface EmployeeSwitcherProps {
   employees: Employee[];
   selectedEmployeeId: number | null;
-  onChange(employeeId: number): void;
+  onChange(employeeId: number | null): void;
 }
 
 const employeeRoleLabels: Record<Employee['role'], string> = {
@@ -30,8 +30,11 @@ export function EmployeeSwitcher({
       </p>
       <Select
         value={selectedEmployeeId?.toString() ?? ''}
-        onChange={(event) => onChange(Number(event.target.value))}
+        onChange={(event) =>
+          onChange(event.target.value.trim() === '' ? null : Number(event.target.value))
+        }
       >
+        <option value="">Alle Mitarbeitenden</option>
         {employees.map((employee) => (
           <option key={employee.id} value={employee.id}>
             {getEmployeeDisplayName(employee)} ({employeeRoleLabels[employee.role]})

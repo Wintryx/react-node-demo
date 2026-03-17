@@ -1,8 +1,10 @@
-import { createContext, type ReactNode, useContext, useState } from 'react';
+import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { AuthSession, clearAuthSession, readAuthSession, writeAuthSession } from './auth-storage';
 import { authApi } from '../../shared/api';
 import { AuthUser, LoginRequest, RegisterRequest } from '../../shared/api/types';
+import { setUnauthorizedHandler } from '../../shared/api/unauthorized-handler';
 
 interface AuthContextValue {
   accessToken: string | null;
@@ -21,7 +23,31 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [session, setSession] = useState<AuthSession | null>(() => readAuthSession());
+
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      clearAuthSession();
+      setSession(null);
+
+      if (location.pathname === '/login' || location.pathname === '/register') {
+        return;
+      }
+
+      navigate('/login', {
+        replace: true,
+        state: {
+          from: location.pathname,
+        },
+      });
+    });
+
+    return () => {
+      setUnauthorizedHandler(null);
+    };
+  }, [location.pathname, navigate]);
 
   const persistSession = (nextSession: AuthSession): void => {
     writeAuthSession(nextSession);
