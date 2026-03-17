@@ -1,9 +1,19 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBody,
   ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -11,9 +21,14 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { Request, Response, CookieOptions } from 'express';
 
+import { getCookieValue } from './cookie-utils';
+import { AuthRefreshSessionService } from '../application/auth-refresh-session.service';
 import { AuthResponse } from '../application/auth-response.mapper';
 import { LoginUseCase } from '../application/login.use-case';
+import { LogoutUseCase } from '../application/logout.use-case';
+import { RefreshUseCase } from '../application/refresh.use-case';
 import { RegisterUseCase } from '../application/register.use-case';
 import { Public } from './decorators/public.decorator';
 import { AuthResponseDto, LoginDto, RegisterDto } from './dto';
@@ -22,9 +37,14 @@ import { AuthResponseDto, LoginDto, RegisterDto } from './dto';
 @Controller('auth')
 @UseGuards(ThrottlerGuard)
 export class AuthController {
+  private static readonly REFRESH_TOKEN_COOKIE_NAME = 'refreshToken';
+
   constructor(
     private readonly registerUseCase: RegisterUseCase,
     private readonly loginUseCase: LoginUseCase,
+    private readonly refreshUseCase: RefreshUseCase,
+    private readonly logoutUseCase: LogoutUseCase,
+    private readonly authRefreshSessionService: AuthRefreshSessionService,
   ) {}
 
   @ApiOperation({
@@ -60,8 +80,13 @@ export class AuthController {
       ttl: 60_000,
     },
   })
-  register(@Body() dto: RegisterDto): Promise<AuthResponse> {
-    return this.registerUseCase.execute(dto);
+  async register(
+    @Body() dto: RegisterDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<AuthResponse> {
+    const authResponse = await this.registerUseCase.execute(dto);
+    await this.issueRefreshTokenCookie(response, authResponse.user.id, authResponse.user.email);
+    return authResponse;
   }
 
   @ApiOperation({
@@ -98,7 +123,113 @@ export class AuthController {
       ttl: 60_000,
     },
   })
-  login(@Body() dto: LoginDto): Promise<AuthResponse> {
-    return this.loginUseCase.execute(dto);
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<AuthResponse> {
+    const authResponse = await this.loginUseCase.execute(dto);
+    await this.issueRefreshTokenCookie(response, authResponse.user.id, authResponse.user.email);
+    return authResponse;
+  }
+
+  @ApiOperation({
+    summary: 'Refresh access token',
+    description:
+      'Uses the HttpOnly refresh token cookie to issue a new JWT access token without re-entering credentials.',
+  })
+  @ApiOkResponse({
+    description: 'Returns a new access token for a valid refresh token cookie.',
+    type: AuthResponseDto,
+  })
+  @ApiUnauthorizedResponse({ description: 'Refresh token is missing or invalid.' })
+  @ApiTooManyRequestsResponse({ description: 'Too many refresh attempts.' })
+  @Public()
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60_000,
+    },
+  })
+  refresh(@Req() request: Request): Promise<AuthResponse> {
+    return this.refreshUseCase.execute(this.readRefreshToken(request));
+  }
+
+  @ApiOperation({
+    summary: 'Logout user',
+    description:
+      'Clears refresh token cookie and invalidates the persisted refresh token for the current session.',
+  })
+  @ApiNoContentResponse({ description: 'Logout completed and refresh token cookie cleared.' })
+  @ApiTooManyRequestsResponse({ description: 'Too many logout attempts.' })
+  @Public()
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60_000,
+    },
+  })
+  async logout(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<void> {
+    await this.logoutUseCase.execute(this.readRefreshToken(request));
+    response.clearCookie(
+      AuthController.REFRESH_TOKEN_COOKIE_NAME,
+      this.createRefreshCookieOptions(),
+    );
+  }
+
+  private readRefreshToken(request: Request): string | undefined {
+    return getCookieValue(request.headers.cookie, AuthController.REFRESH_TOKEN_COOKIE_NAME);
+  }
+
+  private async issueRefreshTokenCookie(
+    response: Response,
+    userId: number,
+    email: string,
+  ): Promise<void> {
+    const refreshToken = await this.authRefreshSessionService.issueForUser({
+      id: userId,
+      email,
+    });
+
+    response.cookie(
+      AuthController.REFRESH_TOKEN_COOKIE_NAME,
+      refreshToken.refreshToken,
+      this.createRefreshCookieOptions(refreshToken.expiresAt),
+    );
+  }
+
+  private createRefreshCookieOptions(expiresAt?: Date): CookieOptions {
+    const sameSite = this.resolveCookieSameSite(process.env.AUTH_COOKIE_SAME_SITE);
+    const secure = process.env.AUTH_COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production';
+
+    return {
+      httpOnly: true,
+      secure,
+      sameSite,
+      path: '/auth',
+      ...(expiresAt
+        ? {
+            maxAge: Math.max(0, expiresAt.getTime() - Date.now()),
+            expires: expiresAt,
+          }
+        : {}),
+    };
+  }
+
+  private resolveCookieSameSite(
+    value: string | undefined,
+  ): 'lax' | 'strict' | 'none' {
+    const normalized = value?.trim().toLowerCase();
+    if (normalized === 'strict' || normalized === 'none' || normalized === 'lax') {
+      return normalized;
+    }
+
+    return 'lax';
   }
 }

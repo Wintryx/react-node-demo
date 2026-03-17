@@ -17,6 +17,8 @@ It provides the REST API and contains:
   - `GET /health`
   - `POST /auth/register`
   - `POST /auth/login`
+  - `POST /auth/refresh`
+  - `POST /auth/logout`
 - Protected (JWT):
   - `GET /employees`
   - `POST /employees`
@@ -40,7 +42,9 @@ It provides the REST API and contains:
 - Auth:
   - register is public
   - password is hashed with bcrypt
-  - register/login return JWT access token
+  - register/login return JWT access token and set HttpOnly refresh token cookie
+  - refresh endpoint returns new access token from refresh cookie
+  - logout endpoint clears/invalidate refresh session
 
 ## Demo Authorization Scope
 
@@ -110,7 +114,9 @@ Optional env toggle:
 
 - `TYPEORM_MIGRATIONS_RUN=false` skips migration execution on app bootstrap.
 - `DATABASE_PATH=...` controls which SQLite file is used by migration commands.
-- `JWT_ACCESS_TOKEN_SECRET` is required and must be at least 32 characters (API fails fast otherwise).
+- `JWT_ACCESS_TOKEN_SECRET` and `JWT_REFRESH_TOKEN_SECRET` are required and must be at least 32 characters (API fails fast otherwise).
+- `JWT_REFRESH_TOKEN_EXPIRES_IN` controls refresh token lifetime (default `7d`).
+- `AUTH_COOKIE_SAME_SITE` and `AUTH_COOKIE_SECURE` control refresh token cookie flags.
 
 ## Tests
 

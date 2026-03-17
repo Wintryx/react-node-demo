@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { DataSourceOptions } from 'typeorm';
 
 import { InitialSchemaMigration20260316162000 } from './migrations/20260316162000-initial-schema.migration';
+import { AuthRefreshTokenMigration20260317134500 } from './migrations/20260317134500-auth-refresh-token.migration';
 import { AuthUserOrmEntity } from '../../modules/auth/infrastructure/persistence/auth-user.orm-entity';
 import { EmployeeOrmEntity } from '../../modules/employees/infrastructure/persistence/employee.orm-entity';
 import { SubtaskOrmEntity } from '../../modules/tasks/infrastructure/persistence/subtask.orm-entity';
@@ -17,7 +18,10 @@ export const ormEntities = [
   SubtaskOrmEntity,
 ] as const;
 
-export const ormMigrations = [InitialSchemaMigration20260316162000] as const;
+export const ormMigrations = [
+  InitialSchemaMigration20260316162000,
+  AuthRefreshTokenMigration20260317134500,
+] as const;
 
 export const resolveDatabasePath = (databasePath: string | undefined): string =>
   databasePath && databasePath.trim().length > 0 ? databasePath : DEFAULT_DATABASE_PATH;

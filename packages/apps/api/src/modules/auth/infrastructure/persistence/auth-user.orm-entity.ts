@@ -11,6 +11,12 @@ export class AuthUserOrmEntity {
   @Column({ length: 255 })
   passwordHash!: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  refreshTokenHash!: string | null;
+
+  @Column({ type: 'datetime', nullable: true })
+  refreshTokenExpiresAt!: Date | null;
+
   @CreateDateColumn()
   createdAt!: Date;
 }

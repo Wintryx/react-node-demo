@@ -75,9 +75,13 @@ Stand: 2026-03-17
   - Repository-Refactor:
     - Duplikate in `TypeOrmTaskRepository` reduziert (zentrale Load-/Patch-Helper)
 - `auth` Modul umgesetzt (DDD-light):
-  - Endpunkte: `POST /auth/register`, `POST /auth/login`
+  - Endpunkte: `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`
   - Passwort-Hashing mit `bcrypt` (12 rounds)
-  - JWT Access Token Ausgabe bei Register/Login
+  - JWT Access Token Ausgabe bei Register/Login/Refresh
+  - HttpOnly Refresh-Token-Cookie Flow (Stage 1):
+    - Persistierter Refresh-Token-Hash in `auth_users`
+    - Refresh-Token-Verifikation via JWT + Hash-Abgleich
+    - Logout invalidiert serverseitige Refresh-Session
   - Globaler JWT Guard via `APP_GUARD`
   - `@Public()` für öffentliche Endpunkte
   - Strengeres Throttling auf Auth-Endpunkten
@@ -200,17 +204,16 @@ Stand: 2026-03-17
 - `npm run lint` erfolgreich
 - `npm run test` erfolgreich
 - `npm run build` erfolgreich
-- `npx nx run api-e2e:e2e` erfolgreich (17 Tests)
+- `npx nx run api-e2e:e2e` erfolgreich (20 Tests)
 - Re-Check am 2026-03-17:
-  - API Unit: 12 Suites / 27 Tests erfolgreich
+  - API Unit: 14 Suites / 35 Tests erfolgreich
   - Web (Vitest): 10 Files / 42 Tests erfolgreich
-  - API-E2E: 4 Suites / 17 Tests erfolgreich
+  - API-E2E: 4 Suites / 20 Tests erfolgreich
 
 ## Offene technische Punkte (relevant)
 
 - Optional: Seed-Daten für schnellere lokale UI-Demos
 - Auth-Hardening in späteren Schritten:
-  - Refresh-Token-Flow (optional)
   - Rotation/Revocation-Konzept
 
 ## Nächste Schritte

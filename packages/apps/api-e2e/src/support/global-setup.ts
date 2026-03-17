@@ -86,6 +86,11 @@ module.exports = async function () {
       HOST: host,
       PORT: String(port),
       DATABASE_PATH: databasePath,
+      JWT_ACCESS_TOKEN_SECRET:
+        process.env.JWT_ACCESS_TOKEN_SECRET ?? 'demo-local-jwt-secret-change-in-production-2026',
+      JWT_REFRESH_TOKEN_SECRET:
+        process.env.JWT_REFRESH_TOKEN_SECRET ??
+        'demo-local-refresh-jwt-secret-change-in-production-2026',
       NODE_ENV: 'test',
     },
   });
