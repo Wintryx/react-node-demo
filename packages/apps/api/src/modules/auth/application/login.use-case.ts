@@ -1,8 +1,7 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { AuthResponse, toAuthResponse } from './auth-response.mapper';
-import { ApiErrorCode } from '../../../shared/errors/api-error-code';
-import { createApiErrorPayload } from '../../../shared/errors/api-error.helpers';
+import { ApiErrorCode, createApiErrorPayload } from '../../../shared/errors';
 import { ACCESS_TOKEN_SIGNER, AccessTokenSigner } from '../domain/access-token-signer';
 import { AUTH_REPOSITORY, AuthRepository } from '../domain/auth.repository';
 import { PASSWORD_HASHER, PasswordHasher } from '../domain/password-hasher';

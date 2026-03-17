@@ -1,8 +1,7 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 import { collectAssigneeIds, ensureDateRange, ensureSubtasksValid } from './task-validation';
-import { ApiErrorCode } from '../../../shared/errors/api-error-code';
-import { createApiErrorPayload } from '../../../shared/errors/api-error.helpers';
+import { ApiErrorCode, createApiErrorPayload } from '../../../shared/errors';
 import { Task, UpdateTaskInput } from '../domain/task.model';
 import { TASK_REPOSITORY, TaskRepository } from '../domain/task.repository';
 
