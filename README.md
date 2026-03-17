@@ -115,6 +115,11 @@ Optional migration toggle:
 - `TYPEORM_MIGRATIONS_RUN=true` (default behavior if not set)
 - Set `TYPEORM_MIGRATIONS_RUN=false` only if you explicitly want to skip migration execution on app startup.
 
+JWT configuration:
+
+- `JWT_ACCESS_TOKEN_SECRET` is mandatory and must be at least 32 characters.
+- API startup fails fast if the secret is missing or too short.
+
 ### Run (2 terminals)
 
 Terminal 1 (backend):
@@ -133,7 +138,7 @@ Default URLs:
 
 - Frontend: `http://localhost:4200` (or Vite output URL)
 - API: `http://localhost:3000`
-- Swagger: `http://localhost:3000/api`
+- Swagger (non-production only): `http://localhost:3000/api`
 - Health: `http://localhost:3000/health`
 
 ### Run with Docker Compose
@@ -147,6 +152,32 @@ Compose URLs:
 - Web: `http://localhost:8080`
 - API: `http://localhost:3000`
 - Swagger: `http://localhost:3000/api`
+
+## Demo Script (Quick Walkthrough)
+
+Use these 3 short flows for a live demo (5-10 minutes total):
+
+1. Authentication + App Access
+   - Open `/register`, create a new user, and show successful redirect/login capability.
+   - Login via `/login` and confirm protected route `/app` is accessible only after auth.
+
+2. Employee + Task Lifecycle
+   - Create an employee in the dashboard.
+   - Create a task for that employee with:
+     - title/description
+     - status/priority
+     - `startDate` and optional `dueDate`
+     - at least one subtask with assignee
+   - Edit the task (for example change status to `in-progress`) and show toast feedback.
+   - Delete the task and show confirmation dialog behavior.
+
+3. Board and Timeline Behavior
+   - Switch employee filter and verify list/kanban content updates.
+   - Open timeline view and show:
+     - due-date ordering
+     - status color coding
+     - overdue highlighting
+   - Click a timeline task bar and demonstrate edit modal opening directly from timeline.
 
 ## Useful Scripts
 
@@ -165,6 +196,53 @@ npm run db:migration:generate
 ```
 
 `npm run test` includes API E2E and starts the API on a dedicated dynamic test port.
+
+## Test Strategy & Coverage
+
+Test execution (where and with what):
+
+- Frontend tests (`packages/apps/web`): `Vitest` + `Testing Library` in `jsdom`.
+- Backend unit tests (`packages/apps/api`): `Jest` for NestJS modules/use cases/helpers.
+- Backend functional E2E tests (`packages/apps/api-e2e`): `Jest` against a real API process on a dynamic test port and temporary SQLite DB.
+
+Test types in this project:
+
+- Unit tests:
+  - Backend use cases and helper logic.
+  - Frontend helper/mapper/date/auth-storage utilities.
+- Integration tests:
+  - Frontend dashboard integration tests with mocked API module (`tasksApi` etc.).
+- Functional tests:
+  - API E2E flows (`auth`, `employees`, `tasks`, `health`) in `api-e2e`.
+- Non-functional tests:
+  - Static quality gates via `eslint` and strict TypeScript typing.
+  - No dedicated performance/load/stress tests yet (out of demo scope).
+
+Coverage commands:
+
+```bash
+# API (Jest, text summary)
+npx nx test api --coverage --coverageReporters=text-summary
+
+# Web (Vitest, text summary)
+cd packages/apps/web
+npx vitest run --coverage --coverage.reporter=text-summary
+```
+
+Coverage snapshot (local run on 2026-03-17):
+
+- API (`packages/apps/api`)
+  - Statements: `86.17%`
+  - Branches: `65.59%`
+  - Functions: `85.33%`
+  - Lines: `85.75%`
+- Web (`packages/apps/web`)
+  - Statements: `67.87%`
+  - Branches: `58.03%`
+  - Functions: `58.21%`
+  - Lines: `69.41%`
+- API E2E (`packages/apps/api-e2e`)
+  - Functional black-box tests; no separate code-coverage percentage is tracked for this suite.
 
 ## Structure
 
@@ -194,6 +272,14 @@ docs/
 - auth endpoint throttling
 - JWT access tokens for protected routes
 - password policy on register (minimum length + complexity)
+- fail-fast JWT secret validation (no insecure fallback secret)
+- Swagger disabled in production mode
+
+## Demo Authorization Scope
+
+- Authenticated users share one global workspace.
+- There is intentionally no per-user ownership isolation for employees/tasks in demo scope.
+- This is an accepted demo tradeoff and must be tightened in production (role/scope/ownership-based authorization).
 
 ## API Error Contract
 

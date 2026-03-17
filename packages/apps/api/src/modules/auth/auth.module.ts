@@ -14,6 +14,7 @@ import { AuthUserOrmEntity } from './infrastructure/persistence/auth-user.orm-en
 import { TypeOrmAuthRepository } from './infrastructure/persistence/typeorm-auth.repository';
 import { BcryptPasswordHasher } from './infrastructure/security/bcrypt-password-hasher';
 import { JwtAccessTokenSigner } from './infrastructure/security/jwt-access-token-signer';
+import { getJwtAccessTokenSecret } from './infrastructure/security/jwt-config';
 import { JwtStrategy } from './infrastructure/security/jwt.strategy';
 import { AuthController } from './presentation/auth.controller';
 import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
@@ -27,7 +28,7 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_ACCESS_TOKEN_SECRET') ?? 'change-me',
+        secret: getJwtAccessTokenSecret(configService),
       }),
     }),
   ],

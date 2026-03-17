@@ -33,6 +33,7 @@ import { Employee } from '../domain/employee.model';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { EmployeeResponseDto } from './dto/employee-response.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import { DEMO_AUTH_SCOPE_NOTE } from '../../../shared/docs/swagger-notes';
 
 @ApiTags('employees')
 @ApiBearerAuth()
@@ -47,7 +48,7 @@ export class EmployeesController {
 
   @ApiOperation({
     summary: 'List employees',
-    description: 'Returns all employees sorted by creation order.',
+    description: `Returns all employees sorted by creation order. ${DEMO_AUTH_SCOPE_NOTE}`,
   })
   @ApiUnauthorizedResponse({ description: 'Missing or invalid bearer token.' })
   @ApiOkResponse({
@@ -62,7 +63,7 @@ export class EmployeesController {
 
   @ApiOperation({
     summary: 'Create employee',
-    description: 'Creates a new employee with a unique email address.',
+    description: `Creates a new employee with a unique email address. ${DEMO_AUTH_SCOPE_NOTE}`,
   })
   @ApiBody({
     description: 'Employee creation payload.',
@@ -95,7 +96,7 @@ export class EmployeesController {
 
   @ApiOperation({
     summary: 'Update employee',
-    description: 'Updates one or more fields of an existing employee.',
+    description: `Updates one or more fields of an existing employee. ${DEMO_AUTH_SCOPE_NOTE}`,
   })
   @ApiBody({
     description: 'Employee update payload (partial update supported).',
@@ -135,7 +136,7 @@ export class EmployeesController {
 
   @ApiOperation({
     summary: 'Delete employee',
-    description: 'Deletes an employee if no tasks are currently assigned.',
+    description: `Deletes an employee if no tasks are currently assigned. ${DEMO_AUTH_SCOPE_NOTE}`,
   })
   @ApiParam({
     name: 'id',

@@ -42,6 +42,12 @@ It provides the REST API and contains:
   - password is hashed with bcrypt
   - register/login return JWT access token
 
+## Demo Authorization Scope
+
+- Authenticated users share one global workspace.
+- There is intentionally no per-user ownership isolation for employees/tasks in demo scope.
+- This is an accepted demo tradeoff for assessment delivery and should be replaced by role/scope/ownership authorization in production.
+
 ## Error Contract
 
 API errors use a structured payload with stable `code` values:
@@ -82,7 +88,7 @@ npm run dev:api
 Default URL:
 
 - API: `http://localhost:3000`
-- Swagger: `http://localhost:3000/api`
+- Swagger (non-production only): `http://localhost:3000/api`
 
 ## Database
 
@@ -104,6 +110,7 @@ Optional env toggle:
 
 - `TYPEORM_MIGRATIONS_RUN=false` skips migration execution on app bootstrap.
 - `DATABASE_PATH=...` controls which SQLite file is used by migration commands.
+- `JWT_ACCESS_TOKEN_SECRET` is required and must be at least 32 characters (API fails fast otherwise).
 
 ## Tests
 
