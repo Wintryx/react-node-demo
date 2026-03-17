@@ -39,6 +39,13 @@ Stand: 2026-03-17
   - `packages/apps/api-e2e`
 - ESLint + Prettier + EditorConfig konfiguriert
 - Skripte für `build`, `lint`, `test`, `dev:web`, `dev:api` eingerichtet
+- Nx-Architekturgrenzen geschärft:
+  - Projekt-Tags für `api`, `web`, `api-e2e` eingeführt
+  - `@nx/enforce-module-boundaries` auf echte Scope-Constraints umgestellt
+- Shared Contract Library eingeführt:
+  - `packages/libs/shared-contracts` als gemeinsame Typquelle
+  - Web-API-Typen auf Re-Export aus Shared-Lib umgestellt
+  - OpenAPI-basierte Typgenerierung via `npm run contracts:generate` eingeführt
 - API-Skeleton erweitert:
   - `ConfigModule` global
   - `TypeORM` mit `SQLite`

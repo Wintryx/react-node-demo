@@ -15,10 +15,11 @@
     "db:migration:show": "node scripts/typeorm-cli.cjs migration:show",
     "dev:api": "nx serve api",
     "dev:web": "nx serve web",
+    "contracts:generate": "node scripts/generate-contract-types.mjs",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "graph": "nx graph",
-    "lint": "nx run-many -t lint -p web api api-e2e",
+    "lint": "nx run-many -t lint -p web api api-e2e shared-contracts",
     "test": "nx run-many -t test -p web api && nx run api-e2e:e2e"
   },
   "repository": {
@@ -31,7 +32,8 @@
   "type": "commonjs",
   "private": true,
   "workspaces": [
-    "packages/apps/*"
+    "packages/apps/*",
+    "packages/libs/*"
   ],
   "bugs": {
     "url": "https://github.com/Wintryx/react-node-demo/issues"
@@ -80,6 +82,7 @@
     "jiti": "2.4.2",
     "jsdom": "~22.1.0",
     "nx": "22.5.4",
+    "openapi-typescript": "^7.13.0",
     "postcss": "^8.4.49",
     "prettier": "~3.6.2",
     "tailwindcss": "^3.4.17",

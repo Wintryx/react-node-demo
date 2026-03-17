@@ -106,6 +106,12 @@ Kontext:
    - TypeScript `strict`
    - `noImplicitAny`
    - ESLint `no-explicit-any: error`
+8. Nx Boundary Enforcement:
+   - Scope-Tags für Projekte
+   - echte `depConstraints` statt Wildcard-Regel
+9. Shared API Contracts:
+   - gemeinsame Typen in `packages/libs/shared-contracts`
+   - OpenAPI-basierte Typgenerierung via `npm run contracts:generate`
 
 ---
 
