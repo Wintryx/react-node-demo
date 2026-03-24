@@ -41,7 +41,10 @@ Current execution status:
 - [x] Phase 1 completed on 2026-03-24
 - [x] Phase 2 completed on 2026-03-24
 - [x] Phase 3 completed on 2026-03-24
-- [ ] Phase 4 optional/open
+- [x] Phase 4 completed on 2026-03-24
+
+Summary of delivered auth changes (Phases 1-4):
+The authentication flow now keeps users signed in smoothly across access-token expiry by combining startup silent refresh with controlled one-time `401` retry and single-flight coordination. On the backend, refresh-token rotation is active and replay resistance was improved by hashing refresh-token input via `sha256` before bcrypt verification/persistence. Phase 4 finalized the operational side with a documented session policy, a production runbook, and startup guardrails that fail fast on insecure cookie/CORS production settings. The result is better UX continuity without weakening the security baseline, with behavior covered by focused frontend, API unit, and API E2E tests.
 
 ---
 
@@ -169,9 +172,19 @@ Definition of Done:
 
 ## Phase 4 - Optional hardening (only if time remains)
 
+Status: completed on 2026-03-24.
+
 Goal:
 
 - Improve operational clarity without major feature expansion.
+
+Files:
+
+- `docs/security/session-policy.md`
+- `docs/security/auth-production-runbook.md`
+- `packages/apps/api/src/shared/security/auth-runtime-security.ts`
+- `packages/apps/api/src/shared/security/auth-runtime-security.spec.ts`
+- `packages/apps/api/src/main.ts`
 
 Changes:
 
@@ -183,6 +196,10 @@ Changes:
    - cookie flags
    - CORS origins
    - JWT secret rotation process.
+3. Add production startup guardrails:
+   - require explicit `CORS_ORIGIN` allowlist in production
+   - reject wildcard or localhost CORS origins in production
+   - require `AUTH_COOKIE_SECURE=true` in production
 
 ---
 
@@ -214,7 +231,7 @@ For each phase:
 1. Phase 1 (highest UX impact, low complexity)
 2. Phase 2 (stability during active usage)
 3. Phase 3 (security hardening with bounded backend change)
-4. Phase 4 only if needed for presentation/hand-over
+4. Phase 4 (operational hardening/documentation) completed
 
 ---
 

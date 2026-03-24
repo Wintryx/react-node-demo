@@ -25,7 +25,7 @@ Stand: 2026-03-24
   - Token-Storage in `sessionStorage` (Demo-Entscheidung)
   - Public Routes: `/login`, `/register`
   - Protected Route: `/app`
-  - Geplanter Ausbau: Session-Continuity in kleinen Schritten (Silent Refresh + kontrollierter 401-Retry + optionale Rotation)
+  - Umgesetzter Ausbau: Session-Continuity in kleinen Schritten (Silent Refresh + kontrollierter 401-Retry + Rotation + Hardening-Doku)
 
 ## Auth-Roadmap (Update 2026-03-24)
 
@@ -42,11 +42,21 @@ Status:
   - `/auth/refresh` rotiert Refresh-Token und setzt ein neues HttpOnly-Cookie
   - Replay-Schutz verbessert: Refresh-Token werden vor Persistenz gehasht (SHA-256 -> bcrypt), um bcrypt-72-Byte-Trunkierung zu vermeiden
   - API-Tests erweitert: Rotationsfall in `api-e2e/src/api/auth.spec.ts` + Regressionstest `auth-refresh-session.service.spec.ts`
+- Phase 4 abgeschlossen (2026-03-24)
+  - Session-Policy dokumentiert: `docs/security/session-policy.md`
+  - Produktions-Runbook dokumentiert: `docs/security/auth-production-runbook.md`
+  - Produktions-Guardrails ergänzt: API fail-fast bei unsicherer `CORS_ORIGIN`/`AUTH_COOKIE_SECURE` Konfiguration
+
+Kurzfazit (Phasen 1-4):
+Kernfazit: Silent-Refresh beim App-Start und kontrollierter 401-Retry halten die Session im normalen Nutzungsfluss stabil. Der Refresh-Flow wurde backendseitig durch Token-Rotation und Replay-Schutz gehärtet. Phase 4 ergänzt verbindliche Session-Policy, ein Produktions-Runbook und API-Guardrails gegen unsichere Cookie/CORS-Produktionskonfigurationen.
+Die Auth-Session verhält sich jetzt aus Nutzersicht stabil über Access-Token-Ablauf hinweg: beim App-Start erfolgt ein Silent-Refresh, und während aktiver Nutzung werden `401`-Antworten kontrolliert mit Single-Flight behandelt. Gleichzeitig wurde der Backend-Refresh-Flow sicherer gemacht, indem Refresh-Token bei jedem Refresh rotiert und Replay-Fenster reduziert wurden. Die Änderungen sind durch gezielte Web-, API-Unit- und API-E2E-Tests abgesichert.
 
 Referenzdokumente:
 
 - `docs/descriptions/authentication-deep-dive.md`
 - `docs/descriptions/frontend-click-flow-guide.md`
+- `docs/security/session-policy.md`
+- `docs/security/auth-production-runbook.md`
 
 Zielbild:
 
@@ -74,7 +84,7 @@ Geplante HÃ¤ppchen:
   - API-E2E-Tests um Rotationsfall erweitern
   - DoD: Replay-Fenster reduziert, Logout/Refresh bleibt stabil
 
-- [ ] **Phase 4 - Optionales Hardening**
+- [x] **Phase 4 - Optionales Hardening**
   - Session-Policy klar dokumentieren (Idle + Absolute Timeout)
   - Produktions-Runbook fÃ¼r Cookie/CORS/Secret-Rotation ergÃ¤nzen
 
@@ -83,6 +93,7 @@ Geplante HÃ¤ppchen:
 - Auth Session Continuity - Phase 1 (Silent Refresh Bootstrap) umgesetzt
 - Auth Session Continuity - Phase 2 (401-Retry + Single-Flight) umgesetzt
 - Auth Session Continuity - Phase 3 (Refresh-Token-Rotation + Replay-Schutz) umgesetzt
+- Auth Session Continuity - Phase 4 (Policy + Runbook + Produktions-Guardrails) umgesetzt
 - Strenge Typisierung als Regel gesetzt:
   - `strict: true`
   - `noImplicitAny: true`
@@ -272,10 +283,10 @@ Geplante HÃ¤ppchen:
 
 - Optional: Seed-Daten für schnellere lokale UI-Demos
 - Auth-Hardening in späteren Schritten:
-  - Rotation/Revocation-Konzept
+  - Optional: Multi-Device Session-Management/Revocation
 
 ## Nächste Schritte
 
 1. Optional: E2E UI-Smoke-Tests
 2. Optional: Seed-Workflow für reproduzierbare Demo-Daten
-3. Optional: Auth-Hardening (Refresh/Rotation/Revocation)
+3. Optional: Advanced Auth-Hardening (Device Sessions/Revocation/MFA)

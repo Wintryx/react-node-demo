@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import { AppModule } from './app/app.module';
 import { shouldEnableSwagger } from './shared/docs/swagger-environment';
 import { ApiExceptionFilter } from './shared/errors';
+import { assertAuthRuntimeSecurity } from './shared/security/auth-runtime-security';
 
 const parseCorsOrigins = (rawOrigins: string | undefined): string[] => {
   if (!rawOrigins || rawOrigins.trim().length === 0) {
@@ -19,6 +20,13 @@ const parseCorsOrigins = (rawOrigins: string | undefined): string[] => {
 };
 
 async function bootstrap() {
+  assertAuthRuntimeSecurity({
+    nodeEnv: process.env.NODE_ENV,
+    corsOrigin: process.env.CORS_ORIGIN,
+    authCookieSecure: process.env.AUTH_COOKIE_SECURE,
+    authCookieSameSite: process.env.AUTH_COOKIE_SAME_SITE,
+  });
+
   const app = await NestFactory.create(AppModule);
   const isSwaggerEnabled = shouldEnableSwagger(process.env.NODE_ENV);
 
