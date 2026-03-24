@@ -1,205 +1,211 @@
-# Implementierungsguide (harmonisiert auf Ist-Stand)
+# Implementation Guide (auth-focused, pragmatic)
 
-Stand: 2026-03-17
+Stand: 2026-03-24
 
-## 1. Ziel und Scope
+## 1. Goal
 
-Dieses Projekt liefert eine Senior-level Demo für das Assessment:
+This guide defines how to improve authentication/session behavior in small, safe increments:
 
-- Frontend: React + TypeScript
-- Backend: NestJS + TypeScript
-- DB: SQLite mit TypeORM
-- Bonus: JWT Auth, Docker Compose, Tests
+- Keep short-lived access tokens (security baseline).
+- Use refresh token cookie for smooth session continuity.
+- Avoid overengineering.
+- Preserve current architecture style (DDD-light backend, pragmatic frontend hooks/api layer).
 
-Architekturziel:
+Primary references:
 
-- DDD-light pro Modul (`auth`, `employees`, `tasks`)
-- SOLID-orientierte Trennung in `domain`, `application`, `infrastructure`, `presentation`
-- strikte Typisierung ohne `any`
-- pragmatisch, ohne Over-Engineering
-
----
-
-## 2. Erfüllungsgrad gegen Anforderungen
-
-### Pflichtanforderungen
-
-Alle Pflichtanforderungen sind umgesetzt:
-
-- Employees CRUD (`GET/POST/PATCH/DELETE /employees`)
-- Tasks CRUD inkl. `employeeId` Filter (`GET/POST/PATCH/DELETE /tasks`)
-- Task-Subtasks inkl. inline Add/Remove/Toggle im Frontend
-- Task Create/Edit/Delete mit Dialogen und Confirm-Flow
-- Employee Switcher als Board-Filter
-- Timeline/Gantt-like View:
-  - nach `dueDate` sortiert
-  - Status-Farbcodes
-  - Overdue Highlight
-  - Klick auf Task öffnet Edit-Modal
-- Swagger unter `/api`
-- DTO-Validierung via `class-validator`
-- Moderne UI mit Tailwind + Shadcn-style Basis
-
-### Bonusanforderungen
-
-Ebenfalls umgesetzt:
-
-- JWT Auth (`/auth/register`, `/auth/login`, geschützte Endpunkte)
-- `docker-compose.yml` (API + Web, persistente SQLite via Volume)
-- Unit-/Integrations-/funktionale E2E-Tests
+- `docs/descriptions/authentication-deep-dive.md`
+- `docs/descriptions/frontend-click-flow-guide.md`
+- `docs/progress.md`
 
 ---
 
-## 3. Reale Architektur im Repository
+## 2. Current state (short)
 
-```txt
-react-node-demo/
-  packages/
-    apps/
-      api/
-        src/
-          modules/
-            auth/
-            employees/
-            tasks/
-          shared/
-            docs/
-            errors/
-            persistence/
-      web/
-        src/
-          app/
-          features/
-            auth/
-            dashboard/
-          shared/
-            api/
-            lib/
-            ui/
-      api-e2e/
-        src/
-          api/
-          support/
-  docs/
-    requirements.md
-    implementation-guide.md
-    progress.md
-```
-
-Kontext:
-
-- `dashboard-page.tsx` ist Container/Orchestrator
-- Dashboard-UI in dedizierte Teilkomponenten aufgeteilt
-- Task-Formular folgt Smart/Dumb-Aufteilung:
-  - State/Transformationen in Hook/State-Modul
-  - UI-Segmente in kleine presentational Komponenten
-- API-Client modular (`auth`, `employees`, `tasks`)
+- Access token is stored in `sessionStorage` on web.
+- Refresh endpoint exists: `POST /auth/refresh`.
+- Refresh cookie is HttpOnly and persisted server-side as hash.
+- Frontend currently does not use automatic refresh bootstrap/retry.
+- Result: after access-token expiry (default 15m), user can get redirected to login on refresh/next API call.
 
 ---
 
-## 4. Technische Kernentscheidungen (umgesetzt)
+## 3. Target state (MVP-first)
 
-1. Nx Monorepo mit `packages/apps/*`
-2. npm als Paketmanager
-3. SQLite + TypeORM
-4. Migration-based Schema Strategy (kein long-term `synchronize`)
-5. React Query für Server State
-6. Session Storage für JWT (Demo-Tradeoff)
-7. Strikte Typisierung:
-   - TypeScript `strict`
-   - `noImplicitAny`
-   - ESLint `no-explicit-any: error`
-8. Nx Boundary Enforcement:
-   - Scope-Tags für Projekte
-   - echte `depConstraints` statt Wildcard-Regel
-9. Shared API Contracts:
-   - gemeinsame Typen in `packages/libs/shared-contracts`
-   - OpenAPI-basierte Typgenerierung via `npm run contracts:generate`
-10. Struktur-Refactors:
-   - Task-Formular in Hook + Subcomponents aufgeteilt
-   - Task-Repository um zentrale Load-/Patch-Helper bereinigt
+1. Silent refresh on app bootstrap.
+2. Controlled one-time retry on `401` with single-flight refresh.
+3. Refresh-token rotation in refresh endpoint.
+4. Optional hardening/documentation updates.
 
 ---
 
-## 5. Security- und API-Stand
+## 4. Phase plan (small chunks)
 
-Umgesetzt:
+## Phase 1 - Silent refresh bootstrap (Frontend MVP)
 
-- `helmet`
-- restriktives CORS-Setup
-- globale ValidationPipe (`whitelist`, `forbidNonWhitelisted`, `transform`)
-- JWT Guard global mit `@Public()` Ausnahmen
-- Rate Limiting auf Auth-Endpunkten
-- Passwort-Hashing via `bcrypt`
-- fail-fast JWT Secret Validation (inkl. Mindestlänge)
-- Swagger nur außerhalb Produktion
-- strukturierter API-Error-Contract:
-  - `statusCode`, `code`, `message`, `params`, `path`, `timestamp`
-- Frontend mappt Fehler primär über stabile `code` Werte
+Goal:
 
-Bewusster Demo-Tradeoff:
+- App start should attempt recovery via refresh cookie before forcing logged-out state.
 
-- Authentifizierte Nutzer arbeiten in einem globalen Workspace
-- keine Per-User-Ownership-Isolation für Employees/Tasks
+Files:
 
----
+- `packages/apps/web/src/shared/api/auth-api.ts`
+- `packages/apps/web/src/features/auth/auth-context.tsx`
+- `packages/apps/web/src/features/auth/protected-route.tsx`
+- `packages/apps/web/src/features/auth/public-auth-route.tsx`
 
-## 6. Teststrategie und Qualität
+Changes:
 
-Aktueller Stand:
+1. Add `authApi.refresh(): Promise<AuthResponse>`.
+2. In `AuthProvider`, introduce real bootstrap:
+   - initial `isInitializing = true`
+   - read local session
+   - if session missing/invalid, call `authApi.refresh()` once
+   - on success: persist `{ accessToken, user }`
+   - on failure: clear session
+   - finally set `isInitializing = false`
+3. Keep route guards unchanged in behavior, but rely on real initialization state.
 
-- Backend Unit Tests mit Jest (`packages/apps/api`)
-- Frontend Unit + Integration mit Vitest/Testing Library (`packages/apps/web`)
-- API-E2E (funktionale Blackbox-Tests) mit Jest (`packages/apps/api-e2e`)
-- Root-Skripte:
-  - `npm run lint` -> web + api + api-e2e
-  - `npm run test` -> web + api + api-e2e
-  - `npm run build` -> web + api
+Definition of Done:
 
-Verifiziert:
+- Reload after >15 minutes no longer immediately drops to login if refresh cookie is valid.
+- During bootstrap, routes show deterministic loading state (no flicker/loop).
 
-- lint/test/build erfolgreich
-- api-e2e erfolgreich
+Tests:
 
----
-
-## 7. Was fehlt noch an Umsetzung?
-
-### Für die Assessment-Abgabe (Pflicht)
-
-Nichts Kritisches. Der Pflichtumfang ist umgesetzt.
-Ein kurzer Demo-Skript-Abschnitt ist in der Root-README enthalten.
-
-### Sinnvolle optionale Abschlusspunkte (kurzfristig)
-
-1. UI Smoke E2E (z. B. Playwright)
-2. Seed-Workflow für reproduzierbare Demo-Daten
-3. CI Workflow (Lint/Test/Build bei Push/PR)
-
-### Production-Hardening (bewusst außerhalb Demo-Scope)
-
-1. Refresh-Token Rotation + Revocation
-2. Ownership/RBAC Autorisierung statt globalem Workspace
-3. Audit Logging sicherheitsrelevanter Aktionen
-4. Security Header/CSP Feintuning pro Deployment
-5. Backup-/Migrations-Runbook
+- Add unit/integration tests for `AuthProvider` bootstrap paths.
+- Manual check:
+  - login
+  - wait > access token TTL
+  - browser refresh
+  - app recovers session if refresh cookie is valid.
 
 ---
 
-## 8. Empfohlene Reihenfolge ab jetzt
+## Phase 2 - Controlled `401` retry with single-flight (Frontend)
 
-1. CI Pipeline (schneller Qualitätshebel)
-2. Seed-Workflow (bessere Reproduzierbarkeit)
-3. UI Smoke E2E (Abgabesicherheit)
-4. Optional Auth-Hardening (nur wenn gewünscht)
+Goal:
+
+- Token expiry during active use should not force immediate logout.
+
+Files:
+
+- `packages/apps/web/src/shared/api/client.ts`
+- `packages/apps/web/src/shared/api/unauthorized-handler.ts` (reuse existing fallback)
+
+Changes:
+
+1. Extend axios response interceptor:
+   - on first `401`, trigger refresh flow
+   - retry original request exactly once
+   - add retry marker on request config (avoid loops)
+2. Implement single-flight refresh:
+   - one shared in-flight refresh promise
+   - concurrent `401` requests await same promise.
+3. If refresh fails:
+   - clear session
+   - invoke unauthorized handler (existing redirect behavior).
+
+Definition of Done:
+
+- Parallel `401`s produce one refresh request.
+- Requests are retried once and succeed after refresh.
+- Refresh failure leads to clean, deterministic logout.
+
+Tests:
+
+- Interceptor tests:
+  - retry-once path
+  - no infinite loop
+  - refresh failure path
+  - parallel `401` single-flight path.
 
 ---
 
-## 9. Agent-Arbeitsmodus (fortlaufend)
+## Phase 3 - Refresh token rotation (Backend + E2E)
 
-Pro Schritt:
+Goal:
 
-1. Kleine, klar abgegrenzte Aufgabe
-2. Implementierung + lokale Verifikation
-3. README + `docs/progress.md` aktualisieren
-4. Englischer Commit-Text und exakte Git-Befehle
+- Reduce refresh-token replay window.
+
+Files:
+
+- `packages/apps/api/src/modules/auth/presentation/auth.controller.ts`
+- `packages/apps/api/src/modules/auth/application/auth-refresh-session.service.ts`
+- `packages/apps/api-e2e/src/api/auth.spec.ts`
+
+Changes:
+
+1. In refresh endpoint:
+   - after successful refresh-token validation, issue a new refresh token
+   - persist new refresh hash + expiry
+   - set new refresh cookie in response.
+2. Keep access-token response contract unchanged.
+3. Extend E2E to assert rotation semantics.
+
+Definition of Done:
+
+- Old refresh token is invalid after successful refresh.
+- Logout still invalidates refresh session correctly.
+- Existing auth E2E remains green.
+
+---
+
+## Phase 4 - Optional hardening (only if time remains)
+
+Goal:
+
+- Improve operational clarity without major feature expansion.
+
+Changes:
+
+1. Document session policy:
+   - access-token TTL
+   - idle timeout
+   - absolute session lifetime.
+2. Add deployment/security checklist:
+   - cookie flags
+   - CORS origins
+   - JWT secret rotation process.
+
+---
+
+## 5. Non-goals (to avoid overengineering now)
+
+- No full auth subsystem rewrite.
+- No multi-device session management redesign in this iteration.
+- No immediate move to memory-only access token unless explicitly prioritized.
+- No MFA/email verification scope creep for this phase.
+
+---
+
+## 6. Verification checklist per phase
+
+For each phase:
+
+1. Implement minimal change set.
+2. Run targeted tests for changed module.
+3. Run regression checks:
+   - `npm run lint`
+   - `npm run test`
+4. Update docs (`progress.md` + relevant guide section).
+5. Commit with focused message (one phase per commit).
+
+---
+
+## 7. Recommended execution order
+
+1. Phase 1 (highest UX impact, low complexity)
+2. Phase 2 (stability during active usage)
+3. Phase 3 (security hardening with bounded backend change)
+4. Phase 4 only if needed for presentation/hand-over
+
+---
+
+## 8. Working mode with Codex
+
+Per chunk:
+
+1. Request exactly one phase scope.
+2. Ask for implementation + tests + doc update in one PR-sized change.
+3. Require explicit DoD check in final response.
+4. Continue to next chunk only after manual verification.

@@ -1,6 +1,6 @@
 # Projektfortschritt
 
-Stand: 2026-03-17
+Stand: 2026-03-24
 
 ## Entscheidungen
 
@@ -25,6 +25,44 @@ Stand: 2026-03-17
   - Token-Storage in `sessionStorage` (Demo-Entscheidung)
   - Public Routes: `/login`, `/register`
   - Protected Route: `/app`
+  - Geplanter Ausbau: Session-Continuity in kleinen Schritten (Silent Refresh + kontrollierter 401-Retry + optionale Rotation)
+
+## Auth-Roadmap (Update 2026-03-24)
+
+Referenzdokumente:
+
+- `docs/descriptions/authentication-deep-dive.md`
+- `docs/descriptions/frontend-click-flow-guide.md`
+
+Zielbild:
+
+- Kurzlebiges Access Token bleibt (`15m` als Security-Basis).
+- Refresh Token bleibt im HttpOnly-Cookie.
+- Nutzer sollen bei abgelaufenem Access Token nicht unnÃ¶tig sofort auf Login fallen.
+
+Geplante HÃ¤ppchen:
+
+- [ ] **Phase 1 - Silent Refresh Bootstrap (Frontend)**
+  - `authApi.refresh()` einfÃ¼hren
+  - `AuthProvider` startet mit `isInitializing=true`
+  - beim App-Start einmal `/auth/refresh` versuchen, wenn Session nicht verwertbar ist
+  - DoD: Reload nach >15min funktioniert ohne sofortige Login-Weiterleitung (bei gÃ¼ltigem Refresh-Cookie)
+
+- [ ] **Phase 2 - Kontrollierter 401-Retry (Frontend)**
+  - Axios-Interceptor: bei erstem `401` einmal Refresh versuchen, Request einmalig wiederholen
+  - Single-Flight fÃ¼r parallele `401` Requests
+  - Schutz gegen Endlosschleife via Retry-Flag
+  - DoD: Access-Token-Ablauf wÃ¤hrend Nutzung lÃ¶st nicht sofort Logout aus
+
+- [ ] **Phase 3 - Refresh-Token-Rotation (Backend + Frontend)**
+  - `/auth/refresh` stellt neues Refresh-Cookie + neuen Hash in DB aus
+  - altes Refresh-Token wird dadurch unbrauchbar
+  - API-E2E-Tests um Rotationsfall erweitern
+  - DoD: Replay-Fenster reduziert, Logout/Refresh bleibt stabil
+
+- [ ] **Phase 4 - Optionales Hardening**
+  - Session-Policy klar dokumentieren (Idle + Absolute Timeout)
+  - Produktions-Runbook fÃ¼r Cookie/CORS/Secret-Rotation ergÃ¤nzen
 
 ## Erledigt
 
