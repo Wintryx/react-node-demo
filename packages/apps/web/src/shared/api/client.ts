@@ -1,75 +1,104 @@
 import { AuthResponse } from '@react-node-demo/shared-contracts';
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 import { createRefreshCoordinator, isAuthEndpointRequest } from './auth-refresh';
 import { notifyUnauthorized } from './unauthorized-handler';
-import { clearAuthSession, readAuthSession } from '../../features/auth/auth-storage';
-
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
-
-export const apiClient = axios.create({
-  baseURL: apiBaseUrl,
-  withCredentials: true,
-});
-
-const refreshClient = axios.create({
-  baseURL: apiBaseUrl,
-  withCredentials: true,
-});
-
-const refreshCoordinator = createRefreshCoordinator(async () => {
-  const response = await refreshClient.post<AuthResponse>('/auth/refresh');
-  return response.data;
-});
+import { authSessionManager } from '../../features/auth/auth-session-manager';
 
 interface RetryableAxiosRequestConfig extends AxiosRequestConfig {
   _retry?: boolean;
 }
 
-apiClient.interceptors.request.use((config) => {
-  const session = readAuthSession();
+interface ApiClientDependencies {
+  readSession: typeof authSessionManager.read;
+  clearSession: typeof authSessionManager.clear;
+  handleUnauthorized: typeof notifyUnauthorized;
+}
 
-  if (session?.accessToken) {
-    config.headers.Authorization = `Bearer ${session.accessToken}`;
-  }
+const defaultApiClientDependencies: ApiClientDependencies = {
+  readSession: authSessionManager.read,
+  clearSession: authSessionManager.clear,
+  handleUnauthorized: notifyUnauthorized,
+};
 
-  return config;
-});
+const defaultApiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
 
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error: unknown) => {
-    if (!axios.isAxiosError(error) || error.response?.status !== 401) {
-      return Promise.reject(error);
+interface CreateApiClientOptions {
+  apiBaseUrl?: string;
+  dependencies?: Partial<ApiClientDependencies>;
+}
+
+export const createApiClient = (options: CreateApiClientOptions = {}): AxiosInstance => {
+  const apiBaseUrl = options.apiBaseUrl ?? defaultApiBaseUrl;
+  const dependencies = {
+    ...defaultApiClientDependencies,
+    ...options.dependencies,
+  };
+
+  const client = axios.create({
+    baseURL: apiBaseUrl,
+    withCredentials: true,
+  });
+
+  const refreshClient = axios.create({
+    baseURL: apiBaseUrl,
+    withCredentials: true,
+  });
+
+  const refreshCoordinator = createRefreshCoordinator(async () => {
+    const response = await refreshClient.post<AuthResponse>('/auth/refresh');
+    return response.data;
+  });
+
+  client.interceptors.request.use((config) => {
+    const session = dependencies.readSession();
+
+    if (session?.accessToken) {
+      config.headers.Authorization = `Bearer ${session.accessToken}`;
     }
 
-    const originalRequest = error.config as RetryableAxiosRequestConfig | undefined;
-    if (!originalRequest) {
-      clearAuthSession();
-      notifyUnauthorized();
-      return Promise.reject(error);
-    }
+    return config;
+  });
 
-    if (isAuthEndpointRequest(originalRequest.url, apiBaseUrl)) {
-      return Promise.reject(error);
-    }
+  client.interceptors.response.use(
+    (response) => response,
+    async (error: unknown) => {
+      if (!axios.isAxiosError(error) || error.response?.status !== 401) {
+        return Promise.reject(error);
+      }
 
-    if (originalRequest._retry) {
-      clearAuthSession();
-      notifyUnauthorized();
-      return Promise.reject(error);
-    }
+      const originalRequest = error.config as RetryableAxiosRequestConfig | undefined;
+      if (!originalRequest) {
+        dependencies.clearSession();
+        dependencies.handleUnauthorized();
+        return Promise.reject(error);
+      }
 
-    originalRequest._retry = true;
+      if (isAuthEndpointRequest(originalRequest.url, apiBaseUrl)) {
+        return Promise.reject(error);
+      }
 
-    const refreshedAccessToken = await refreshCoordinator.refreshAccessToken();
-    if (!refreshedAccessToken) {
-      return Promise.reject(error);
-    }
+      if (originalRequest._retry) {
+        dependencies.clearSession();
+        dependencies.handleUnauthorized();
+        return Promise.reject(error);
+      }
 
-    originalRequest.headers = originalRequest.headers ?? {};
-    originalRequest.headers.Authorization = `Bearer ${refreshedAccessToken}`;
+      originalRequest._retry = true;
 
-    return apiClient.request(originalRequest);
-  },
-);
+      const refreshedAccessToken = await refreshCoordinator.refreshAccessToken();
+      if (!refreshedAccessToken) {
+        return Promise.reject(error);
+      }
+
+      originalRequest.headers = originalRequest.headers ?? {};
+      originalRequest.headers.Authorization = `Bearer ${refreshedAccessToken}`;
+
+      return client.request(originalRequest);
+    },
+  );
+
+  return client;
+};
+
+export const apiClient = createApiClient();

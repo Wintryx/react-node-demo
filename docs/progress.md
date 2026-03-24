@@ -38,6 +38,10 @@ Status:
 - Phase 2 abgeschlossen (2026-03-24)
   - kontrollierter 401-Retry mit Single-Flight-Refresh im API-Client umgesetzt
   - neue Tests: `auth-refresh.spec.ts` (Endpoint-Erkennung, Erfolg/Fehler, Single-Flight)
+- Phase 3 abgeschlossen (2026-03-24)
+  - `/auth/refresh` rotiert Refresh-Token und setzt ein neues HttpOnly-Cookie
+  - Replay-Schutz verbessert: Refresh-Token werden vor Persistenz gehasht (SHA-256 -> bcrypt), um bcrypt-72-Byte-Trunkierung zu vermeiden
+  - API-Tests erweitert: Rotationsfall in `api-e2e/src/api/auth.spec.ts` + Regressionstest `auth-refresh-session.service.spec.ts`
 
 Referenzdokumente:
 
@@ -64,7 +68,7 @@ Geplante HÃ¤ppchen:
   - Schutz gegen Endlosschleife via Retry-Flag
   - DoD: Access-Token-Ablauf wÃ¤hrend Nutzung lÃ¶st nicht sofort Logout aus
 
-- [ ] **Phase 3 - Refresh-Token-Rotation (Backend + Frontend)**
+- [x] **Phase 3 - Refresh-Token-Rotation (Backend + Frontend)**
   - `/auth/refresh` stellt neues Refresh-Cookie + neuen Hash in DB aus
   - altes Refresh-Token wird dadurch unbrauchbar
   - API-E2E-Tests um Rotationsfall erweitern
@@ -78,6 +82,7 @@ Geplante HÃ¤ppchen:
 
 - Auth Session Continuity - Phase 1 (Silent Refresh Bootstrap) umgesetzt
 - Auth Session Continuity - Phase 2 (401-Retry + Single-Flight) umgesetzt
+- Auth Session Continuity - Phase 3 (Refresh-Token-Rotation + Replay-Schutz) umgesetzt
 - Strenge Typisierung als Regel gesetzt:
   - `strict: true`
   - `noImplicitAny: true`
@@ -254,11 +259,14 @@ Geplante HÃ¤ppchen:
 - `npm run lint` erfolgreich
 - `npm run test` erfolgreich
 - `npm run build` erfolgreich
-- `npx nx run api-e2e:e2e` erfolgreich (20 Tests)
+- `npx nx run api-e2e:e2e` erfolgreich (21 Tests)
 - Re-Check am 2026-03-17:
   - API Unit: 14 Suites / 35 Tests erfolgreich
   - Web (Vitest): 10 Files / 42 Tests erfolgreich
   - API-E2E: 4 Suites / 20 Tests erfolgreich
+- Re-Check am 2026-03-24:
+  - API Unit: 16 Suites / 37 Tests erfolgreich
+  - API-E2E: 4 Suites / 21 Tests erfolgreich
 
 ## Offene technische Punkte (relevant)
 

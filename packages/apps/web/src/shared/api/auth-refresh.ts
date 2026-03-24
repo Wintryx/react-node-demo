@@ -1,7 +1,7 @@
 import { AuthResponse } from '@react-node-demo/shared-contracts';
 
 import { notifyUnauthorized } from './unauthorized-handler';
-import { clearAuthSession, writeAuthSession } from '../../features/auth/auth-storage';
+import { authSessionManager } from '../../features/auth/auth-session-manager';
 
 const AUTH_ENDPOINT_PATHS = new Set(['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout']);
 
@@ -30,13 +30,13 @@ export const createRefreshCoordinator = (requestRefresh: RequestRefresh): Refres
   const refreshOnce = async (): Promise<string | null> => {
     try {
       const response = await requestRefresh();
-      writeAuthSession({
+      authSessionManager.persist({
         accessToken: response.accessToken,
         user: response.user,
       });
       return response.accessToken;
     } catch {
-      clearAuthSession();
+      authSessionManager.clear();
       notifyUnauthorized();
       return null;
     }

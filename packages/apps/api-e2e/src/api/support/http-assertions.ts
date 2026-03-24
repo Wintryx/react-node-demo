@@ -15,7 +15,7 @@ export const expectHttpError = async (
 ): Promise<AxiosError<ErrorResponseBody>> => {
   try {
     await request;
-    fail(`Expected request to fail with ${expectedStatus}.`);
+    throw new Error(`Expected request to fail with ${expectedStatus}.`);
   } catch (error: unknown) {
     if (!axios.isAxiosError<ErrorResponseBody>(error)) {
       throw error;

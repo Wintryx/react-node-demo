@@ -1,15 +1,17 @@
 import { AuthResponse } from '@react-node-demo/shared-contracts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { clearAuthSessionMock, writeAuthSessionMock, notifyUnauthorizedMock } = vi.hoisted(() => ({
+const { clearAuthSessionMock, persistAuthSessionMock, notifyUnauthorizedMock } = vi.hoisted(() => ({
   clearAuthSessionMock: vi.fn(),
-  writeAuthSessionMock: vi.fn(),
+  persistAuthSessionMock: vi.fn(),
   notifyUnauthorizedMock: vi.fn(),
 }));
 
-vi.mock('../../features/auth/auth-storage', () => ({
-  clearAuthSession: clearAuthSessionMock,
-  writeAuthSession: writeAuthSessionMock,
+vi.mock('../../features/auth/auth-session-manager', () => ({
+  authSessionManager: {
+    clear: clearAuthSessionMock,
+    persist: persistAuthSessionMock,
+  },
 }));
 
 vi.mock('./unauthorized-handler', () => ({
@@ -49,7 +51,7 @@ describe('auth-refresh helpers', () => {
     const refreshedAccessToken = await coordinator.refreshAccessToken();
     expect(refreshedAccessToken).toBe('new-access-token');
     expect(requestRefreshMock).toHaveBeenCalledTimes(1);
-    expect(writeAuthSessionMock).toHaveBeenCalledWith({
+    expect(persistAuthSessionMock).toHaveBeenCalledWith({
       accessToken: 'new-access-token',
       user: refreshResponseFixture.user,
     });
@@ -66,7 +68,7 @@ describe('auth-refresh helpers', () => {
     expect(requestRefreshMock).toHaveBeenCalledTimes(1);
     expect(clearAuthSessionMock).toHaveBeenCalledTimes(1);
     expect(notifyUnauthorizedMock).toHaveBeenCalledTimes(1);
-    expect(writeAuthSessionMock).not.toHaveBeenCalled();
+    expect(persistAuthSessionMock).not.toHaveBeenCalled();
   });
 
   it('runs refresh as single-flight for concurrent calls and resets after completion', async () => {

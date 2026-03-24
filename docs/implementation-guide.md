@@ -24,8 +24,8 @@ Primary references:
 - Access token is stored in `sessionStorage` on web.
 - Refresh endpoint exists: `POST /auth/refresh`.
 - Refresh cookie is HttpOnly and persisted server-side as hash.
-- Frontend currently does not use automatic refresh bootstrap/retry.
-- Result: after access-token expiry (default 15m), user can get redirected to login on refresh/next API call.
+- Frontend uses silent refresh bootstrap and controlled `401` retry.
+- Result: access-token expiry is handled transparently in normal usage; refresh-cookie validity remains the backend session anchor.
 
 ---
 
@@ -40,7 +40,7 @@ Current execution status:
 
 - [x] Phase 1 completed on 2026-03-24
 - [x] Phase 2 completed on 2026-03-24
-- [ ] Phase 3 open
+- [x] Phase 3 completed on 2026-03-24
 - [ ] Phase 4 optional/open
 
 ---
@@ -134,6 +134,8 @@ Tests:
 
 ## Phase 3 - Refresh token rotation (Backend + E2E)
 
+Status: completed on 2026-03-24.
+
 Goal:
 
 - Reduce refresh-token replay window.
@@ -142,7 +144,9 @@ Files:
 
 - `packages/apps/api/src/modules/auth/presentation/auth.controller.ts`
 - `packages/apps/api/src/modules/auth/application/auth-refresh-session.service.ts`
+- `packages/apps/api/src/modules/auth/infrastructure/security/jwt-refresh-token-signer.ts`
 - `packages/apps/api-e2e/src/api/auth.spec.ts`
+- `packages/apps/api/src/modules/auth/application/auth-refresh-session.service.spec.ts`
 
 Changes:
 
@@ -151,7 +155,9 @@ Changes:
    - persist new refresh hash + expiry
    - set new refresh cookie in response.
 2. Keep access-token response contract unchanged.
-3. Extend E2E to assert rotation semantics.
+3. Ensure each issued refresh token is unique (`jti`) so rotation is deterministic.
+4. Hash refresh tokens via `sha256` before bcrypt compare/persist to avoid bcrypt 72-byte truncation edge cases.
+5. Extend tests to assert rotation and replay invalidation semantics.
 
 Definition of Done:
 
