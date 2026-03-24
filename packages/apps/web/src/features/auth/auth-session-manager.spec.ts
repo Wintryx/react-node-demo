@@ -14,7 +14,7 @@ const sessionFixture: AuthSession = {
 
 describe('auth-session-manager', () => {
   it('reads current session from underlying store', () => {
-    const readMock = vi.fn<AuthSession | null, []>(() => sessionFixture);
+    const readMock = vi.fn((): AuthSession | null => sessionFixture);
     const manager = createAuthSessionManager({
       read: readMock,
       write: vi.fn(),

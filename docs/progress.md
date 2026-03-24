@@ -49,7 +49,6 @@ Status:
 
 Kurzfazit (Phasen 1-4):
 Kernfazit: Silent-Refresh beim App-Start und kontrollierter 401-Retry halten die Session im normalen Nutzungsfluss stabil. Der Refresh-Flow wurde backendseitig durch Token-Rotation und Replay-Schutz gehärtet. Phase 4 ergänzt verbindliche Session-Policy, ein Produktions-Runbook und API-Guardrails gegen unsichere Cookie/CORS-Produktionskonfigurationen.
-Die Auth-Session verhält sich jetzt aus Nutzersicht stabil über Access-Token-Ablauf hinweg: beim App-Start erfolgt ein Silent-Refresh, und während aktiver Nutzung werden `401`-Antworten kontrolliert mit Single-Flight behandelt. Gleichzeitig wurde der Backend-Refresh-Flow sicherer gemacht, indem Refresh-Token bei jedem Refresh rotiert und Replay-Fenster reduziert wurden. Die Änderungen sind durch gezielte Web-, API-Unit- und API-E2E-Tests abgesichert.
 
 Referenzdokumente:
 
@@ -62,21 +61,21 @@ Zielbild:
 
 - Kurzlebiges Access Token bleibt (`15m` als Security-Basis).
 - Refresh Token bleibt im HttpOnly-Cookie.
-- Nutzer sollen bei abgelaufenem Access Token nicht unnÃ¶tig sofort auf Login fallen.
+- Nutzer sollen bei abgelaufenem Access Token nicht unnötig sofort auf Login fallen.
 
-Geplante HÃ¤ppchen:
+Geplante Häppchen:
 
 - [x] **Phase 1 - Silent Refresh Bootstrap (Frontend)**
-  - `authApi.refresh()` einfÃ¼hren
+  - `authApi.refresh()` einführen
   - `AuthProvider` startet mit `isInitializing=true`
   - beim App-Start einmal `/auth/refresh` versuchen, wenn Session nicht verwertbar ist
-  - DoD: Reload nach >15min funktioniert ohne sofortige Login-Weiterleitung (bei gÃ¼ltigem Refresh-Cookie)
+  - DoD: Reload nach >15min funktioniert ohne sofortige Login-Weiterleitung (bei gültigem Refresh-Cookie)
 
 - [x] **Phase 2 - Kontrollierter 401-Retry (Frontend)**
   - Axios-Interceptor: bei erstem `401` einmal Refresh versuchen, Request einmalig wiederholen
-  - Single-Flight fÃ¼r parallele `401` Requests
+  - Single-Flight für parallele `401` Requests
   - Schutz gegen Endlosschleife via Retry-Flag
-  - DoD: Access-Token-Ablauf wÃ¤hrend Nutzung lÃ¶st nicht sofort Logout aus
+  - DoD: Access-Token-Ablauf während Nutzung löst nicht sofort Logout aus
 
 - [x] **Phase 3 - Refresh-Token-Rotation (Backend + Frontend)**
   - `/auth/refresh` stellt neues Refresh-Cookie + neuen Hash in DB aus
@@ -86,7 +85,7 @@ Geplante HÃ¤ppchen:
 
 - [x] **Phase 4 - Optionales Hardening**
   - Session-Policy klar dokumentieren (Idle + Absolute Timeout)
-  - Produktions-Runbook fÃ¼r Cookie/CORS/Secret-Rotation ergÃ¤nzen
+  - Produktions-Runbook für Cookie/CORS/Secret-Rotation ergänzen
 
 ## Erledigt
 
