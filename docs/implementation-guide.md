@@ -36,11 +36,20 @@ Primary references:
 3. Refresh-token rotation in refresh endpoint.
 4. Optional hardening/documentation updates.
 
+Current execution status:
+
+- [x] Phase 1 completed on 2026-03-24
+- [ ] Phase 2 open
+- [ ] Phase 3 open
+- [ ] Phase 4 optional/open
+
 ---
 
 ## 4. Phase plan (small chunks)
 
 ## Phase 1 - Silent refresh bootstrap (Frontend MVP)
+
+Status: completed on 2026-03-24.
 
 Goal:
 

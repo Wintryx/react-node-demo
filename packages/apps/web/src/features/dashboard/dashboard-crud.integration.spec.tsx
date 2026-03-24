@@ -4,9 +4,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import App from '../../app/app';
 import { Employee, Task } from '../../shared/api/types';
+import { createAccessTokenForTest } from '../../shared/testing/auth-test-token';
 import { writeAuthSession } from '../auth/auth-storage';
 
 const {
+  refreshMock,
   listEmployeesMock,
   listTasksMock,
   listTasksByEmployeeMock,
@@ -14,6 +16,7 @@ const {
   updateTaskMock,
   deleteTaskMock,
 } = vi.hoisted(() => ({
+  refreshMock: vi.fn(),
   listEmployeesMock: vi.fn(),
   listTasksMock: vi.fn(),
   listTasksByEmployeeMock: vi.fn(),
@@ -26,6 +29,7 @@ vi.mock('../../shared/api', () => ({
   authApi: {
     login: vi.fn(),
     register: vi.fn(),
+    refresh: refreshMock,
   },
   employeesApi: {
     list: listEmployeesMock,
@@ -76,7 +80,7 @@ const taskFixture: Task = {
 
 const renderAuthenticatedApp = async (): Promise<void> => {
   writeAuthSession({
-    accessToken: 'test-token',
+    accessToken: createAccessTokenForTest(Math.floor(Date.now() / 1000) + 60 * 15),
     user: {
       id: 1,
       email: 'tester@example.com',
@@ -104,6 +108,16 @@ describe('Dashboard CRUD integration', () => {
     createTaskMock.mockResolvedValue(taskFixture);
     updateTaskMock.mockResolvedValue(taskFixture);
     deleteTaskMock.mockResolvedValue(undefined);
+    refreshMock.mockResolvedValue({
+      accessToken: createAccessTokenForTest(Math.floor(Date.now() / 1000) + 60 * 15),
+      tokenType: 'Bearer',
+      expiresIn: '15m',
+      user: {
+        id: 1,
+        email: 'tester@example.com',
+        createdAt: '2026-03-16T10:00:00.000Z',
+      },
+    });
   });
 
   it('creates a task from the modal', async () => {

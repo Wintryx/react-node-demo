@@ -29,6 +29,13 @@ Stand: 2026-03-24
 
 ## Auth-Roadmap (Update 2026-03-24)
 
+Status:
+
+- Phase 1 abgeschlossen (2026-03-24)
+  - `authApi.refresh()` umgesetzt
+  - `AuthProvider` Bootstrap mit Session-Validierung und Refresh-Fallback umgesetzt
+  - Testabdeckung erweitert: `auth-context.spec.tsx` und `app.spec.tsx`
+
 Referenzdokumente:
 
 - `docs/descriptions/authentication-deep-dive.md`
@@ -42,7 +49,7 @@ Zielbild:
 
 Geplante HÃ¤ppchen:
 
-- [ ] **Phase 1 - Silent Refresh Bootstrap (Frontend)**
+- [x] **Phase 1 - Silent Refresh Bootstrap (Frontend)**
   - `authApi.refresh()` einfÃ¼hren
   - `AuthProvider` startet mit `isInitializing=true`
   - beim App-Start einmal `/auth/refresh` versuchen, wenn Session nicht verwertbar ist
@@ -66,6 +73,7 @@ Geplante HÃ¤ppchen:
 
 ## Erledigt
 
+- Auth Session Continuity - Phase 1 (Silent Refresh Bootstrap) umgesetzt
 - Strenge Typisierung als Regel gesetzt:
   - `strict: true`
   - `noImplicitAny: true`

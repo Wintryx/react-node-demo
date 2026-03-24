@@ -27,4 +27,12 @@ export const authApi = {
       throw normalizeApiError(error);
     }
   },
+  refresh: async (): Promise<AuthResponse> => {
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/refresh');
+      return response.data;
+    } catch (error: unknown) {
+      throw normalizeApiError(error);
+    }
+  },
 };
