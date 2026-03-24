@@ -39,7 +39,7 @@ Primary references:
 Current execution status:
 
 - [x] Phase 1 completed on 2026-03-24
-- [ ] Phase 2 open
+- [x] Phase 2 completed on 2026-03-24
 - [ ] Phase 3 open
 - [ ] Phase 4 optional/open
 
@@ -91,6 +91,8 @@ Tests:
 ---
 
 ## Phase 2 - Controlled `401` retry with single-flight (Frontend)
+
+Status: completed on 2026-03-24.
 
 Goal:
 

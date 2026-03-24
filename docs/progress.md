@@ -35,6 +35,9 @@ Status:
   - `authApi.refresh()` umgesetzt
   - `AuthProvider` Bootstrap mit Session-Validierung und Refresh-Fallback umgesetzt
   - Testabdeckung erweitert: `auth-context.spec.tsx` und `app.spec.tsx`
+- Phase 2 abgeschlossen (2026-03-24)
+  - kontrollierter 401-Retry mit Single-Flight-Refresh im API-Client umgesetzt
+  - neue Tests: `auth-refresh.spec.ts` (Endpoint-Erkennung, Erfolg/Fehler, Single-Flight)
 
 Referenzdokumente:
 
@@ -55,7 +58,7 @@ Geplante HÃ¤ppchen:
   - beim App-Start einmal `/auth/refresh` versuchen, wenn Session nicht verwertbar ist
   - DoD: Reload nach >15min funktioniert ohne sofortige Login-Weiterleitung (bei gÃ¼ltigem Refresh-Cookie)
 
-- [ ] **Phase 2 - Kontrollierter 401-Retry (Frontend)**
+- [x] **Phase 2 - Kontrollierter 401-Retry (Frontend)**
   - Axios-Interceptor: bei erstem `401` einmal Refresh versuchen, Request einmalig wiederholen
   - Single-Flight fÃ¼r parallele `401` Requests
   - Schutz gegen Endlosschleife via Retry-Flag
@@ -74,6 +77,7 @@ Geplante HÃ¤ppchen:
 ## Erledigt
 
 - Auth Session Continuity - Phase 1 (Silent Refresh Bootstrap) umgesetzt
+- Auth Session Continuity - Phase 2 (401-Retry + Single-Flight) umgesetzt
 - Strenge Typisierung als Regel gesetzt:
   - `strict: true`
   - `noImplicitAny: true`

@@ -16,8 +16,8 @@ const parseJwtPayload = (accessToken: string): JwtPayload | null => {
     const normalizedPayload = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
     const paddingLength = (4 - (normalizedPayload.length % 4)) % 4;
     const paddedPayload = `${normalizedPayload}${'='.repeat(paddingLength)}`;
-    const payload = JSON.parse(window.atob(paddedPayload)) as JwtPayload;
-    return payload;
+
+    return JSON.parse(window.atob(paddedPayload)) as JwtPayload;
   } catch {
     return null;
   }
