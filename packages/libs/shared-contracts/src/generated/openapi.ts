@@ -517,10 +517,10 @@ export interface components {
             description?: string;
             /**
              * Format: date-time
-             * @description Updated ISO-8601 due date.
+             * @description Updated ISO-8601 due date. Set to null to clear an existing due date.
              * @example 2026-03-25T17:00:00.000Z
              */
-            dueDate?: string;
+            dueDate?: Record<string, never> | null;
             /**
              * @description Updated employee id that owns the task.
              * @example 1

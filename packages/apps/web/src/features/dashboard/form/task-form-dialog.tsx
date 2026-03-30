@@ -108,7 +108,7 @@ export function TaskFormDialog({
           setErrorMessage('Aufgabenkontext fehlt.');
           return;
         }
-        await onUpdate(task.id, toUpdateTaskPayload(formState));
+        await onUpdate(task.id, toUpdateTaskPayload(formState, task));
       }
 
       onClose();

@@ -30,7 +30,13 @@ export const toUpdateTaskInput = (dto: UpdateTaskDto): UpdateTaskInput => ({
   status: dto.status,
   priority: dto.priority,
   startDate: dto.startDate ? new Date(dto.startDate) : undefined,
-  dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
+  dueDate: Object.prototype.hasOwnProperty.call(dto, 'dueDate')
+    ? dto.dueDate === null
+      ? null
+      : dto.dueDate === undefined
+        ? undefined
+        : new Date(dto.dueDate)
+    : undefined,
   employeeId: dto.employeeId,
   subtasks: mapSubtasks(dto.subtasks),
 });

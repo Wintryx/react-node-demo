@@ -1,6 +1,34 @@
 # Projektfortschritt
 
-Stand: 2026-03-24
+Stand: 2026-03-30
+
+## Refactoring-Pakete (ab 2026-03-30)
+
+- [x] Paket 1 - Docker Compose Startfähigkeit stabilisiert
+  - `docker-compose.yml` um fehlende Auth-Variablen ergänzt:
+    - `JWT_REFRESH_TOKEN_SECRET`
+    - `JWT_REFRESH_TOKEN_EXPIRES_IN`
+    - `AUTH_COOKIE_SAME_SITE`
+    - `AUTH_COOKIE_SECURE`
+    - `TYPEORM_MIGRATIONS_RUN`
+  - fail-fast-kompatible Default-Secrets mit ausreichender Mindestlänge gesetzt
+  - Compose auf lokalen Demo-Betrieb ausgerichtet (`NODE_ENV=development`)
+  - Verifiziert mit `docker compose config`
+- [x] Paket 2 - `dueDate`-Clearing-Fix (Update-Semantik + Tests)
+  - Backend akzeptiert explizites `dueDate: null` im Task-Update (`UpdateTaskDto`)
+  - Mapper-Semantik getrennt: `undefined` = unverändert, `null` = löschen
+  - Frontend-Update-Payload unterscheidet jetzt zuverlässig zwischen "unverändert" und "explizit gelöscht"
+  - Tests ergänzt:
+    - API Unit: `task-input.mapper.spec.ts`
+    - Web Unit: `task-form-state.spec.ts`
+    - API E2E: `tasks.spec.ts` (`dueDate` wird per PATCH auf `null` gelöscht)
+- [ ] Paket 3 - Employee-CRUD-Frontend (API/Hook/UI + Integrationstests)
+  - Teilstatus: Slice 3A umgesetzt (API + Hook-Grundlage)
+  - `employeesApi` um `create`, `update`, `delete` erweitert
+  - `useEmployeeMutations` als eigener Hook ergänzt (Smart-Logik, Query-Invalidation für `employees`/`tasks`)
+  - API-Client-Tests ergänzt: `employees-api.spec.ts`
+- [ ] Paket 4 - UI-Sprache Englisch als Default (inkl. Error-Mapping)
+- [ ] Paket 5 - Seed-Workflow + Doku-Roundup
 
 ## Entscheidungen
 
@@ -278,14 +306,61 @@ Geplante Häppchen:
   - API Unit: 16 Suites / 37 Tests erfolgreich
   - API-E2E: 4 Suites / 21 Tests erfolgreich
 
+## Review-Feedback 2026-03-30 (offene Maßnahmen)
+
+- P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist.
+- P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages).
+- P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET` und konsistente Auth-Cookie-Settings), damit Fresh-Clone-Start stabil funktioniert. (Erledigt 2026-03-30)
+- P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
+- P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle).
+- P2: Transparenzabschnitt zu AI-unterstützter Entwicklung ergänzen (welche Teile assistiert waren, welche Architekturentscheidungen manuell getroffen wurden).
+- P2: Scope-Kalibrierung im Frontend/Docs vornehmen (Komplexität reduzieren, wo sie keinen funktionalen Mehrwert für den Requirement-Scope bringt).
+- P2: Session-Strategie für Production explizit entscheiden (weiter `sessionStorage` als Demo-Tradeoff vs. Memory-Token + Refresh-Only Ansatz).
+- P2: Roadmap für Per-User-Data-Isolation definieren (Ownership/Scope je Benutzer statt globalem Workspace).
+- Hinweis: Refresh-Token-Rotation ist bereits umgesetzt (Phase 3 abgeschlossen) und gilt nicht mehr als offener Punkt.
+
+Historische Restpunkte (nachrangig, durch Backlog oben übersteuert):
+
 ## Offene technische Punkte (relevant)
+
+Verbindlicher Backlog (Stand 2026-03-30):
+
+- P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist.
+- P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages in UI und `errors.ts`).
+- P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET`, `AUTH_COOKIE_SECURE`, `AUTH_COOKIE_SAME_SITE`) und Fresh-Clone-Start verifizieren. (Erledigt 2026-03-30)
+- P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
+- P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle).
+- P2: Transparenzabschnitt zu AI-unterstützter Entwicklung ergänzen (welche Teile assistiert waren, welche Architekturentscheidungen manuell getroffen wurden).
+- Hinweis: Refresh-Token-Rotation ist bereits umgesetzt (Phase 3 abgeschlossen) und gilt nicht mehr als offener Punkt.
 
 - Optional: Seed-Daten für schnellere lokale UI-Demos
 - Auth-Hardening in späteren Schritten:
   - Optional: Multi-Device Session-Management/Revocation
 
-## Nächste Schritte
+## Nächste Schritte (historisch)
 
-1. Optional: E2E UI-Smoke-Tests
+1. P0: Employee-CRUD-UI und englische Default-Lokalisierung (oder i18n mit `en` Default) umsetzen.
 2. Optional: Seed-Workflow für reproduzierbare Demo-Daten
-3. Optional: Advanced Auth-Hardening (Device Sessions/Revocation/MFA)
+3. P1: Seed-Workflow umsetzen und mit Tests absichern.
+
+## Review-Backlog 2026-03-30 (autoritativ für Umsetzung)
+
+- P0: Employee-CRUD-UI (Create/Edit/Delete) inkl. Integrationstests im Dashboard umsetzen.
+- P0: UI auf Englisch als Default (oder i18n mit `en` als Default) umstellen, inklusive `errors.ts`.
+- P0: Docker-Compose-Startfix umsetzen (`JWT_REFRESH_TOKEN_SECRET` + konsistente Cookie-Env-Werte). (Erledigt 2026-03-30)
+- P1: `dueDate`-Clearing-Bug im Task-Update-Mapper fixen und mit gezielten Tests absichern. (Erledigt 2026-03-30)
+- P1: Seed-Script für reproduzierbare Demo-Daten ergänzen.
+- P2: Transparenz zu AI-Assistenz dokumentieren (kurzer Abschnitt in Doku).
+- P2: Scope-Kalibrierung/Produktions-Roadmap festhalten (Session-Strategie, Per-User-Isolation).
+- Hinweis: Refresh-Token-Rotation ist bereits umgesetzt und nicht mehr offen.
+
+Empfohlene Reihenfolge:
+1. A: Employee-CRUD-UI + English default.
+2. B: Seed-Workflow.
+3. C: Doku-Polish (AI-Transparenz + Scope-Kalibrierung).
+
+## Nächste Schritte (verbindlich, Stand 2026-03-30)
+
+1. P0: Employee-CRUD-UI und englische Default-Lokalisierung (oder i18n mit `en` Default) umsetzen.
+2. P1: Seed-Workflow umsetzen und mit Tests absichern.
+3. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.

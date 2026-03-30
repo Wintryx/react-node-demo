@@ -82,6 +82,26 @@ describe('Tasks API', () => {
     expect(patchRes.data.subtasks[0]?.completed).toBe(true);
   });
 
+  it('clears dueDate when patch payload sets dueDate to null', async () => {
+    const employee = await client.post<EmployeeResponse>(
+      '/employees',
+      buildEmployeePayload(buildUniqueSuffix()),
+    );
+    const created = await client.post<TaskResponse>(
+      '/tasks',
+      buildTaskPayload(employee.data.id, buildUniqueSuffix()),
+    );
+
+    expect(created.data.dueDate).not.toBeNull();
+
+    const patchRes = await client.patch<TaskResponse>(`/tasks/${created.data.id}`, {
+      dueDate: null,
+    });
+
+    expect(patchRes.status).toBe(200);
+    expect(patchRes.data.dueDate).toBeNull();
+  });
+
   it('deletes a task and returns 404 on second delete', async () => {
     const employee = await client.post<EmployeeResponse>(
       '/employees',

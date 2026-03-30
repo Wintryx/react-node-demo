@@ -4,12 +4,17 @@ services:
       context: .
       dockerfile: docker/api.Dockerfile
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3000
       CORS_ORIGIN: http://localhost:8080
       DATABASE_PATH: /data/app.db
-      JWT_ACCESS_TOKEN_SECRET: ${JWT_ACCESS_TOKEN_SECRET:-change-me-in-compose}
+      TYPEORM_MIGRATIONS_RUN: "true"
+      JWT_ACCESS_TOKEN_SECRET: ${JWT_ACCESS_TOKEN_SECRET:-local-compose-access-secret-change-me-2026}
       JWT_ACCESS_TOKEN_EXPIRES_IN: ${JWT_ACCESS_TOKEN_EXPIRES_IN:-15m}
+      JWT_REFRESH_TOKEN_SECRET: ${JWT_REFRESH_TOKEN_SECRET:-local-compose-refresh-secret-change-me-2026}
+      JWT_REFRESH_TOKEN_EXPIRES_IN: ${JWT_REFRESH_TOKEN_EXPIRES_IN:-7d}
+      AUTH_COOKIE_SAME_SITE: ${AUTH_COOKIE_SAME_SITE:-lax}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
     ports:
       - '3000:3000'
     volumes:
