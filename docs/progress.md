@@ -99,6 +99,48 @@ Stand: 2026-03-31
   - Verifiziert mit:
     - `npx nx test web`
     - `npx nx lint web`
+- [x] Paket 10 - Smoke-E2E für zentrale Flows
+  - neue Smoke-Suite ergänzt: `packages/apps/api-e2e/src/api/smoke.spec.ts`
+  - deckt zentralen Happy-Path ab:
+    - Auth (registrierter Kontext)
+    - Employee Create
+    - Task Create/List/Update/Delete
+    - Employee Delete (Cleanup)
+  - E2E-Stabilität verbessert:
+    - test-spezifischer Throttling-Bypass via `DISABLE_THROTTLING=true` in `api-e2e`-Runtime
+    - Produktionsverhalten unverändert (Bypass nur explizit im E2E-Setup)
+  - Verifiziert mit:
+    - `npx nx run api-e2e:e2e`
+- [x] Paket 11 - Optionales i18n (EN-Default, DE optional)
+  - schlanke i18n-Basis ergänzt:
+    - `I18nProvider` + Runtime-Sprache (`en`/`de`)
+    - Persistenz der Sprachwahl in `localStorage`
+  - Language-Toggle ergänzt:
+    - Auth-Shell (`/login`, `/register`)
+    - Dashboard-Header (`/app`)
+  - Auth-Texte lokalisierbar gemacht:
+    - neue Copy-Datei `features/auth/auth-copy.ts`
+    - Password-Policy-Hinweis sprachabhängig
+  - Dashboard-Copy auf zweisprachiges Dictionary umgestellt (`en`/`de`) bei stabiler `dashboardCopy`-API
+  - Verifiziert mit:
+    - `npx nx lint web`
+    - `npx nx test web`
+- [x] Paket 12 - Optionales Multi-Device-Session-Management
+  - Backend auf session-basiertes Refresh-Management erweitert:
+    - neue Entity/Tabelle `auth_refresh_sessions`
+    - Migration ergänzt: `20260331130000-auth-refresh-sessions.migration.ts`
+  - Auth-Flow angepasst:
+    - parallele Geräte-Sessions möglich
+    - `logout` revoket nur die aktuelle Session
+    - `logout-all` revoket alle Sessions eines Users
+    - `refresh` rotiert Session sicher (alte Session wird vor Neu-Ausstellung revoket)
+  - Unit-/E2E-Tests erweitert:
+    - Auth-Use-Case/Service-Tests aktualisiert
+    - Auth-E2E um Multi-Device-Szenarien ergänzt
+  - Verifiziert mit:
+    - `npx nx test api`
+    - `npx nx lint api`
+    - `npx nx run api-e2e:e2e`
 
 ## Entscheidungen
 
@@ -391,9 +433,9 @@ Abgeschlossene Pflichtpunkte:
 
 ## Optionale Produktverbesserungen (kein Pflicht-Backlog)
 
-- Smoke-E2E für zentrale UI-Flows als zusätzliche Regression-Sicherheit
-- Optionales i18n (zweisprachig), falls Englisch + Deutsch parallel benötigt wird
-- Optionales Auth-Hardening: Multi-Device Session-Management/Revocation
+- Smoke-E2E für zentrale Flows als zusätzliche Regression-Sicherheit. (Erledigt 2026-03-31)
+- Optionales i18n (zweisprachig, EN-Default mit DE-Umschaltung). (Erledigt 2026-03-31)
+- Optionales Auth-Hardening: Multi-Device Session-Management/Revocation. (Erledigt 2026-03-31)
 
 ## Nächste Schritte (verbindlich, Stand 2026-03-31)
 

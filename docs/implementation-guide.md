@@ -15,6 +15,9 @@ Execution model (small, verifiable slices, no overengineering):
 7. Package 7 (completed): Dashboard refactor polish (type-import consistency + reusable confirm dialog).
 8. Package 8 (completed): Pragmatic barrel-import cleanup in dashboard UI.
 9. Package 9 (completed): React Router test-warning cleanup.
+10. Package 10 (completed): Smoke E2E for central authenticated flow.
+11. Package 11 (completed): Optional i18n (EN default, DE switch).
+12. Package 12 (completed): Optional multi-device refresh-session management.
 
 Package 1 delivered:
 
@@ -85,6 +88,26 @@ Package 9 delivered:
 
 - Enabled React Router future flags in test `MemoryRouter` wrappers (`v7_startTransition`, `v7_relativeSplatPath`).
 - Removed React Router v7 future warnings from regular web test runs while preserving current runtime behavior.
+
+Package 10 delivered:
+
+- Added a dedicated smoke E2E suite for the central authenticated workflow (`api-e2e/src/api/smoke.spec.ts`).
+- Stabilized E2E execution against auth rate-limit noise by setting `DISABLE_THROTTLING=true` in the API E2E runtime only.
+
+Package 11 delivered:
+
+- Added a lightweight i18n foundation in web (`I18nProvider`, runtime language state, persisted language selection).
+- Introduced `en`/`de` UI switching with English as default in auth shell and dashboard header.
+- Localized auth copy and switched dashboard copy to a bilingual dictionary while keeping existing `dashboardCopy` usage stable.
+
+Package 12 delivered:
+
+- Introduced session-based refresh-token persistence (`auth_refresh_sessions`) with migration support.
+- Updated auth flow for multi-device support:
+  - `logout` revokes current session only,
+  - `logout-all` revokes all sessions for the user,
+  - refresh rotation explicitly revokes the previous session before issuing a new cookie.
+- Extended API unit and API E2E coverage for multi-device session behavior.
 
 ## 1. Goal
 

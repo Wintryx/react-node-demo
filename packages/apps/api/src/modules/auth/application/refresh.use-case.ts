@@ -23,8 +23,8 @@ export class RefreshUseCase {
       );
     }
 
-    const user = await this.authRefreshSessionService.resolveUserByRefreshToken(refreshToken);
-    if (!user) {
+    const refreshSession = await this.authRefreshSessionService.resolveRefreshSession(refreshToken);
+    if (!refreshSession) {
       throw new UnauthorizedException(
         createApiErrorPayload(
           ApiErrorCode.AUTH_REFRESH_TOKEN_INVALID,
@@ -33,11 +33,16 @@ export class RefreshUseCase {
       );
     }
 
+    await this.authRefreshSessionService.revokeRefreshSession(
+      refreshSession.user.id,
+      refreshSession.sessionId,
+    );
+
     const accessToken = await this.accessTokenSigner.sign({
-      sub: user.id,
-      email: user.email,
+      sub: refreshSession.user.id,
+      email: refreshSession.user.email,
     });
 
-    return toAuthResponse(user, accessToken);
+    return toAuthResponse(refreshSession.user, accessToken);
   }
 }

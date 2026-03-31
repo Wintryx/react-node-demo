@@ -4,6 +4,8 @@ import { DataSourceOptions } from 'typeorm';
 
 import { InitialSchemaMigration20260316162000 } from './migrations/20260316162000-initial-schema.migration';
 import { AuthRefreshTokenMigration20260317134500 } from './migrations/20260317134500-auth-refresh-token.migration';
+import { AuthRefreshSessionsMigration20260331130000 } from './migrations/20260331130000-auth-refresh-sessions.migration';
+import { AuthRefreshSessionOrmEntity } from '../../modules/auth/infrastructure/persistence/auth-refresh-session.orm-entity';
 import { AuthUserOrmEntity } from '../../modules/auth/infrastructure/persistence/auth-user.orm-entity';
 import { EmployeeOrmEntity } from '../../modules/employees/infrastructure/persistence/employee.orm-entity';
 import { SubtaskOrmEntity } from '../../modules/tasks/infrastructure/persistence/subtask.orm-entity';
@@ -12,6 +14,7 @@ import { TaskOrmEntity } from '../../modules/tasks/infrastructure/persistence/ta
 const DEFAULT_DATABASE_PATH = join(process.cwd(), 'packages', 'apps', 'api', 'data', 'app.db');
 
 export const ormEntities = [
+  AuthRefreshSessionOrmEntity,
   AuthUserOrmEntity,
   EmployeeOrmEntity,
   TaskOrmEntity,
@@ -21,6 +24,7 @@ export const ormEntities = [
 export const ormMigrations = [
   InitialSchemaMigration20260316162000,
   AuthRefreshTokenMigration20260317134500,
+  AuthRefreshSessionsMigration20260331130000,
 ] as const;
 
 export const resolveDatabasePath = (databasePath: string | undefined): string =>
