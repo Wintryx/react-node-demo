@@ -8,7 +8,7 @@ Execution model (small, verifiable slices, no overengineering):
 
 1. Package 1 (completed): Docker Compose startup reliability.
 2. Package 2 (completed): `dueDate` clearing semantics for task updates + tests.
-3. Package 3 (in progress): Employee CRUD frontend slice (API + mutation hook + UI + integration tests).
+3. Package 3 (completed): Employee CRUD frontend slice (API + mutation hook + UI + integration tests).
 4. Package 4: English as default UI language (including API error mapping texts).
 5. Package 5: Seed-data workflow and final documentation alignment.
 
@@ -26,11 +26,13 @@ Package 2 delivered:
 - Frontend update payload mapping now distinguishes between unchanged and explicitly cleared due date.
 - Added tests across layers (API unit, web unit, API E2E) for the clearing behavior.
 
-Package 3 progress (Slice 3A):
+Package 3 delivered:
 
 - `employeesApi` now supports `list/create/update/delete`.
 - Added `useEmployeeMutations` hook for employee create/update/delete orchestration with React Query invalidation.
 - Added API-layer tests for employees client (`employees-api.spec.ts`).
+- Added dashboard employee-management UI for create/edit/delete flows.
+- Added dashboard integration tests for employee create/edit/delete.
 
 ## 1. Goal
 

@@ -10,6 +10,9 @@ import { writeAuthSession } from '../auth/auth-storage';
 const {
   refreshMock,
   listEmployeesMock,
+  createEmployeeMock,
+  updateEmployeeMock,
+  deleteEmployeeMock,
   listTasksMock,
   listTasksByEmployeeMock,
   createTaskMock,
@@ -18,6 +21,9 @@ const {
 } = vi.hoisted(() => ({
   refreshMock: vi.fn(),
   listEmployeesMock: vi.fn(),
+  createEmployeeMock: vi.fn(),
+  updateEmployeeMock: vi.fn(),
+  deleteEmployeeMock: vi.fn(),
   listTasksMock: vi.fn(),
   listTasksByEmployeeMock: vi.fn(),
   createTaskMock: vi.fn(),
@@ -33,6 +39,9 @@ vi.mock('../../shared/api', () => ({
   },
   employeesApi: {
     list: listEmployeesMock,
+    create: createEmployeeMock,
+    update: updateEmployeeMock,
+    delete: deleteEmployeeMock,
   },
   tasksApi: {
     list: listTasksMock,
@@ -78,6 +87,16 @@ const taskFixture: Task = {
   ],
 };
 
+const employeeCreateFixture: Employee = {
+  id: 2,
+  firstName: 'Grace',
+  lastName: 'Hopper',
+  email: 'grace@example.com',
+  role: 'team-lead',
+  department: 'engineering',
+  createdAt: '2026-03-17T10:00:00.000Z',
+};
+
 const renderAuthenticatedApp = async (): Promise<void> => {
   writeAuthSession({
     accessToken: createAccessTokenForTest(Math.floor(Date.now() / 1000) + 60 * 15),
@@ -103,6 +122,9 @@ describe('Dashboard CRUD integration', () => {
     vi.clearAllMocks();
 
     listEmployeesMock.mockResolvedValue([employeeFixture]);
+    createEmployeeMock.mockResolvedValue(employeeCreateFixture);
+    updateEmployeeMock.mockResolvedValue(employeeFixture);
+    deleteEmployeeMock.mockResolvedValue(undefined);
     listTasksMock.mockResolvedValue([taskFixture]);
     listTasksByEmployeeMock.mockResolvedValue([taskFixture]);
     createTaskMock.mockResolvedValue(taskFixture);
@@ -150,6 +172,92 @@ describe('Dashboard CRUD integration', () => {
     expect(createPayload.status).toBe('todo');
     expect(createPayload.priority).toBe('medium');
     expect(createPayload.startDate.endsWith('T12:00:00.000Z')).toBe(true);
+  });
+
+  it('creates an employee from the management panel', async () => {
+    await renderAuthenticatedApp();
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Mitarbeitende Person hinzufügen' }),
+    );
+    await screen.findByLabelText('Vorname');
+
+    fireEvent.change(screen.getByLabelText('Vorname'), {
+      target: {
+        value: 'Grace',
+      },
+    });
+    fireEvent.change(screen.getByLabelText('Nachname'), {
+      target: {
+        value: 'Hopper',
+      },
+    });
+    fireEvent.change(screen.getByLabelText('E-Mail'), {
+      target: {
+        value: 'grace@example.com',
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Mitarbeitende Person erstellen' }));
+
+    await waitFor(() => {
+      expect(createEmployeeMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(createEmployeeMock).toHaveBeenCalledWith({
+      firstName: 'Grace',
+      lastName: 'Hopper',
+      email: 'grace@example.com',
+      role: 'developer',
+      department: 'engineering',
+    });
+  });
+
+  it('updates an employee from the management panel', async () => {
+    await renderAuthenticatedApp();
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Mitarbeitende Person Ada Lovelace bearbeiten',
+      }),
+    );
+    await screen.findByText('Mitarbeitende Person bearbeiten');
+
+    fireEvent.change(screen.getByLabelText('Vorname'), {
+      target: {
+        value: 'Ada-Updated',
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Änderungen speichern' }));
+
+    await waitFor(() => {
+      expect(updateEmployeeMock).toHaveBeenCalledTimes(1);
+    });
+
+    const [employeeId, payload] = updateEmployeeMock.mock.calls[0] as [
+      number,
+      {
+        firstName: string;
+      },
+    ];
+    expect(employeeId).toBe(1);
+    expect(payload.firstName).toBe('Ada-Updated');
+  });
+
+  it('deletes an employee from the management panel after confirmation', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    await renderAuthenticatedApp();
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Mitarbeitende Person Ada Lovelace entfernen',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(deleteEmployeeMock).toHaveBeenCalledWith(1);
+    });
+
+    confirmSpy.mockRestore();
   });
 
   it('shows modal validation errors for empty task title and invalid subtasks', async () => {

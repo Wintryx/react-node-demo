@@ -22,11 +22,14 @@ Stand: 2026-03-30
     - API Unit: `task-input.mapper.spec.ts`
     - Web Unit: `task-form-state.spec.ts`
     - API E2E: `tasks.spec.ts` (`dueDate` wird per PATCH auf `null` gelöscht)
-- [ ] Paket 3 - Employee-CRUD-Frontend (API/Hook/UI + Integrationstests)
-  - Teilstatus: Slice 3A umgesetzt (API + Hook-Grundlage)
+- [x] Paket 3 - Employee-CRUD-Frontend (API/Hook/UI + Integrationstests)
+  - Slice 3A umgesetzt (API + Hook-Grundlage)
   - `employeesApi` um `create`, `update`, `delete` erweitert
   - `useEmployeeMutations` als eigener Hook ergänzt (Smart-Logik, Query-Invalidation für `employees`/`tasks`)
   - API-Client-Tests ergänzt: `employees-api.spec.ts`
+  - Slice 3B umgesetzt (Dashboard-UI + Integration)
+  - Employee-Management-Panel im Dashboard: Create/Edit/Delete
+  - Integrationstests ergänzt: Create/Edit/Delete Employee in `dashboard-crud.integration.spec.tsx`
 - [ ] Paket 4 - UI-Sprache Englisch als Default (inkl. Error-Mapping)
 - [ ] Paket 5 - Seed-Workflow + Doku-Roundup
 
@@ -308,7 +311,7 @@ Geplante Häppchen:
 
 ## Review-Feedback 2026-03-30 (offene Maßnahmen)
 
-- P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist.
+- P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist. (Erledigt 2026-03-30)
 - P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages).
 - P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET` und konsistente Auth-Cookie-Settings), damit Fresh-Clone-Start stabil funktioniert. (Erledigt 2026-03-30)
 - P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
@@ -325,7 +328,7 @@ Historische Restpunkte (nachrangig, durch Backlog oben übersteuert):
 
 Verbindlicher Backlog (Stand 2026-03-30):
 
-- P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist.
+- P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist. (Erledigt 2026-03-30)
 - P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages in UI und `errors.ts`).
 - P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET`, `AUTH_COOKIE_SECURE`, `AUTH_COOKIE_SAME_SITE`) und Fresh-Clone-Start verifizieren. (Erledigt 2026-03-30)
 - P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
@@ -339,13 +342,13 @@ Verbindlicher Backlog (Stand 2026-03-30):
 
 ## Nächste Schritte (historisch)
 
-1. P0: Employee-CRUD-UI und englische Default-Lokalisierung (oder i18n mit `en` Default) umsetzen.
+1. P0: Englische Default-Lokalisierung (oder i18n mit `en` Default) umsetzen.
 2. Optional: Seed-Workflow für reproduzierbare Demo-Daten
 3. P1: Seed-Workflow umsetzen und mit Tests absichern.
 
 ## Review-Backlog 2026-03-30 (autoritativ für Umsetzung)
 
-- P0: Employee-CRUD-UI (Create/Edit/Delete) inkl. Integrationstests im Dashboard umsetzen.
+- P0: Employee-CRUD-UI (Create/Edit/Delete) inkl. Integrationstests im Dashboard umsetzen. (Erledigt 2026-03-30)
 - P0: UI auf Englisch als Default (oder i18n mit `en` als Default) umstellen, inklusive `errors.ts`.
 - P0: Docker-Compose-Startfix umsetzen (`JWT_REFRESH_TOKEN_SECRET` + konsistente Cookie-Env-Werte). (Erledigt 2026-03-30)
 - P1: `dueDate`-Clearing-Bug im Task-Update-Mapper fixen und mit gezielten Tests absichern. (Erledigt 2026-03-30)
@@ -361,6 +364,6 @@ Empfohlene Reihenfolge:
 
 ## Nächste Schritte (verbindlich, Stand 2026-03-30)
 
-1. P0: Employee-CRUD-UI und englische Default-Lokalisierung (oder i18n mit `en` Default) umsetzen.
+1. P0: Englische Default-Lokalisierung (oder i18n mit `en` Default) umsetzen.
 2. P1: Seed-Workflow umsetzen und mit Tests absichern.
 3. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.
