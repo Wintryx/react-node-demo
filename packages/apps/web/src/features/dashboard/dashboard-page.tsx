@@ -11,8 +11,7 @@ import { DashboardViewMode } from './dashboard-view-mode';
 import { TaskFormDialog } from './form';
 import { useDashboardData, useEmployeeMutations, useTaskMutations } from './hooks';
 import { getEmployeeDisplayName } from './utils';
-import { Alert } from '../../components/ui/alert';
-import { Spinner } from '../../components/ui/spinner';
+import { Alert, Spinner } from '../../components/ui';
 import { CreateEmployeeRequest, Employee, Task, UpdateEmployeeRequest } from '../../shared/api/types';
 import { useAuth } from '../auth/auth-context';
 

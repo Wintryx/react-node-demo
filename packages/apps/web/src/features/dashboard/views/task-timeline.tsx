@@ -1,10 +1,7 @@
 import { CalendarClock } from 'lucide-react';
 import { useState } from 'react';
 
-import { Badge } from '../../../components/ui/badge';
-import { Button } from '../../../components/ui/button';
-import { Card, CardContent } from '../../../components/ui/card';
-import { Select } from '../../../components/ui/select';
+import { Badge, Button, Card, CardContent, Select } from '../../../components/ui';
 import { Task, TaskStatus } from '../../../shared/api/types';
 import {
   applyTimelineZoom,

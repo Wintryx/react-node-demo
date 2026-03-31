@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
-import { Card, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '../../components/ui';
 
 interface AuthPageShellProps {
   title: string;

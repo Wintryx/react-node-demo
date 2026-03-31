@@ -2,15 +2,7 @@ import { RefreshCcw } from 'lucide-react';
 
 import { EmployeeManagementPanel } from './employee-management-panel';
 import { EmployeeSwitcher } from './employee-switcher';
-import { Alert } from '../../../components/ui/alert';
-import { Button } from '../../../components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '../../../components/ui/card';
+import { Alert, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui';
 import { CreateEmployeeRequest, Employee, UpdateEmployeeRequest } from '../../../shared/api/types';
 import { dashboardCopy } from '../dashboard-copy';
 

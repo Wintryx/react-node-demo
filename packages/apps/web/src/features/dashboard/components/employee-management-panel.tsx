@@ -1,10 +1,6 @@
 import { FormEvent, useState } from 'react';
 
-import { Alert } from '../../../components/ui/alert';
-import { Button } from '../../../components/ui/button';
-import { Input } from '../../../components/ui/input';
-import { Label } from '../../../components/ui/label';
-import { Select } from '../../../components/ui/select';
+import { Alert, Button, Input, Label, Select } from '../../../components/ui';
 import {
   CreateEmployeeRequest,
   Employee,

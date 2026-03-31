@@ -1,4 +1,4 @@
-import { Select } from '../../../components/ui/select';
+import { Select } from '../../../components/ui';
 import { Employee } from '../../../shared/api/types';
 import { dashboardCopy } from '../dashboard-copy';
 import { getEmployeeDisplayName } from '../utils';

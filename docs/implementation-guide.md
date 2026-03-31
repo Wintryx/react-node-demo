@@ -13,6 +13,7 @@ Execution model (small, verifiable slices, no overengineering):
 5. Package 5 (completed): Seed-data workflow and final documentation alignment.
 6. Package 6 (completed): P2 documentation polish (AI transparency + scope calibration).
 7. Package 7 (completed): Dashboard refactor polish (type-import consistency + reusable confirm dialog).
+8. Package 8 (completed): Pragmatic barrel-import cleanup in dashboard UI.
 
 Package 1 delivered:
 
@@ -73,6 +74,11 @@ Package 7 delivered:
 - Consolidated feature-layer type imports to the local API type facade (`shared/api/types`) instead of direct shared-contract imports in dashboard form components.
 - Replaced browser-native `window.confirm` with a reusable dialog component in the dashboard feature (`confirm-action-dialog.tsx`).
 - Centralized delete confirmation flow in the dashboard container and aligned integration tests with dialog confirm/cancel behavior.
+
+Package 8 delivered:
+
+- Added a UI barrel export (`packages/apps/web/src/components/ui/index.ts`) and switched feature imports (dashboard/auth/notifications) to that barrel (`.../components/ui`).
+- Kept the solution intentionally pragmatic: no additional Nx path-alias layer for app-internal imports, because `@nx/enforce-module-boundaries` path resolution was not robust with `@web/shared/api/types` in this repository setup.
 
 ## 1. Goal
 

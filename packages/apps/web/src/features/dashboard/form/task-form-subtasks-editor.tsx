@@ -1,9 +1,5 @@
 import { EditableSubtask } from './task-form-state';
-import { Button } from '../../../components/ui/button';
-import { DatePickerField } from '../../../components/ui/date-picker-field';
-import { Input } from '../../../components/ui/input';
-import { Label } from '../../../components/ui/label';
-import { Select } from '../../../components/ui/select';
+import { Button, DatePickerField, Input, Label, Select } from '../../../components/ui';
 import { Employee } from '../../../shared/api/types';
 import { dashboardCopy } from '../dashboard-copy';
 import { getEmployeeDisplayName } from '../utils';

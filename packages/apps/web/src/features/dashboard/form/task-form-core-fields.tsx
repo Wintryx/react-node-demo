@@ -1,8 +1,5 @@
 import { TASK_PRIORITIES, TASK_STATUSES, TaskFormState } from './task-form-state';
-import { DatePickerField } from '../../../components/ui/date-picker-field';
-import { Input } from '../../../components/ui/input';
-import { Label } from '../../../components/ui/label';
-import { Select } from '../../../components/ui/select';
+import { DatePickerField, Input, Label, Select } from '../../../components/ui';
 import { Employee, TaskPriority, TaskStatus } from '../../../shared/api/types';
 import { getEmployeeDisplayName, taskPriorityLabels, taskStatusLabels } from '../utils';
 

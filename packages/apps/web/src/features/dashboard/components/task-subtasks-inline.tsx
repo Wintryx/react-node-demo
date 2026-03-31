@@ -1,8 +1,7 @@
 import { Trash2 } from 'lucide-react';
 import { SyntheticEvent, useState } from 'react';
 
-import { Button } from '../../../components/ui/button';
-import { Input } from '../../../components/ui/input';
+import { Button, Input } from '../../../components/ui';
 import { Task } from '../../../shared/api/types';
 import { dashboardCopy } from '../dashboard-copy';
 

@@ -1,4 +1,4 @@
-import { Card, CardContent } from '../../../components/ui/card';
+import { Card, CardContent } from '../../../components/ui';
 import { Task } from '../../../shared/api/types';
 import { TaskCard } from '../components';
 

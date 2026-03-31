@@ -78,6 +78,15 @@ Stand: 2026-03-31
   - Verifiziert mit:
     - `npx nx lint web`
     - `npx nx test web`
+- [x] Paket 8 - Pragmatic Barrel-Imports im Dashboard
+  - UI-Barrel ergänzt: `packages/apps/web/src/components/ui/index.ts`
+  - Imports auf Barrel-Nutzung reduziert (Dashboard + Auth + Notifications): `.../components/ui` statt vieler Einzelpfade wie `.../button`, `.../input`, `.../select`
+  - Entscheidung gegen `@web/*` Alias im aktuellen Setup:
+    - `@nx/enforce-module-boundaries` löst in dieser Repo-Konfiguration Alias-Pfade zu `shared/api/types` nicht robust auf
+    - daher bewusst bei stabiler Barrel-Lösung ohne zusätzliche Nx-Path-Magie geblieben
+  - Verifiziert mit:
+    - `npx nx lint web`
+    - `npx nx test web`
 
 ## Entscheidungen
 

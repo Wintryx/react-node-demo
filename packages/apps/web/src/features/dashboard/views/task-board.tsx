@@ -1,5 +1,4 @@
-import { Badge } from '../../../components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
+import { Badge, Card, CardContent, CardHeader, CardTitle } from '../../../components/ui';
 import { Task, TaskStatus } from '../../../shared/api/types';
 import { TaskCard } from '../components';
 import { taskStatusLabels, taskStatusOrder } from '../utils';
