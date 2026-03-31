@@ -10,6 +10,11 @@ const { refreshMock } = vi.hoisted(() => ({
   refreshMock: vi.fn(),
 }));
 
+const routerFuture = {
+  v7_startTransition: true,
+  v7_relativeSplatPath: true,
+} as const;
+
 vi.mock('../../shared/api', () => ({
   authApi: {
     login: vi.fn(),
@@ -54,7 +59,7 @@ function AuthStateProbe() {
 
 const renderAuthProvider = (): void => {
   render(
-    <MemoryRouter initialEntries={['/app']}>
+    <MemoryRouter future={routerFuture} initialEntries={['/app']}>
       <AuthProvider>
         <AuthStateProbe />
       </AuthProvider>

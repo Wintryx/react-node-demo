@@ -99,6 +99,11 @@ const employeeCreateFixture: Employee = {
   createdAt: '2026-03-17T10:00:00.000Z',
 };
 
+const routerFuture = {
+  v7_startTransition: true,
+  v7_relativeSplatPath: true,
+} as const;
+
 const renderAuthenticatedApp = async (): Promise<void> => {
   writeAuthSession({
     accessToken: createAccessTokenForTest(Math.floor(Date.now() / 1000) + 60 * 15),
@@ -110,7 +115,7 @@ const renderAuthenticatedApp = async (): Promise<void> => {
   });
 
   render(
-    <MemoryRouter initialEntries={['/app']}>
+    <MemoryRouter future={routerFuture} initialEntries={['/app']}>
       <App />
     </MemoryRouter>,
   );

@@ -87,6 +87,18 @@ Stand: 2026-03-31
   - Verifiziert mit:
     - `npx nx lint web`
     - `npx nx test web`
+- [x] Paket 9 - React-Router-Testwarnungen bereinigt
+  - `MemoryRouter` in betroffenen Tests auf Future-Flags umgestellt:
+    - `v7_startTransition: true`
+    - `v7_relativeSplatPath: true`
+  - Betroffene Dateien:
+    - `packages/apps/web/src/app/app.spec.tsx`
+    - `packages/apps/web/src/features/auth/auth-context.spec.tsx`
+    - `packages/apps/web/src/features/dashboard/dashboard-crud.integration.spec.tsx`
+  - Ergebnis: Router-Future-Warnungen in der Web-Testausgabe entfernt
+  - Verifiziert mit:
+    - `npx nx test web`
+    - `npx nx lint web`
 
 ## Entscheidungen
 

@@ -14,6 +14,7 @@ Execution model (small, verifiable slices, no overengineering):
 6. Package 6 (completed): P2 documentation polish (AI transparency + scope calibration).
 7. Package 7 (completed): Dashboard refactor polish (type-import consistency + reusable confirm dialog).
 8. Package 8 (completed): Pragmatic barrel-import cleanup in dashboard UI.
+9. Package 9 (completed): React Router test-warning cleanup.
 
 Package 1 delivered:
 
@@ -79,6 +80,11 @@ Package 8 delivered:
 
 - Added a UI barrel export (`packages/apps/web/src/components/ui/index.ts`) and switched feature imports (dashboard/auth/notifications) to that barrel (`.../components/ui`).
 - Kept the solution intentionally pragmatic: no additional Nx path-alias layer for app-internal imports, because `@nx/enforce-module-boundaries` path resolution was not robust with `@web/shared/api/types` in this repository setup.
+
+Package 9 delivered:
+
+- Enabled React Router future flags in test `MemoryRouter` wrappers (`v7_startTransition`, `v7_relativeSplatPath`).
+- Removed React Router v7 future warnings from regular web test runs while preserving current runtime behavior.
 
 ## 1. Goal
 
