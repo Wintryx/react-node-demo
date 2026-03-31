@@ -325,6 +325,24 @@ docs/
 - There is intentionally no per-user ownership isolation for employees/tasks in demo scope.
 - This is an accepted demo tradeoff and must be tightened in production (role/scope/ownership-based authorization).
 
+## AI-assisted Development Transparency
+
+- This project was developed with AI assistance (iterative coding support for implementation, refactoring, and test scaffolding).
+- Architectural and security decisions were intentionally validated and adjusted manually (for example auth flow, migration strategy, and error contract).
+- Final responsibility for code quality, behavior, and review decisions remains with the repository owner.
+
+## Scope Calibration (Production Roadmap)
+
+- Session strategy:
+  - Current demo tradeoff is `sessionStorage` for access token plus HttpOnly refresh cookie.
+  - Production target is memory-first access token handling with refresh-cookie recovery to reduce XSS token exposure.
+- Authorization model:
+  - Current demo scope uses a shared workspace for authenticated users.
+  - Production target is per-user/role-scoped data access (ownership checks and role-based permissions).
+- Complexity boundary:
+  - Keep DDD-light structure where it improves testability and contracts.
+  - Prefer simple, explicit flows over additional abstraction layers unless there is clear operational value.
+
 ## API Error Contract
 
 The backend returns structured error payloads with stable codes:
@@ -346,9 +364,9 @@ Frontend error handling maps primarily by `code` and uses `message` only as fall
 
 ## Roadmap (Next Chunks)
 
-1. Optional UI smoke E2E tests
-2. Optional auth hardening (refresh-token rotation/revocation)
-3. Optional i18n layer (currently English default copy)
+1. Add per-user authorization scope (ownership + role checks) for employees/tasks.
+2. Revisit frontend session token strategy for production (memory-first access token).
+3. Optional UI smoke E2E tests and optional i18n layer.
 
 ## Documentation Mode
 

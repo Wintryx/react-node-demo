@@ -57,6 +57,15 @@ Package 5 delivered:
 - Kept seed-module imports pragmatic (direct imports, only existing useful barrels retained).
 - Updated root/API READMEs with seed usage and safety notes.
 
+P2 documentation polish delivered:
+
+- Added explicit AI-assistance transparency in the root README (scope of assistance + ownership of decisions).
+- Added scope-calibration notes for production around:
+  - session strategy (`sessionStorage` demo tradeoff vs. memory-first production target),
+  - authorization scope (shared demo workspace vs. per-user/role isolation target),
+  - complexity boundary (no unnecessary abstraction growth).
+- Updated roadmap wording to reflect these production-oriented next steps.
+
 ## 1. Goal
 
 This guide defines how to improve authentication/session behavior in small, safe increments:
@@ -298,3 +307,14 @@ Per chunk:
 2. Ask for implementation + tests + doc update in one PR-sized change.
 3. Require explicit DoD check in final response.
 4. Continue to next chunk only after manual verification.
+
+---
+
+## 9. P2 Documentation Outcome
+
+- AI transparency is now documented in root README (`## AI-assisted Development Transparency`).
+- Scope calibration is now documented in root/API README:
+  - session strategy tradeoff and production target,
+  - shared demo scope vs. per-user/role authorization target,
+  - complexity boundary against overengineering.
+- Review-driven mandatory backlog items are complete; remaining roadmap items are optional product polish.

@@ -52,6 +52,15 @@ It provides the REST API and contains:
 - There is intentionally no per-user ownership isolation for employees/tasks in demo scope.
 - This is an accepted demo tradeoff for assessment delivery and should be replaced by role/scope/ownership authorization in production.
 
+## Scope Calibration (API, Production Target)
+
+- Authorization:
+  - Current: authenticated users can access shared employee/task data.
+  - Target: enforce ownership/role-based access per request.
+- Session:
+  - Current: short-lived access token + HttpOnly refresh cookie.
+  - Target: keep refresh-cookie flow, tighten frontend token exposure strategy, and preserve silent refresh UX.
+
 ## Error Contract
 
 API errors use a structured payload with stable `code` values:

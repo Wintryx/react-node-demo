@@ -62,6 +62,14 @@ Stand: 2026-03-31
     - `npx nx test api`
     - `npx nx lint api`
     - `npm run db:seed` (zweimaliger Smoke-Run, idempotent)
+- [x] Paket 6 - P2 Doku-Polish (AI-Transparenz + Scope-Kalibrierung)
+  - AI-Transparenzabschnitt in Root-README ergänzt (Assistenzumfang + Verantwortungsabgrenzung)
+  - Scope-Kalibrierung ergänzt:
+    - Session-Strategie: Demo-Tradeoff dokumentiert, Produktionsziel memory-first benannt
+    - Authorization-Scope: Shared Workspace als Demo-Entscheidung, Per-User/Role-Isolation als Zielbild festgehalten
+    - Complexity-Boundary: explizit "kein Overengineering ohne klaren Mehrwert"
+  - Roadmap entsprechend auf produktionsnahe Next Steps kalibriert
+  - API-README um Scope-Kalibrierung für Backend ergänzt
 
 ## Entscheidungen
 
@@ -341,15 +349,17 @@ Geplante Häppchen:
 
 ## Review-Feedback 2026-03-30 (offene Maßnahmen)
 
+Status: Alle Review-Pflichtpunkte (P0-P2) sind erledigt. Die verbleibenden Punkte sind optionale Produktverbesserungen.
+
 - P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist. (Erledigt 2026-03-30)
 - P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages). (Erledigt 2026-03-31)
 - P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET` und konsistente Auth-Cookie-Settings), damit Fresh-Clone-Start stabil funktioniert. (Erledigt 2026-03-30)
 - P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
 - P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle). (Erledigt 2026-03-31)
-- P2: Transparenzabschnitt zu AI-unterstützter Entwicklung ergänzen (welche Teile assistiert waren, welche Architekturentscheidungen manuell getroffen wurden).
-- P2: Scope-Kalibrierung im Frontend/Docs vornehmen (Komplexität reduzieren, wo sie keinen funktionalen Mehrwert für den Requirement-Scope bringt).
-- P2: Session-Strategie für Production explizit entscheiden (weiter `sessionStorage` als Demo-Tradeoff vs. Memory-Token + Refresh-Only Ansatz).
-- P2: Roadmap für Per-User-Data-Isolation definieren (Ownership/Scope je Benutzer statt globalem Workspace).
+- P2: Transparenzabschnitt zu AI-unterstützter Entwicklung ergänzen (welche Teile assistiert waren, welche Architekturentscheidungen manuell getroffen wurden). (Erledigt 2026-03-31)
+- P2: Scope-Kalibrierung im Frontend/Docs vornehmen (Komplexität reduzieren, wo sie keinen funktionalen Mehrwert für den Requirement-Scope bringt). (Erledigt 2026-03-31)
+- P2: Session-Strategie für Production explizit entscheiden (weiter `sessionStorage` als Demo-Tradeoff vs. Memory-Token + Refresh-Only Ansatz). (Dokumentiert 2026-03-31)
+- P2: Roadmap für Per-User-Data-Isolation definieren (Ownership/Scope je Benutzer statt globalem Workspace). (Erledigt 2026-03-31)
 - Hinweis: Refresh-Token-Rotation ist bereits umgesetzt (Phase 3 abgeschlossen) und gilt nicht mehr als offener Punkt.
 
 Historische Restpunkte (nachrangig, durch Backlog oben übersteuert):
@@ -363,7 +373,8 @@ Verbindlicher Backlog (Stand 2026-03-30):
 - P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET`, `AUTH_COOKIE_SECURE`, `AUTH_COOKIE_SAME_SITE`) und Fresh-Clone-Start verifizieren. (Erledigt 2026-03-30)
 - P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
 - P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle). (Erledigt 2026-03-31)
-- P2: Transparenzabschnitt zu AI-unterstützter Entwicklung ergänzen (welche Teile assistiert waren, welche Architekturentscheidungen manuell getroffen wurden).
+- P2: Transparenzabschnitt zu AI-unterstützter Entwicklung ergänzen (welche Teile assistiert waren, welche Architekturentscheidungen manuell getroffen wurden). (Erledigt 2026-03-31)
+- P2: Scope-Kalibrierung/Produktions-Roadmap festhalten (Session-Strategie, Per-User-Isolation). (Erledigt 2026-03-31)
 - Hinweis: Refresh-Token-Rotation ist bereits umgesetzt (Phase 3 abgeschlossen) und gilt nicht mehr als offener Punkt.
 
 - Optional: Seed-Daten für schnellere lokale UI-Demos
@@ -372,7 +383,7 @@ Verbindlicher Backlog (Stand 2026-03-30):
 
 ## Nächste Schritte (historisch)
 
-1. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.
+1. Optional: UI-Scope weiter über Smoke-E2E absichern.
 
 ## Review-Backlog 2026-03-30 (autoritativ für Umsetzung)
 
@@ -381,13 +392,13 @@ Verbindlicher Backlog (Stand 2026-03-30):
 - P0: Docker-Compose-Startfix umsetzen (`JWT_REFRESH_TOKEN_SECRET` + konsistente Cookie-Env-Werte). (Erledigt 2026-03-30)
 - P1: `dueDate`-Clearing-Bug im Task-Update-Mapper fixen und mit gezielten Tests absichern. (Erledigt 2026-03-30)
 - P1: Seed-Script für reproduzierbare Demo-Daten ergänzen. (Erledigt 2026-03-31)
-- P2: Transparenz zu AI-Assistenz dokumentieren (kurzer Abschnitt in Doku).
-- P2: Scope-Kalibrierung/Produktions-Roadmap festhalten (Session-Strategie, Per-User-Isolation).
+- P2: Transparenz zu AI-Assistenz dokumentieren (kurzer Abschnitt in Doku). (Erledigt 2026-03-31)
+- P2: Scope-Kalibrierung/Produktions-Roadmap festhalten (Session-Strategie, Per-User-Isolation). (Erledigt 2026-03-31)
 - Hinweis: Refresh-Token-Rotation ist bereits umgesetzt und nicht mehr offen.
 
 Empfohlene Reihenfolge:
-1. A: Doku-Polish (AI-Transparenz + Scope-Kalibrierung).
+1. A: Optionales Product-Polish (Smoke-E2E / i18n) nach Bedarf.
 
 ## Nächste Schritte (verbindlich, Stand 2026-03-31)
 
-1. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.
+1. Keine offenen Pflichtpunkte aus dem Review-Backlog.
