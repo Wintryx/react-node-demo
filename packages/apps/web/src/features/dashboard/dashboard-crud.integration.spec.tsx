@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+
 import { dashboardCopy } from './dashboard-copy';
 import App from '../../app/app';
 import { Employee, Task } from '../../shared/api/types';
@@ -243,7 +244,6 @@ describe('Dashboard CRUD integration', () => {
   });
 
   it('deletes an employee from the management panel after confirmation', async () => {
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
     await renderAuthenticatedApp();
 
     fireEvent.click(
@@ -251,12 +251,12 @@ describe('Dashboard CRUD integration', () => {
         name: dashboardCopy.employees.removeAria('Ada Lovelace'),
       }),
     );
+    await screen.findByRole('heading', { name: dashboardCopy.employees.confirmDeleteTitle });
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.common.confirmAction }));
 
     await waitFor(() => {
       expect(deleteEmployeeMock).toHaveBeenCalledWith(1);
     });
-
-    confirmSpy.mockRestore();
   });
 
   it('shows modal validation errors for empty task title and invalid subtasks', async () => {
@@ -330,44 +330,36 @@ describe('Dashboard CRUD integration', () => {
   });
 
   it('deletes a task after confirmation', async () => {
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
     await renderAuthenticatedApp();
 
     fireEvent.click(await screen.findByRole('button', { name: dashboardCopy.tasks.delete }));
+    await screen.findByRole('heading', { name: dashboardCopy.tasks.confirmDeleteTitle });
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.common.confirmAction }));
 
     await waitFor(() => {
       expect(deleteTaskMock).toHaveBeenCalledWith(11);
     });
-    expect(confirmSpy).toHaveBeenCalledTimes(1);
-
-    confirmSpy.mockRestore();
   });
 
   it('does not delete a task when confirmation is cancelled', async () => {
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
     await renderAuthenticatedApp();
 
     fireEvent.click(await screen.findByRole('button', { name: dashboardCopy.tasks.delete }));
-
-    await waitFor(() => {
-      expect(confirmSpy).toHaveBeenCalledTimes(1);
-    });
+    await screen.findByRole('heading', { name: dashboardCopy.tasks.confirmDeleteTitle });
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.common.cancel }));
     expect(deleteTaskMock).not.toHaveBeenCalled();
-
-    confirmSpy.mockRestore();
   });
 
   it('shows API error feedback when delete fails', async () => {
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
     deleteTaskMock.mockRejectedValueOnce(new Error('Task delete failed.'));
     await renderAuthenticatedApp();
 
     fireEvent.click(await screen.findByRole('button', { name: dashboardCopy.tasks.delete }));
+    await screen.findByRole('heading', { name: dashboardCopy.tasks.confirmDeleteTitle });
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.common.confirmAction }));
 
     const errorMessage = await screen.findByText('Task delete failed.');
     expect(errorMessage).toBeTruthy();
-
-    confirmSpy.mockRestore();
   });
 
   it('shows API error feedback when create fails', async () => {

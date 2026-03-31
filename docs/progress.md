@@ -47,7 +47,46 @@ Stand: 2026-03-31
   - Verifiziert mit:
     - `npx nx test web`
     - `npx nx lint web`
-- [ ] Paket 5 - Seed-Workflow + Doku-Roundup
+- [x] Paket 5 - Seed-Workflow + Doku-Roundup
+  - idempotenter Seed-Workflow ergänzt (`npm run db:seed`)
+  - Demo-Seeddaten für Auth-User, Employees, Tasks und Subtasks umgesetzt
+  - Demo-Login-Credentials in Root/API-README dokumentiert (`demo.user@example.com` / `DemoPass!123`)
+  - Seed-Sicherheitsgrenze ergänzt:
+    - Blockierung in Production ohne explizites `ALLOW_PRODUCTION_DB_SEED=true`
+  - Seed-Importe pragmatisch gehalten (direkte Importe, nur bestehende sinnvolle Barrels beibehalten)
+  - API-Tests ergänzt:
+    - `seed-demo-data.spec.ts` (Erstlauf + Idempotenz)
+  - Dokumentation ergänzt:
+    - Root-README und API-README um Seed-Nutzung erweitert
+  - Verifiziert mit:
+    - `npx nx test api`
+    - `npx nx lint api`
+    - `npm run db:seed` (zweimaliger Smoke-Run, idempotent)
+- [x] Paket 6 - P2 Doku-Polish (AI-Transparenz + Scope-Kalibrierung)
+  - AI-Transparenzabschnitt in Root-README ergänzt (Assistenzumfang + Verantwortungsabgrenzung)
+  - Scope-Kalibrierung ergänzt:
+    - Session-Strategie: Demo-Tradeoff dokumentiert, Produktionsziel memory-first benannt
+    - Authorization-Scope: Shared Workspace als Demo-Entscheidung, Per-User/Role-Isolation als Zielbild festgehalten
+    - Complexity-Boundary: explizit "kein Overengineering ohne klaren Mehrwert"
+  - Roadmap entsprechend auf produktionsnahe Next Steps kalibriert
+  - API-README um Scope-Kalibrierung für Backend ergänzt
+- [x] Paket 7 - Dashboard-Refactor-Polish (UI-Verantwortung + Import-Konsistenz)
+  - Feature-Layer-Importe auf lokale Typ-Facade konsolidiert (`shared/api/types` statt direkter Contract-Imports in Form-Komponenten)
+  - Browser-`window.confirm` vollständig durch wiederverwendbaren UI-Dialog ersetzt (`confirm-action-dialog.tsx`)
+  - Delete-Flows im Dashboard-Container zentralisiert (`dashboard-page.tsx`, typisierte Pending-Action)
+  - Integrationstests auf Dialog-Confirm/Cancel umgestellt (`dashboard-crud.integration.spec.tsx`)
+  - Verifiziert mit:
+    - `npx nx lint web`
+    - `npx nx test web`
+- [x] Paket 8 - Pragmatic Barrel-Imports im Dashboard
+  - UI-Barrel ergänzt: `packages/apps/web/src/components/ui/index.ts`
+  - Imports auf Barrel-Nutzung reduziert (Dashboard + Auth + Notifications): `.../components/ui` statt vieler Einzelpfade wie `.../button`, `.../input`, `.../select`
+  - Entscheidung gegen `@web/*` Alias im aktuellen Setup:
+    - `@nx/enforce-module-boundaries` löst in dieser Repo-Konfiguration Alias-Pfade zu `shared/api/types` nicht robust auf
+    - daher bewusst bei stabiler Barrel-Lösung ohne zusätzliche Nx-Path-Magie geblieben
+  - Verifiziert mit:
+    - `npx nx lint web`
+    - `npx nx test web`
 
 ## Entscheidungen
 
@@ -325,59 +364,25 @@ Geplante Häppchen:
   - API Unit: 16 Suites / 37 Tests erfolgreich
   - API-E2E: 4 Suites / 21 Tests erfolgreich
 
-## Review-Feedback 2026-03-30 (offene Maßnahmen)
+## Review-Feedback 2026-03-30 (Status)
 
-- P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist. (Erledigt 2026-03-30)
-- P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages). (Erledigt 2026-03-31)
-- P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET` und konsistente Auth-Cookie-Settings), damit Fresh-Clone-Start stabil funktioniert. (Erledigt 2026-03-30)
-- P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
-- P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle).
-- P2: Transparenzabschnitt zu AI-unterstützter Entwicklung ergänzen (welche Teile assistiert waren, welche Architekturentscheidungen manuell getroffen wurden).
-- P2: Scope-Kalibrierung im Frontend/Docs vornehmen (Komplexität reduzieren, wo sie keinen funktionalen Mehrwert für den Requirement-Scope bringt).
-- P2: Session-Strategie für Production explizit entscheiden (weiter `sessionStorage` als Demo-Tradeoff vs. Memory-Token + Refresh-Only Ansatz).
-- P2: Roadmap für Per-User-Data-Isolation definieren (Ownership/Scope je Benutzer statt globalem Workspace).
-- Hinweis: Refresh-Token-Rotation ist bereits umgesetzt (Phase 3 abgeschlossen) und gilt nicht mehr als offener Punkt.
+Status: Alle Review-Pflichtpunkte (P0-P2) sind erledigt.
 
-Historische Restpunkte (nachrangig, durch Backlog oben übersteuert):
+Abgeschlossene Pflichtpunkte:
 
-## Offene technische Punkte (relevant)
+- Employee-CRUD im Frontend (Create/Edit/Delete inkl. Integrationstests)
+- UI-Sprache auf Englisch als Default inkl. Error-Mapping
+- Docker-Compose-Startfix mit vollständigen Auth-Variablen
+- `dueDate`-Clearing-Semantik im Task-Update mit Tests
+- Seed-Workflow für reproduzierbare Demo-Daten
+- P2-Doku-Polish: AI-Transparenz + Scope-Kalibrierung
 
-Verbindlicher Backlog (Stand 2026-03-30):
+## Optionale Produktverbesserungen (kein Pflicht-Backlog)
 
-- P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist. (Erledigt 2026-03-30)
-- P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages in UI und `errors.ts`). (Erledigt 2026-03-31)
-- P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET`, `AUTH_COOKIE_SECURE`, `AUTH_COOKIE_SAME_SITE`) und Fresh-Clone-Start verifizieren. (Erledigt 2026-03-30)
-- P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
-- P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle).
-- P2: Transparenzabschnitt zu AI-unterstützter Entwicklung ergänzen (welche Teile assistiert waren, welche Architekturentscheidungen manuell getroffen wurden).
-- Hinweis: Refresh-Token-Rotation ist bereits umgesetzt (Phase 3 abgeschlossen) und gilt nicht mehr als offener Punkt.
-
-- Optional: Seed-Daten für schnellere lokale UI-Demos
-- Auth-Hardening in späteren Schritten:
-  - Optional: Multi-Device Session-Management/Revocation
-
-## Nächste Schritte (historisch)
-
-1. P1: Seed-Workflow umsetzen und mit Tests absichern.
-2. Optional: Seed-Workflow für reproduzierbare Demo-Daten
-3. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.
-
-## Review-Backlog 2026-03-30 (autoritativ für Umsetzung)
-
-- P0: Employee-CRUD-UI (Create/Edit/Delete) inkl. Integrationstests im Dashboard umsetzen. (Erledigt 2026-03-30)
-- P0: UI auf Englisch als Default (oder i18n mit `en` als Default) umstellen, inklusive `errors.ts`. (Erledigt 2026-03-31)
-- P0: Docker-Compose-Startfix umsetzen (`JWT_REFRESH_TOKEN_SECRET` + konsistente Cookie-Env-Werte). (Erledigt 2026-03-30)
-- P1: `dueDate`-Clearing-Bug im Task-Update-Mapper fixen und mit gezielten Tests absichern. (Erledigt 2026-03-30)
-- P1: Seed-Script für reproduzierbare Demo-Daten ergänzen.
-- P2: Transparenz zu AI-Assistenz dokumentieren (kurzer Abschnitt in Doku).
-- P2: Scope-Kalibrierung/Produktions-Roadmap festhalten (Session-Strategie, Per-User-Isolation).
-- Hinweis: Refresh-Token-Rotation ist bereits umgesetzt und nicht mehr offen.
-
-Empfohlene Reihenfolge:
-1. A: Seed-Workflow.
-2. B: Doku-Polish (AI-Transparenz + Scope-Kalibrierung).
+- Smoke-E2E für zentrale UI-Flows als zusätzliche Regression-Sicherheit
+- Optionales i18n (zweisprachig), falls Englisch + Deutsch parallel benötigt wird
+- Optionales Auth-Hardening: Multi-Device Session-Management/Revocation
 
 ## Nächste Schritte (verbindlich, Stand 2026-03-31)
 
-1. P1: Seed-Workflow umsetzen und mit Tests absichern.
-2. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.
+1. Keine offenen Pflichtpunkte aus dem Review-Backlog.

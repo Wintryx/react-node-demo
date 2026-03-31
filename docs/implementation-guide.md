@@ -10,7 +10,10 @@ Execution model (small, verifiable slices, no overengineering):
 2. Package 2 (completed): `dueDate` clearing semantics for task updates + tests.
 3. Package 3 (completed): Employee CRUD frontend slice (API + mutation hook + UI + integration tests).
 4. Package 4 (completed): English as default UI language (including API error mapping texts).
-5. Package 5: Seed-data workflow and final documentation alignment.
+5. Package 5 (completed): Seed-data workflow and final documentation alignment.
+6. Package 6 (completed): P2 documentation polish (AI transparency + scope calibration).
+7. Package 7 (completed): Dashboard refactor polish (type-import consistency + reusable confirm dialog).
+8. Package 8 (completed): Pragmatic barrel-import cleanup in dashboard UI.
 
 Package 1 delivered:
 
@@ -46,6 +49,36 @@ Post-package 4 cleanup delivered:
 - Moved `window.confirm` calls from mutation hooks into the dashboard UI container layer.
 - Introduced a shared mutation helper for error mapping and mutation execution (`hooks/mutation-utils.ts`).
 - Centralized dashboard UI copy in one feature-local source (`dashboard-copy.ts`) and reused it in components/tests.
+
+Package 5 delivered:
+
+- Added a dev-focused, idempotent seed workflow via `npm run db:seed`.
+- Seed includes one demo auth user plus employee/task/subtask demo records.
+- Documented direct demo credentials in root/API README (`demo.user@example.com` / `DemoPass!123`).
+- Added production safety guard (`ALLOW_PRODUCTION_DB_SEED=true` required to override in production).
+- Added API unit coverage for first-run + idempotent rerun behavior (`seed-demo-data.spec.ts`).
+- Kept seed-module imports pragmatic (direct imports, only existing useful barrels retained).
+- Updated root/API READMEs with seed usage and safety notes.
+
+P2 documentation polish delivered:
+
+- Added explicit AI-assistance transparency in the root README (scope of assistance + ownership of decisions).
+- Added scope-calibration notes for production around:
+  - session strategy (`sessionStorage` demo tradeoff vs. memory-first production target),
+  - authorization scope (shared demo workspace vs. per-user/role isolation target),
+  - complexity boundary (no unnecessary abstraction growth).
+- Updated roadmap wording to reflect these production-oriented next steps.
+
+Package 7 delivered:
+
+- Consolidated feature-layer type imports to the local API type facade (`shared/api/types`) instead of direct shared-contract imports in dashboard form components.
+- Replaced browser-native `window.confirm` with a reusable dialog component in the dashboard feature (`confirm-action-dialog.tsx`).
+- Centralized delete confirmation flow in the dashboard container and aligned integration tests with dialog confirm/cancel behavior.
+
+Package 8 delivered:
+
+- Added a UI barrel export (`packages/apps/web/src/components/ui/index.ts`) and switched feature imports (dashboard/auth/notifications) to that barrel (`.../components/ui`).
+- Kept the solution intentionally pragmatic: no additional Nx path-alias layer for app-internal imports, because `@nx/enforce-module-boundaries` path resolution was not robust with `@web/shared/api/types` in this repository setup.
 
 ## 1. Goal
 
@@ -288,3 +321,14 @@ Per chunk:
 2. Ask for implementation + tests + doc update in one PR-sized change.
 3. Require explicit DoD check in final response.
 4. Continue to next chunk only after manual verification.
+
+---
+
+## 9. P2 Documentation Outcome
+
+- AI transparency is now documented in root README (`## AI-assisted Development Transparency`).
+- Scope calibration is now documented in root/API README:
+  - session strategy tradeoff and production target,
+  - shared demo scope vs. per-user/role authorization target,
+  - complexity boundary against overengineering.
+- Review-driven mandatory backlog items are complete; remaining roadmap items are optional product polish.

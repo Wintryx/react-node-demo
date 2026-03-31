@@ -2,7 +2,7 @@ import { type ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
 import { useAuth } from './auth-context';
-import { Spinner } from '../../components/ui/spinner';
+import { Spinner } from '../../components/ui';
 
 interface ProtectedRouteProps {
   children: ReactNode;

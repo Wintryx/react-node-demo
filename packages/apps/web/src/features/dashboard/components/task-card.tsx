@@ -1,9 +1,7 @@
 import { CalendarClock, CircleCheckBig, Clock3, Pencil, Trash2 } from 'lucide-react';
 
 import { TaskSubtasksInline } from './task-subtasks-inline';
-import { Badge } from '../../../components/ui/badge';
-import { Button } from '../../../components/ui/button';
-import { Card, CardContent } from '../../../components/ui/card';
+import { Badge, Button, Card, CardContent } from '../../../components/ui';
 import { Task } from '../../../shared/api/types';
 import { dashboardCopy } from '../dashboard-copy';
 import {

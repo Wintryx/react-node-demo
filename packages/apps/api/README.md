@@ -52,6 +52,15 @@ It provides the REST API and contains:
 - There is intentionally no per-user ownership isolation for employees/tasks in demo scope.
 - This is an accepted demo tradeoff for assessment delivery and should be replaced by role/scope/ownership authorization in production.
 
+## Scope Calibration (API, Production Target)
+
+- Authorization:
+  - Current: authenticated users can access shared employee/task data.
+  - Target: enforce ownership/role-based access per request.
+- Session:
+  - Current: short-lived access token + HttpOnly refresh cookie.
+  - Target: keep refresh-cookie flow, tighten frontend token exposure strategy, and preserve silent refresh UX.
+
 ## Error Contract
 
 API errors use a structured payload with stable `code` values:
@@ -108,7 +117,17 @@ npm run db:migration:revert
 npm run db:migration:show
 npm run db:migration:create
 npm run db:migration:generate
+npm run db:seed
 ```
+
+Seed notes:
+
+- `npm run db:seed` creates one demo auth user and a sample employee/task/subtask dataset.
+- The seed is idempotent and avoids duplicate inserts on repeated runs.
+- Seed execution is blocked in production unless `ALLOW_PRODUCTION_DB_SEED=true` is set explicitly.
+- Demo login after seeding:
+  - Email: `demo.user@example.com`
+  - Password: `DemoPass!123`
 
 Optional env toggle:
 
@@ -117,6 +136,7 @@ Optional env toggle:
 - `JWT_ACCESS_TOKEN_SECRET` and `JWT_REFRESH_TOKEN_SECRET` are required and must be at least 32 characters (API fails fast otherwise).
 - `JWT_REFRESH_TOKEN_EXPIRES_IN` controls refresh token lifetime (default `7d`).
 - `AUTH_COOKIE_SAME_SITE` and `AUTH_COOKIE_SECURE` control refresh token cookie flags.
+- `ALLOW_PRODUCTION_DB_SEED=true` is required only if you intentionally allow seed execution in production.
 
 ## Tests
 

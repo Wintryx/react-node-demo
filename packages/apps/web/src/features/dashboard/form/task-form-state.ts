@@ -6,8 +6,7 @@ import {
   TaskStatus,
   UpdateTaskRequest,
   UpsertSubtaskRequest,
-} from '@react-node-demo/shared-contracts';
-
+} from '../../../shared/api/types';
 import { formatDateOnly, toApiDateTime, toDateOnly } from '../../../shared/lib/date';
 
 export type TaskFormMode = 'create' | 'edit';

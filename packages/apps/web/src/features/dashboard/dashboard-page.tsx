@@ -1,21 +1,31 @@
 import { useState } from 'react';
 
-import { DashboardControlsPanel, DashboardHeader, DashboardTaskSection } from './components';
+import {
+  ConfirmActionDialog,
+  DashboardControlsPanel,
+  DashboardHeader,
+  DashboardTaskSection,
+} from './components';
 import { dashboardCopy } from './dashboard-copy';
 import { DashboardViewMode } from './dashboard-view-mode';
 import { TaskFormDialog } from './form';
 import { useDashboardData, useEmployeeMutations, useTaskMutations } from './hooks';
 import { getEmployeeDisplayName } from './utils';
-import { Alert } from '../../components/ui/alert';
-import { Spinner } from '../../components/ui/spinner';
+import { Alert, Spinner } from '../../components/ui';
 import { CreateEmployeeRequest, Employee, Task, UpdateEmployeeRequest } from '../../shared/api/types';
 import { useAuth } from '../auth/auth-context';
+
+type PendingDeleteAction =
+  | { kind: 'task'; task: Task }
+  | { kind: 'employee'; employee: Employee }
+  | null;
 
 export function DashboardPage() {
   const { currentUser, logout } = useAuth();
   const [viewMode, setViewMode] = useState<DashboardViewMode>('list');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [pendingDeleteAction, setPendingDeleteAction] = useState<PendingDeleteAction>(null);
   const {
     employees,
     tasks,
@@ -45,11 +55,7 @@ export function DashboardPage() {
   };
 
   const handleDeleteTask = (task: Task): void => {
-    const confirmed = window.confirm(dashboardCopy.tasks.confirmDelete(task.title));
-    if (!confirmed) {
-      return;
-    }
-    void taskMutations.deleteTask(task).catch(() => undefined);
+    setPendingDeleteAction({ kind: 'task', task });
   };
 
   const handleCreateEmployee = async (payload: CreateEmployeeRequest): Promise<Employee> =>
@@ -61,18 +67,61 @@ export function DashboardPage() {
   ): Promise<Employee> => employeeMutations.updateEmployee(employeeId, payload);
 
   const handleDeleteEmployee = async (employee: Employee): Promise<void> => {
-    const confirmed = window.confirm(
-      dashboardCopy.employees.confirmDelete(getEmployeeDisplayName(employee)),
-    );
-    if (!confirmed) {
+    setPendingDeleteAction({ kind: 'employee', employee });
+  };
+
+  const handleCancelDelete = (): void => {
+    setPendingDeleteAction(null);
+  };
+
+  const handleConfirmDelete = async (): Promise<void> => {
+    if (!pendingDeleteAction) {
       return;
     }
 
-    await employeeMutations.deleteEmployee(employee);
-    if (selectedEmployeeId === employee.id) {
-      setSelectedEmployeeId(null);
+    if (pendingDeleteAction.kind === 'task') {
+      try {
+        await taskMutations.deleteTask(pendingDeleteAction.task);
+      } catch {
+        // Hook error state is shown in the task section.
+      } finally {
+        setPendingDeleteAction(null);
+      }
+      return;
+    }
+
+    let employeeDeleted = false;
+    try {
+      await employeeMutations.deleteEmployee(pendingDeleteAction.employee);
+      employeeDeleted = true;
+    } catch {
+      // Hook error state is shown in the controls panel.
+    } finally {
+      if (employeeDeleted && selectedEmployeeId === pendingDeleteAction.employee.id) {
+        setSelectedEmployeeId(null);
+      }
+      setPendingDeleteAction(null);
     }
   };
+
+  const deleteDialogTitle =
+    pendingDeleteAction?.kind === 'task'
+      ? dashboardCopy.tasks.confirmDeleteTitle
+      : dashboardCopy.employees.confirmDeleteTitle;
+  const deleteDialogDescription =
+    pendingDeleteAction?.kind === 'task'
+      ? dashboardCopy.tasks.confirmDelete(pendingDeleteAction.task.title)
+      : pendingDeleteAction?.kind === 'employee'
+        ? dashboardCopy.employees.confirmDelete(
+            getEmployeeDisplayName(pendingDeleteAction.employee),
+          )
+        : '';
+  const isDeleteConfirming =
+    pendingDeleteAction?.kind === 'task'
+      ? taskMutations.isMutating
+      : pendingDeleteAction?.kind === 'employee'
+        ? employeeMutations.isMutating
+        : false;
 
   if (isEmployeesLoading) {
     return (
@@ -158,6 +207,15 @@ export function DashboardPage() {
         onClose={() => setEditingTask(null)}
         onCreate={taskMutations.createTask}
         onUpdate={taskMutations.updateTask}
+      />
+
+      <ConfirmActionDialog
+        open={pendingDeleteAction !== null}
+        title={deleteDialogTitle}
+        description={deleteDialogDescription}
+        isConfirming={isDeleteConfirming}
+        onCancel={handleCancelDelete}
+        onConfirm={() => void handleConfirmDelete()}
       />
     </div>
   );

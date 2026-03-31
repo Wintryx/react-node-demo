@@ -1,9 +1,6 @@
 import { AlertTriangle } from 'lucide-react';
 
-import { Alert } from '../../../components/ui/alert';
-import { Button } from '../../../components/ui/button';
-import { Card, CardContent } from '../../../components/ui/card';
-import { Spinner } from '../../../components/ui/spinner';
+import { Alert, Button, Card, CardContent, Spinner } from '../../../components/ui';
 import { Task } from '../../../shared/api/types';
 import { dashboardCopy } from '../dashboard-copy';
 import { DashboardViewMode } from '../dashboard-view-mode';

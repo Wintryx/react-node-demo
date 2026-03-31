@@ -1,7 +1,7 @@
 import { AlertTriangle, CheckCircle2, Info, X } from 'lucide-react';
 import { ReactNode, createContext, useContext, useEffect, useRef, useState } from 'react';
 
-import { Button } from '../../components/ui/button';
+import { Button } from '../../components/ui';
 import { cn } from '../../shared/lib/utils';
 
 type ToastVariant = 'success' | 'error' | 'info';

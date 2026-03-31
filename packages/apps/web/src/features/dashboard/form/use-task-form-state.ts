@@ -1,4 +1,3 @@
-import { Employee, Task } from '@react-node-demo/shared-contracts';
 import { useState } from 'react';
 
 import {
@@ -8,6 +7,8 @@ import {
   TaskFormMode,
   TaskFormState,
 } from './task-form-state';
+import { Employee, Task } from '../../../shared/api/types';
+
 
 interface UseTaskFormStateParams {
   mode: TaskFormMode;
