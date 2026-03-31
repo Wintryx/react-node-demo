@@ -1,4 +1,3 @@
-import { CreateTaskRequest, Employee, Task, UpdateTaskRequest } from '@react-node-demo/shared-contracts';
 import { X } from 'lucide-react';
 import { SyntheticEvent, useEffect, useState } from 'react';
 
@@ -14,6 +13,7 @@ import { TaskFormSubtasksEditor } from './task-form-subtasks-editor';
 import { useTaskFormState } from './use-task-form-state';
 import { Alert } from '../../../components/ui/alert';
 import { Button } from '../../../components/ui/button';
+import { CreateTaskRequest, Employee, Task, UpdateTaskRequest } from '../../../shared/api/types';
 import { dashboardCopy } from '../dashboard-copy';
 
 interface TaskFormDialogProps {

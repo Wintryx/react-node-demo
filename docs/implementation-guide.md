@@ -11,6 +11,8 @@ Execution model (small, verifiable slices, no overengineering):
 3. Package 3 (completed): Employee CRUD frontend slice (API + mutation hook + UI + integration tests).
 4. Package 4 (completed): English as default UI language (including API error mapping texts).
 5. Package 5 (completed): Seed-data workflow and final documentation alignment.
+6. Package 6 (completed): P2 documentation polish (AI transparency + scope calibration).
+7. Package 7 (completed): Dashboard refactor polish (type-import consistency + reusable confirm dialog).
 
 Package 1 delivered:
 
@@ -65,6 +67,12 @@ P2 documentation polish delivered:
   - authorization scope (shared demo workspace vs. per-user/role isolation target),
   - complexity boundary (no unnecessary abstraction growth).
 - Updated roadmap wording to reflect these production-oriented next steps.
+
+Package 7 delivered:
+
+- Consolidated feature-layer type imports to the local API type facade (`shared/api/types`) instead of direct shared-contract imports in dashboard form components.
+- Replaced browser-native `window.confirm` with a reusable dialog component in the dashboard feature (`confirm-action-dialog.tsx`).
+- Centralized delete confirmation flow in the dashboard container and aligned integration tests with dialog confirm/cancel behavior.
 
 ## 1. Goal
 

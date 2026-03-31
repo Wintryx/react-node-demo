@@ -3,6 +3,7 @@ export const dashboardCopy = {
     requestFailed: 'Request failed. Please try again.',
     saveChanges: 'Save changes',
     cancel: 'Cancel',
+    confirmAction: 'Confirm',
   },
   header: {
     title: 'Task Dashboard',
@@ -30,6 +31,7 @@ export const dashboardCopy = {
     deletedToastTitle: 'Task deleted',
     createdToastDescription: (title: string): string => `"${title}" has been created.`,
     deletedToastDescription: (title: string): string => `"${title}" has been deleted.`,
+    confirmDeleteTitle: 'Delete task',
     confirmDelete: (title: string): string => `Delete task "${title}"?`,
     editHeading: (taskId: number | string): string => `Edit task #${taskId}`,
     missingContext: 'Task context is missing.',
@@ -81,6 +83,7 @@ export const dashboardCopy = {
     createdToastDescription: (employeeName: string): string => `${employeeName} has been created.`,
     updatedToastDescription: (employeeName: string): string => `${employeeName} has been saved.`,
     deletedToastDescription: (employeeName: string): string => `${employeeName} has been deleted.`,
+    confirmDeleteTitle: 'Delete employee',
     confirmDelete: (employeeName: string): string => `Delete employee "${employeeName}"?`,
     editAria: (employeeName: string): string => `Edit employee ${employeeName}`,
     removeAria: (employeeName: string): string => `Remove employee ${employeeName}`,

@@ -1,3 +1,4 @@
+export * from './confirm-action-dialog';
 export * from './dashboard-controls-panel';
 export * from './dashboard-header';
 export * from './dashboard-task-section';

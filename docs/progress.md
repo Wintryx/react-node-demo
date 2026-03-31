@@ -70,6 +70,14 @@ Stand: 2026-03-31
     - Complexity-Boundary: explizit "kein Overengineering ohne klaren Mehrwert"
   - Roadmap entsprechend auf produktionsnahe Next Steps kalibriert
   - API-README um Scope-Kalibrierung für Backend ergänzt
+- [x] Paket 7 - Dashboard-Refactor-Polish (UI-Verantwortung + Import-Konsistenz)
+  - Feature-Layer-Importe auf lokale Typ-Facade konsolidiert (`shared/api/types` statt direkter Contract-Imports in Form-Komponenten)
+  - Browser-`window.confirm` vollständig durch wiederverwendbaren UI-Dialog ersetzt (`confirm-action-dialog.tsx`)
+  - Delete-Flows im Dashboard-Container zentralisiert (`dashboard-page.tsx`, typisierte Pending-Action)
+  - Integrationstests auf Dialog-Confirm/Cancel umgestellt (`dashboard-crud.integration.spec.tsx`)
+  - Verifiziert mit:
+    - `npx nx lint web`
+    - `npx nx test web`
 
 ## Entscheidungen
 
@@ -347,57 +355,24 @@ Geplante Häppchen:
   - API Unit: 16 Suites / 37 Tests erfolgreich
   - API-E2E: 4 Suites / 21 Tests erfolgreich
 
-## Review-Feedback 2026-03-30 (offene Maßnahmen)
+## Review-Feedback 2026-03-30 (Status)
 
-Status: Alle Review-Pflichtpunkte (P0-P2) sind erledigt. Die verbleibenden Punkte sind optionale Produktverbesserungen.
+Status: Alle Review-Pflichtpunkte (P0-P2) sind erledigt.
 
-- P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist. (Erledigt 2026-03-30)
-- P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages). (Erledigt 2026-03-31)
-- P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET` und konsistente Auth-Cookie-Settings), damit Fresh-Clone-Start stabil funktioniert. (Erledigt 2026-03-30)
-- P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
-- P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle). (Erledigt 2026-03-31)
-- P2: Transparenzabschnitt zu AI-unterstützter Entwicklung ergänzen (welche Teile assistiert waren, welche Architekturentscheidungen manuell getroffen wurden). (Erledigt 2026-03-31)
-- P2: Scope-Kalibrierung im Frontend/Docs vornehmen (Komplexität reduzieren, wo sie keinen funktionalen Mehrwert für den Requirement-Scope bringt). (Erledigt 2026-03-31)
-- P2: Session-Strategie für Production explizit entscheiden (weiter `sessionStorage` als Demo-Tradeoff vs. Memory-Token + Refresh-Only Ansatz). (Dokumentiert 2026-03-31)
-- P2: Roadmap für Per-User-Data-Isolation definieren (Ownership/Scope je Benutzer statt globalem Workspace). (Erledigt 2026-03-31)
-- Hinweis: Refresh-Token-Rotation ist bereits umgesetzt (Phase 3 abgeschlossen) und gilt nicht mehr als offener Punkt.
+Abgeschlossene Pflichtpunkte:
 
-Historische Restpunkte (nachrangig, durch Backlog oben übersteuert):
+- Employee-CRUD im Frontend (Create/Edit/Delete inkl. Integrationstests)
+- UI-Sprache auf Englisch als Default inkl. Error-Mapping
+- Docker-Compose-Startfix mit vollständigen Auth-Variablen
+- `dueDate`-Clearing-Semantik im Task-Update mit Tests
+- Seed-Workflow für reproduzierbare Demo-Daten
+- P2-Doku-Polish: AI-Transparenz + Scope-Kalibrierung
 
-## Offene technische Punkte (relevant)
+## Optionale Produktverbesserungen (kein Pflicht-Backlog)
 
-Verbindlicher Backlog (Stand 2026-03-30):
-
-- P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist. (Erledigt 2026-03-30)
-- P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages in UI und `errors.ts`). (Erledigt 2026-03-31)
-- P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET`, `AUTH_COOKIE_SECURE`, `AUTH_COOKIE_SAME_SITE`) und Fresh-Clone-Start verifizieren. (Erledigt 2026-03-30)
-- P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
-- P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle). (Erledigt 2026-03-31)
-- P2: Transparenzabschnitt zu AI-unterstützter Entwicklung ergänzen (welche Teile assistiert waren, welche Architekturentscheidungen manuell getroffen wurden). (Erledigt 2026-03-31)
-- P2: Scope-Kalibrierung/Produktions-Roadmap festhalten (Session-Strategie, Per-User-Isolation). (Erledigt 2026-03-31)
-- Hinweis: Refresh-Token-Rotation ist bereits umgesetzt (Phase 3 abgeschlossen) und gilt nicht mehr als offener Punkt.
-
-- Optional: Seed-Daten für schnellere lokale UI-Demos
-- Auth-Hardening in späteren Schritten:
-  - Optional: Multi-Device Session-Management/Revocation
-
-## Nächste Schritte (historisch)
-
-1. Optional: UI-Scope weiter über Smoke-E2E absichern.
-
-## Review-Backlog 2026-03-30 (autoritativ für Umsetzung)
-
-- P0: Employee-CRUD-UI (Create/Edit/Delete) inkl. Integrationstests im Dashboard umsetzen. (Erledigt 2026-03-30)
-- P0: UI auf Englisch als Default (oder i18n mit `en` als Default) umstellen, inklusive `errors.ts`. (Erledigt 2026-03-31)
-- P0: Docker-Compose-Startfix umsetzen (`JWT_REFRESH_TOKEN_SECRET` + konsistente Cookie-Env-Werte). (Erledigt 2026-03-30)
-- P1: `dueDate`-Clearing-Bug im Task-Update-Mapper fixen und mit gezielten Tests absichern. (Erledigt 2026-03-30)
-- P1: Seed-Script für reproduzierbare Demo-Daten ergänzen. (Erledigt 2026-03-31)
-- P2: Transparenz zu AI-Assistenz dokumentieren (kurzer Abschnitt in Doku). (Erledigt 2026-03-31)
-- P2: Scope-Kalibrierung/Produktions-Roadmap festhalten (Session-Strategie, Per-User-Isolation). (Erledigt 2026-03-31)
-- Hinweis: Refresh-Token-Rotation ist bereits umgesetzt und nicht mehr offen.
-
-Empfohlene Reihenfolge:
-1. A: Optionales Product-Polish (Smoke-E2E / i18n) nach Bedarf.
+- Smoke-E2E für zentrale UI-Flows als zusätzliche Regression-Sicherheit
+- Optionales i18n (zweisprachig), falls Englisch + Deutsch parallel benötigt wird
+- Optionales Auth-Hardening: Multi-Device Session-Management/Revocation
 
 ## Nächste Schritte (verbindlich, Stand 2026-03-31)
 

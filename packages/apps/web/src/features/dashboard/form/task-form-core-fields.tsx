@@ -1,10 +1,9 @@
-import { Employee, TaskPriority, TaskStatus } from '@react-node-demo/shared-contracts';
-
 import { TASK_PRIORITIES, TASK_STATUSES, TaskFormState } from './task-form-state';
 import { DatePickerField } from '../../../components/ui/date-picker-field';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Select } from '../../../components/ui/select';
+import { Employee, TaskPriority, TaskStatus } from '../../../shared/api/types';
 import { getEmployeeDisplayName, taskPriorityLabels, taskStatusLabels } from '../utils';
 
 interface TaskFormCoreFieldsProps {
