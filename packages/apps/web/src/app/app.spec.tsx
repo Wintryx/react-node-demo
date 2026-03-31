@@ -8,6 +8,11 @@ const { refreshMock } = vi.hoisted(() => ({
   refreshMock: vi.fn(),
 }));
 
+const routerFuture = {
+  v7_startTransition: true,
+  v7_relativeSplatPath: true,
+} as const;
+
 vi.mock('../shared/api', () => ({
   authApi: {
     login: vi.fn(),
@@ -36,7 +41,7 @@ describe('App', () => {
 
   it('redirects unauthenticated users from /app to /login', async () => {
     render(
-      <MemoryRouter initialEntries={['/app']}>
+      <MemoryRouter future={routerFuture} initialEntries={['/app']}>
         <App />
       </MemoryRouter>,
     );
@@ -46,7 +51,7 @@ describe('App', () => {
 
   it('renders register page on /register', async () => {
     render(
-      <MemoryRouter initialEntries={['/register']}>
+      <MemoryRouter future={routerFuture} initialEntries={['/register']}>
         <App />
       </MemoryRouter>,
     );
