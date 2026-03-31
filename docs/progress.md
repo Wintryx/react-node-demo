@@ -47,7 +47,21 @@ Stand: 2026-03-31
   - Verifiziert mit:
     - `npx nx test web`
     - `npx nx lint web`
-- [ ] Paket 5 - Seed-Workflow + Doku-Roundup
+- [x] Paket 5 - Seed-Workflow + Doku-Roundup
+  - idempotenter Seed-Workflow ergänzt (`npm run db:seed`)
+  - Demo-Seeddaten für Auth-User, Employees, Tasks und Subtasks umgesetzt
+  - Demo-Login-Credentials in Root/API-README dokumentiert (`demo.user@example.com` / `DemoPass!123`)
+  - Seed-Sicherheitsgrenze ergänzt:
+    - Blockierung in Production ohne explizites `ALLOW_PRODUCTION_DB_SEED=true`
+  - Seed-Importe pragmatisch gehalten (direkte Importe, nur bestehende sinnvolle Barrels beibehalten)
+  - API-Tests ergänzt:
+    - `seed-demo-data.spec.ts` (Erstlauf + Idempotenz)
+  - Dokumentation ergänzt:
+    - Root-README und API-README um Seed-Nutzung erweitert
+  - Verifiziert mit:
+    - `npx nx test api`
+    - `npx nx lint api`
+    - `npm run db:seed` (zweimaliger Smoke-Run, idempotent)
 
 ## Entscheidungen
 
@@ -331,7 +345,7 @@ Geplante Häppchen:
 - P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages). (Erledigt 2026-03-31)
 - P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET` und konsistente Auth-Cookie-Settings), damit Fresh-Clone-Start stabil funktioniert. (Erledigt 2026-03-30)
 - P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
-- P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle).
+- P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle). (Erledigt 2026-03-31)
 - P2: Transparenzabschnitt zu AI-unterstützter Entwicklung ergänzen (welche Teile assistiert waren, welche Architekturentscheidungen manuell getroffen wurden).
 - P2: Scope-Kalibrierung im Frontend/Docs vornehmen (Komplexität reduzieren, wo sie keinen funktionalen Mehrwert für den Requirement-Scope bringt).
 - P2: Session-Strategie für Production explizit entscheiden (weiter `sessionStorage` als Demo-Tradeoff vs. Memory-Token + Refresh-Only Ansatz).
@@ -348,7 +362,7 @@ Verbindlicher Backlog (Stand 2026-03-30):
 - P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages in UI und `errors.ts`). (Erledigt 2026-03-31)
 - P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET`, `AUTH_COOKIE_SECURE`, `AUTH_COOKIE_SAME_SITE`) und Fresh-Clone-Start verifizieren. (Erledigt 2026-03-30)
 - P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
-- P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle).
+- P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle). (Erledigt 2026-03-31)
 - P2: Transparenzabschnitt zu AI-unterstützter Entwicklung ergänzen (welche Teile assistiert waren, welche Architekturentscheidungen manuell getroffen wurden).
 - Hinweis: Refresh-Token-Rotation ist bereits umgesetzt (Phase 3 abgeschlossen) und gilt nicht mehr als offener Punkt.
 
@@ -358,9 +372,7 @@ Verbindlicher Backlog (Stand 2026-03-30):
 
 ## Nächste Schritte (historisch)
 
-1. P1: Seed-Workflow umsetzen und mit Tests absichern.
-2. Optional: Seed-Workflow für reproduzierbare Demo-Daten
-3. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.
+1. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.
 
 ## Review-Backlog 2026-03-30 (autoritativ für Umsetzung)
 
@@ -368,16 +380,14 @@ Verbindlicher Backlog (Stand 2026-03-30):
 - P0: UI auf Englisch als Default (oder i18n mit `en` als Default) umstellen, inklusive `errors.ts`. (Erledigt 2026-03-31)
 - P0: Docker-Compose-Startfix umsetzen (`JWT_REFRESH_TOKEN_SECRET` + konsistente Cookie-Env-Werte). (Erledigt 2026-03-30)
 - P1: `dueDate`-Clearing-Bug im Task-Update-Mapper fixen und mit gezielten Tests absichern. (Erledigt 2026-03-30)
-- P1: Seed-Script für reproduzierbare Demo-Daten ergänzen.
+- P1: Seed-Script für reproduzierbare Demo-Daten ergänzen. (Erledigt 2026-03-31)
 - P2: Transparenz zu AI-Assistenz dokumentieren (kurzer Abschnitt in Doku).
 - P2: Scope-Kalibrierung/Produktions-Roadmap festhalten (Session-Strategie, Per-User-Isolation).
 - Hinweis: Refresh-Token-Rotation ist bereits umgesetzt und nicht mehr offen.
 
 Empfohlene Reihenfolge:
-1. A: Seed-Workflow.
-2. B: Doku-Polish (AI-Transparenz + Scope-Kalibrierung).
+1. A: Doku-Polish (AI-Transparenz + Scope-Kalibrierung).
 
 ## Nächste Schritte (verbindlich, Stand 2026-03-31)
 
-1. P1: Seed-Workflow umsetzen und mit Tests absichern.
-2. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.
+1. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.

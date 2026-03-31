@@ -13,6 +13,7 @@
     "db:migration:revert": "node scripts/typeorm-cli.cjs migration:revert",
     "db:migration:run": "node scripts/typeorm-cli.cjs migration:run",
     "db:migration:show": "node scripts/typeorm-cli.cjs migration:show",
+    "db:seed": "node scripts/seed-demo-data.cjs",
     "dev:api": "nx serve api",
     "dev:web": "nx serve web",
     "contracts:generate": "node scripts/generate-contract-types.mjs",

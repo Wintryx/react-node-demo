@@ -160,6 +160,25 @@ Default URLs:
 - Swagger (non-production only): `http://localhost:3000/api`
 - Health: `http://localhost:3000/health`
 
+### Seed Demo Data (optional)
+
+Run this from workspace root to create a reusable demo user plus sample employees/tasks/subtasks:
+
+```bash
+npm run db:seed
+```
+
+Seed behavior:
+
+- idempotent (no duplicate records on repeated runs)
+- runs migrations automatically before inserting seed records
+- blocked in production unless `ALLOW_PRODUCTION_DB_SEED=true` is set explicitly
+
+Demo login after seeding:
+
+- Email: `demo.user@example.com`
+- Password: `DemoPass!123`
+
 ### Run with Docker Compose
 
 ```bash
@@ -213,6 +232,7 @@ npm run db:migration:revert
 npm run db:migration:show
 npm run db:migration:create
 npm run db:migration:generate
+npm run db:seed
 ```
 
 `npm run test` includes API E2E and starts the API on a dedicated dynamic test port.
@@ -328,7 +348,7 @@ Frontend error handling maps primarily by `code` and uses `message` only as fall
 
 1. Optional UI smoke E2E tests
 2. Optional auth hardening (refresh-token rotation/revocation)
-3. Optional seed workflow for faster demo resets
+3. Optional i18n layer (currently English default copy)
 
 ## Documentation Mode
 

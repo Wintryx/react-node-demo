@@ -10,7 +10,7 @@ Execution model (small, verifiable slices, no overengineering):
 2. Package 2 (completed): `dueDate` clearing semantics for task updates + tests.
 3. Package 3 (completed): Employee CRUD frontend slice (API + mutation hook + UI + integration tests).
 4. Package 4 (completed): English as default UI language (including API error mapping texts).
-5. Package 5: Seed-data workflow and final documentation alignment.
+5. Package 5 (completed): Seed-data workflow and final documentation alignment.
 
 Package 1 delivered:
 
@@ -46,6 +46,16 @@ Post-package 4 cleanup delivered:
 - Moved `window.confirm` calls from mutation hooks into the dashboard UI container layer.
 - Introduced a shared mutation helper for error mapping and mutation execution (`hooks/mutation-utils.ts`).
 - Centralized dashboard UI copy in one feature-local source (`dashboard-copy.ts`) and reused it in components/tests.
+
+Package 5 delivered:
+
+- Added a dev-focused, idempotent seed workflow via `npm run db:seed`.
+- Seed includes one demo auth user plus employee/task/subtask demo records.
+- Documented direct demo credentials in root/API README (`demo.user@example.com` / `DemoPass!123`).
+- Added production safety guard (`ALLOW_PRODUCTION_DB_SEED=true` required to override in production).
+- Added API unit coverage for first-run + idempotent rerun behavior (`seed-demo-data.spec.ts`).
+- Kept seed-module imports pragmatic (direct imports, only existing useful barrels retained).
+- Updated root/API READMEs with seed usage and safety notes.
 
 ## 1. Goal
 

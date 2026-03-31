@@ -108,7 +108,17 @@ npm run db:migration:revert
 npm run db:migration:show
 npm run db:migration:create
 npm run db:migration:generate
+npm run db:seed
 ```
+
+Seed notes:
+
+- `npm run db:seed` creates one demo auth user and a sample employee/task/subtask dataset.
+- The seed is idempotent and avoids duplicate inserts on repeated runs.
+- Seed execution is blocked in production unless `ALLOW_PRODUCTION_DB_SEED=true` is set explicitly.
+- Demo login after seeding:
+  - Email: `demo.user@example.com`
+  - Password: `DemoPass!123`
 
 Optional env toggle:
 
@@ -117,6 +127,7 @@ Optional env toggle:
 - `JWT_ACCESS_TOKEN_SECRET` and `JWT_REFRESH_TOKEN_SECRET` are required and must be at least 32 characters (API fails fast otherwise).
 - `JWT_REFRESH_TOKEN_EXPIRES_IN` controls refresh token lifetime (default `7d`).
 - `AUTH_COOKIE_SAME_SITE` and `AUTH_COOKIE_SECURE` control refresh token cookie flags.
+- `ALLOW_PRODUCTION_DB_SEED=true` is required only if you intentionally allow seed execution in production.
 
 ## Tests
 
