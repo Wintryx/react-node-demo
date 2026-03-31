@@ -41,7 +41,7 @@ describe('App', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByRole('button', { name: 'Anmelden' })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: 'Sign in' })).toBeTruthy();
   });
 
   it('renders register page on /register', async () => {
@@ -51,6 +51,6 @@ describe('App', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByRole('button', { name: 'Konto erstellen' })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: 'Create account' })).toBeTruthy();
   });
 });

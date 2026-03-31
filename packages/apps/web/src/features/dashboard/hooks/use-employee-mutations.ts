@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { employeesApi } from '../../../shared/api';
 import { CreateEmployeeRequest, Employee, UpdateEmployeeRequest } from '../../../shared/api/types';
 import { useToast } from '../../notifications/toast-context';
+import { dashboardCopy } from '../dashboard-copy';
 import { getEmployeeDisplayName } from '../utils';
+import { executeMutation } from './mutation-utils';
 
 interface UseEmployeeMutationsResult {
   actionError: string | null;
@@ -14,14 +16,6 @@ interface UseEmployeeMutationsResult {
   updateEmployee(employeeId: number, payload: UpdateEmployeeRequest): Promise<Employee>;
   deleteEmployee(employee: Employee): Promise<void>;
 }
-
-const mapError = (error: unknown): string => {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return 'Anfrage fehlgeschlagen. Bitte erneut versuchen.';
-};
 
 export const useEmployeeMutations = (): UseEmployeeMutationsResult => {
   const queryClient = useQueryClient();
@@ -59,21 +53,16 @@ export const useEmployeeMutations = (): UseEmployeeMutationsResult => {
     },
   });
 
-  const runMutation = async <T>(execute: () => Promise<T>): Promise<T> => {
-    setActionError(null);
-
-    try {
-      return await execute();
-    } catch (error: unknown) {
-      setActionError(mapError(error));
-      throw error;
-    }
-  };
+  const runMutation = async <T>(execute: () => Promise<T>): Promise<T> =>
+    executeMutation(setActionError, execute);
 
   const createEmployee = async (payload: CreateEmployeeRequest): Promise<Employee> =>
     runMutation(async () => {
       const employee = await createEmployeeMutation.mutateAsync(payload);
-      success('Mitarbeitende Person erstellt', `${getEmployeeDisplayName(employee)} wurde angelegt.`);
+      success(
+        dashboardCopy.employees.createdToastTitle,
+        dashboardCopy.employees.createdToastDescription(getEmployeeDisplayName(employee)),
+      );
       return employee;
     });
 
@@ -84,23 +73,18 @@ export const useEmployeeMutations = (): UseEmployeeMutationsResult => {
     runMutation(async () => {
       const employee = await updateEmployeeMutation.mutateAsync({ employeeId, payload });
       success(
-        'Mitarbeitende Person aktualisiert',
-        `${getEmployeeDisplayName(employee)} wurde gespeichert.`,
+        dashboardCopy.employees.updatedToastTitle,
+        dashboardCopy.employees.updatedToastDescription(getEmployeeDisplayName(employee)),
       );
       return employee;
     });
 
   const deleteEmployee = async (employee: Employee): Promise<void> => {
-    const confirmed = window.confirm(`Mitarbeitende Person "${getEmployeeDisplayName(employee)}" löschen?`);
-    if (!confirmed) {
-      return;
-    }
-
     await runMutation(async () => {
       await deleteEmployeeMutation.mutateAsync(employee.id);
       success(
-        'Mitarbeitende Person gelöscht',
-        `${getEmployeeDisplayName(employee)} wurde gelöscht.`,
+        dashboardCopy.employees.deletedToastTitle,
+        dashboardCopy.employees.deletedToastDescription(getEmployeeDisplayName(employee)),
       );
     });
   };

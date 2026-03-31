@@ -25,7 +25,7 @@ export function TaskList({
     return (
       <Card>
         <CardContent className="flex min-h-48 items-center justify-center text-sm text-muted-foreground">
-          Keine Aufgaben für die ausgewählte Person gefunden.
+          No tasks found for the selected employee.
         </CardContent>
       </Card>
     );

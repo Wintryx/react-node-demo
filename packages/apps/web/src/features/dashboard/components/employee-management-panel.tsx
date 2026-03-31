@@ -12,6 +12,7 @@ import {
   EmployeeRole,
   UpdateEmployeeRequest,
 } from '../../../shared/api/types';
+import { dashboardCopy } from '../dashboard-copy';
 import { getEmployeeDisplayName } from '../utils';
 
 interface EmployeeManagementPanelProps {
@@ -41,18 +42,18 @@ const DEFAULT_FORM_STATE: EmployeeFormState = {
 };
 
 const employeeRoleOptions: Array<{ value: EmployeeRole; label: string }> = [
-  { value: 'developer', label: 'Entwickler/in' },
-  { value: 'team-lead', label: 'Teamleitung' },
-  { value: 'engineering-manager', label: 'Engineering-Management' },
-  { value: 'product-manager', label: 'Produktmanagement' },
-  { value: 'designer', label: 'Design' },
-  { value: 'qa-engineer', label: 'QA' },
-  { value: 'devops-engineer', label: 'DevOps' },
+  { value: 'developer', label: 'Developer' },
+  { value: 'team-lead', label: 'Team lead' },
+  { value: 'engineering-manager', label: 'Engineering manager' },
+  { value: 'product-manager', label: 'Product manager' },
+  { value: 'designer', label: 'Designer' },
+  { value: 'qa-engineer', label: 'QA engineer' },
+  { value: 'devops-engineer', label: 'DevOps engineer' },
 ];
 
 const employeeDepartmentOptions: Array<{ value: EmployeeDepartment; label: string }> = [
   { value: 'engineering', label: 'Engineering' },
-  { value: 'product', label: 'Produkt' },
+  { value: 'product', label: 'Product' },
   { value: 'design', label: 'Design' },
   { value: 'qa', label: 'QA' },
   { value: 'operations', label: 'Operations' },
@@ -69,13 +70,13 @@ const toFormState = (employee: Employee): EmployeeFormState => ({
 
 const validateFormState = (formState: EmployeeFormState): string | null => {
   if (!formState.firstName.trim()) {
-    return 'Vorname ist erforderlich.';
+    return dashboardCopy.employees.validations.firstNameRequired;
   }
   if (!formState.lastName.trim()) {
-    return 'Nachname ist erforderlich.';
+    return dashboardCopy.employees.validations.lastNameRequired;
   }
   if (!formState.email.trim()) {
-    return 'E-Mail ist erforderlich.';
+    return dashboardCopy.employees.validations.emailRequired;
   }
 
   return null;
@@ -157,11 +158,11 @@ export function EmployeeManagementPanel({
     <div className="space-y-3 rounded-md border border-border p-3">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Mitarbeitenden-Management
+          {dashboardCopy.employees.managementTitle}
         </p>
         {!isFormOpen ? (
           <Button type="button" size="sm" onClick={handleOpenCreate} disabled={isMutating}>
-            Mitarbeitende Person hinzufügen
+            {dashboardCopy.employees.addEmployee}
           </Button>
         ) : null}
       </div>
@@ -171,12 +172,12 @@ export function EmployeeManagementPanel({
       {isFormOpen ? (
         <form className="space-y-3 rounded-md border border-border p-3" onSubmit={handleSubmit}>
           <p className="text-sm font-semibold">
-            {isCreateMode ? 'Mitarbeitende Person erstellen' : 'Mitarbeitende Person bearbeiten'}
+            {isCreateMode ? dashboardCopy.employees.createEmployee : dashboardCopy.employees.editEmployee}
           </p>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1">
-              <Label htmlFor="employee-first-name">Vorname</Label>
+              <Label htmlFor="employee-first-name">{dashboardCopy.employees.firstName}</Label>
               <Input
                 id="employee-first-name"
                 value={formState.firstName}
@@ -185,7 +186,7 @@ export function EmployeeManagementPanel({
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="employee-last-name">Nachname</Label>
+              <Label htmlFor="employee-last-name">{dashboardCopy.employees.lastName}</Label>
               <Input
                 id="employee-last-name"
                 value={formState.lastName}
@@ -194,7 +195,7 @@ export function EmployeeManagementPanel({
               />
             </div>
             <div className="space-y-1 sm:col-span-2">
-              <Label htmlFor="employee-email">E-Mail</Label>
+              <Label htmlFor="employee-email">{dashboardCopy.employees.email}</Label>
               <Input
                 id="employee-email"
                 type="email"
@@ -204,7 +205,7 @@ export function EmployeeManagementPanel({
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="employee-role">Rolle</Label>
+              <Label htmlFor="employee-role">{dashboardCopy.employees.role}</Label>
               <Select
                 id="employee-role"
                 value={formState.role}
@@ -221,7 +222,7 @@ export function EmployeeManagementPanel({
               </Select>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="employee-department">Bereich</Label>
+              <Label htmlFor="employee-department">{dashboardCopy.employees.department}</Label>
               <Select
                 id="employee-department"
                 value={formState.department}
@@ -244,17 +245,17 @@ export function EmployeeManagementPanel({
 
           <div className="flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={resetForm} disabled={isMutating}>
-              Abbrechen
+              {dashboardCopy.common.cancel}
             </Button>
             <Button type="submit" size="sm" disabled={isMutating}>
-              {isCreateMode ? 'Mitarbeitende Person erstellen' : 'Änderungen speichern'}
+              {isCreateMode ? dashboardCopy.employees.createEmployee : dashboardCopy.common.saveChanges}
             </Button>
           </div>
         </form>
       ) : null}
 
       {employees.length === 0 ? (
-        <Alert>Noch keine Mitarbeitenden vorhanden.</Alert>
+        <Alert>{dashboardCopy.employees.noEmployeesYet}</Alert>
       ) : (
         <ul className="space-y-2">
           {employees.map((employee) => {
@@ -275,9 +276,9 @@ export function EmployeeManagementPanel({
                     variant="outline"
                     onClick={() => handleOpenEdit(employee)}
                     disabled={isMutating}
-                    aria-label={`Mitarbeitende Person ${employeeName} bearbeiten`}
+                    aria-label={dashboardCopy.employees.editAria(employeeName)}
                   >
-                    Person bearbeiten
+                    {dashboardCopy.employees.edit}
                   </Button>
                   <Button
                     type="button"
@@ -285,9 +286,9 @@ export function EmployeeManagementPanel({
                     variant="outline"
                     onClick={() => void onDeleteEmployee(employee)}
                     disabled={isMutating}
-                    aria-label={`Mitarbeitende Person ${employeeName} entfernen`}
+                    aria-label={dashboardCopy.employees.removeAria(employeeName)}
                   >
-                    Entfernen
+                    {dashboardCopy.employees.removeEmployee}
                   </Button>
                 </div>
               </li>

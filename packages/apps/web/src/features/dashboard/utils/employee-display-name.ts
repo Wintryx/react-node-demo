@@ -31,5 +31,5 @@ export const getEmployeeDisplayName = (employee: Employee): string => {
   }
 
   const fallback = fallbackNameFromEmail(employee.email);
-  return fallback.length > 0 ? fallback : 'Mitarbeitende Person';
+  return fallback.length > 0 ? fallback : 'Employee';
 };

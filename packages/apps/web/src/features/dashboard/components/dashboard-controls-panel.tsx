@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from '../../../components/ui/card';
 import { CreateEmployeeRequest, Employee, UpdateEmployeeRequest } from '../../../shared/api/types';
+import { dashboardCopy } from '../dashboard-copy';
 
 interface DashboardControlsPanelProps {
   employees: Employee[];
@@ -41,8 +42,8 @@ export function DashboardControlsPanel({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Arbeitsbereich-Steuerung</CardTitle>
-        <CardDescription>Filtere das Board nach zugewiesenen Mitarbeitenden.</CardDescription>
+        <CardTitle className="text-base">{dashboardCopy.employees.workspaceControls}</CardTitle>
+        <CardDescription>{dashboardCopy.employees.filterDescription}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {employees.length > 0 ? (
@@ -52,11 +53,11 @@ export function DashboardControlsPanel({
             onChange={onEmployeeChange}
           />
         ) : (
-          <Alert>Keine Mitarbeitenden verfügbar. Bitte zuerst über API/Swagger anlegen.</Alert>
+          <Alert>{dashboardCopy.employees.noEmployees}</Alert>
         )}
         <Button variant="secondary" className="w-full" onClick={onRefresh}>
           <RefreshCcw className="mr-2 h-4 w-4" />
-          Daten aktualisieren
+          {dashboardCopy.employees.refreshData}
         </Button>
         <EmployeeManagementPanel
           employees={employees}

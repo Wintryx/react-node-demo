@@ -35,7 +35,7 @@ export function TaskFormCoreFields({
   return (
     <>
       <div className="space-y-2">
-        <Label htmlFor="task-title">Titel</Label>
+        <Label htmlFor="task-title">Title</Label>
         <Input
           id="task-title"
           value={formState.title}
@@ -46,7 +46,7 @@ export function TaskFormCoreFields({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="task-description">Beschreibung</Label>
+        <Label htmlFor="task-description">Description</Label>
         <textarea
           id="task-description"
           value={formState.description}
@@ -75,7 +75,7 @@ export function TaskFormCoreFields({
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="task-priority">Priorität</Label>
+          <Label htmlFor="task-priority">Priority</Label>
           <Select
             id="task-priority"
             value={formState.priority}
@@ -90,7 +90,7 @@ export function TaskFormCoreFields({
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="task-employee">Mitarbeitende</Label>
+          <Label htmlFor="task-employee">Assignee</Label>
           <Select
             id="task-employee"
             value={formState.employeeId?.toString() ?? ''}
@@ -108,7 +108,7 @@ export function TaskFormCoreFields({
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label>Startdatum</Label>
+          <Label>Start date</Label>
           <DatePickerField
             value={formState.startDate}
             disabled={isSubmitting}
@@ -116,7 +116,7 @@ export function TaskFormCoreFields({
           />
         </div>
         <div className="space-y-2">
-          <Label>Fälligkeitsdatum</Label>
+          <Label>Due date</Label>
           <DatePickerField
             value={formState.dueDate}
             disabled={isSubmitting}

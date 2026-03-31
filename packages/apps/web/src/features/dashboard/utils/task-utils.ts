@@ -15,23 +15,23 @@ export const taskPriorityVariant: Record<TaskPriority, 'default' | 'warning' | '
 export const taskStatusOrder: TaskStatus[] = ['todo', 'in-progress', 'done'];
 
 export const taskStatusLabels: Record<TaskStatus, string> = {
-  todo: 'Offen',
-  'in-progress': 'In Bearbeitung',
-  done: 'Erledigt',
+  todo: 'To do',
+  'in-progress': 'In progress',
+  done: 'Done',
 };
 
 export const taskPriorityLabels: Record<TaskPriority, string> = {
-  low: 'Niedrig',
-  medium: 'Mittel',
-  high: 'Hoch',
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
 };
 
 export const formatTaskDate = (value: string | null): string => {
   if (!value) {
-    return 'Kein Fälligkeitsdatum';
+    return 'No due date';
   }
 
-  return new Intl.DateTimeFormat('de-DE', {
+  return new Intl.DateTimeFormat('en-US', {
     dateStyle: 'medium',
   }).format(new Date(value));
 };

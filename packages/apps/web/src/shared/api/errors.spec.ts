@@ -20,16 +20,19 @@ const createAxiosError = (
 
 describe('normalizeApiError', () => {
   it('maps known error code with params', () => {
-    const error = createAxiosError({
-      code: 'EMPLOYEE_NOT_FOUND',
-      message: 'Employee with id "42" was not found.',
-      params: {
-        employeeId: 42,
+    const error = createAxiosError(
+      {
+        code: 'EMPLOYEE_NOT_FOUND',
+        message: 'Employee with id "42" was not found.',
+        params: {
+          employeeId: 42,
+        },
       },
-    }, 404);
+      404,
+    );
 
     expect(normalizeApiError(error).message).toBe(
-      'Mitarbeitende Person mit ID "42" wurde nicht gefunden.',
+      'Employee with ID "42" was not found.',
     );
   });
 
@@ -42,7 +45,7 @@ describe('normalizeApiError', () => {
       },
     });
 
-    expect(normalizeApiError(error).message).toBe('E-Mail muss gültig sein.');
+    expect(normalizeApiError(error).message).toBe('Email must be valid.');
   });
 
   it('uses payload message fallback for unknown codes', () => {
@@ -56,6 +59,6 @@ describe('normalizeApiError', () => {
 
   it('maps network-level axios errors to CORS/network hint', () => {
     const error = createAxiosError(undefined);
-    expect(normalizeApiError(error).message).toContain('Netzwerk-/CORS-Fehler');
+    expect(normalizeApiError(error).message).toContain('Network/CORS error');
   });
 });

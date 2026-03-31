@@ -98,7 +98,7 @@ export const mapTaskFormError = (error: unknown): string => {
     return error.message;
   }
 
-  return 'Anfrage fehlgeschlagen. Bitte erneut versuchen.';
+  return 'Request failed. Please try again.';
 };
 
 export const toCreateTaskPayload = (formState: TaskFormState): CreateTaskRequest => ({

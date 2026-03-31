@@ -1,6 +1,6 @@
 # Projektfortschritt
 
-Stand: 2026-03-30
+Stand: 2026-03-31
 
 ## Refactoring-Pakete (ab 2026-03-30)
 
@@ -30,7 +30,23 @@ Stand: 2026-03-30
   - Slice 3B umgesetzt (Dashboard-UI + Integration)
   - Employee-Management-Panel im Dashboard: Create/Edit/Delete
   - Integrationstests ergänzt: Create/Edit/Delete Employee in `dashboard-crud.integration.spec.tsx`
-- [ ] Paket 4 - UI-Sprache Englisch als Default (inkl. Error-Mapping)
+- [x] Paket 4 - UI-Sprache Englisch als Default (inkl. Error-Mapping)
+  - Auth-Views auf Englisch umgestellt (`login-page.tsx`, `register-page.tsx`, `password-rules.ts`)
+  - Dashboard-UI, Formulare und Timeline-Texte auf Englisch umgestellt
+  - API-Error-Mapping auf Englisch umgestellt (`shared/api/errors.ts`)
+  - Tests angepasst:
+    - `dashboard-crud.integration.spec.tsx`
+    - `errors.spec.ts`
+  - Verifiziert mit:
+    - `npx nx test web`
+    - `npx nx lint web`
+- [x] Cleanup nach Paket 4 - Refactor ohne Overengineering
+  - `window.confirm` aus Hook-Layer in UI/Container verschoben (`dashboard-page.tsx`)
+  - gemeinsame Mutation-Utility für Fehler-Mapping/Execution eingeführt (`hooks/mutation-utils.ts`)
+  - Dashboard-Copy zentralisiert (`dashboard-copy.ts`) und in Komponenten/Tests angebunden
+  - Verifiziert mit:
+    - `npx nx test web`
+    - `npx nx lint web`
 - [ ] Paket 5 - Seed-Workflow + Doku-Roundup
 
 ## Entscheidungen
@@ -312,7 +328,7 @@ Geplante Häppchen:
 ## Review-Feedback 2026-03-30 (offene Maßnahmen)
 
 - P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist. (Erledigt 2026-03-30)
-- P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages).
+- P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages). (Erledigt 2026-03-31)
 - P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET` und konsistente Auth-Cookie-Settings), damit Fresh-Clone-Start stabil funktioniert. (Erledigt 2026-03-30)
 - P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
 - P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle).
@@ -329,7 +345,7 @@ Historische Restpunkte (nachrangig, durch Backlog oben übersteuert):
 Verbindlicher Backlog (Stand 2026-03-30):
 
 - P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist. (Erledigt 2026-03-30)
-- P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages in UI und `errors.ts`).
+- P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages in UI und `errors.ts`). (Erledigt 2026-03-31)
 - P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET`, `AUTH_COOKIE_SECURE`, `AUTH_COOKIE_SAME_SITE`) und Fresh-Clone-Start verifizieren. (Erledigt 2026-03-30)
 - P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
 - P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle).
@@ -342,14 +358,14 @@ Verbindlicher Backlog (Stand 2026-03-30):
 
 ## Nächste Schritte (historisch)
 
-1. P0: Englische Default-Lokalisierung (oder i18n mit `en` Default) umsetzen.
+1. P1: Seed-Workflow umsetzen und mit Tests absichern.
 2. Optional: Seed-Workflow für reproduzierbare Demo-Daten
-3. P1: Seed-Workflow umsetzen und mit Tests absichern.
+3. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.
 
 ## Review-Backlog 2026-03-30 (autoritativ für Umsetzung)
 
 - P0: Employee-CRUD-UI (Create/Edit/Delete) inkl. Integrationstests im Dashboard umsetzen. (Erledigt 2026-03-30)
-- P0: UI auf Englisch als Default (oder i18n mit `en` als Default) umstellen, inklusive `errors.ts`.
+- P0: UI auf Englisch als Default (oder i18n mit `en` als Default) umstellen, inklusive `errors.ts`. (Erledigt 2026-03-31)
 - P0: Docker-Compose-Startfix umsetzen (`JWT_REFRESH_TOKEN_SECRET` + konsistente Cookie-Env-Werte). (Erledigt 2026-03-30)
 - P1: `dueDate`-Clearing-Bug im Task-Update-Mapper fixen und mit gezielten Tests absichern. (Erledigt 2026-03-30)
 - P1: Seed-Script für reproduzierbare Demo-Daten ergänzen.
@@ -358,12 +374,10 @@ Verbindlicher Backlog (Stand 2026-03-30):
 - Hinweis: Refresh-Token-Rotation ist bereits umgesetzt und nicht mehr offen.
 
 Empfohlene Reihenfolge:
-1. A: Employee-CRUD-UI + English default.
-2. B: Seed-Workflow.
-3. C: Doku-Polish (AI-Transparenz + Scope-Kalibrierung).
+1. A: Seed-Workflow.
+2. B: Doku-Polish (AI-Transparenz + Scope-Kalibrierung).
 
-## Nächste Schritte (verbindlich, Stand 2026-03-30)
+## Nächste Schritte (verbindlich, Stand 2026-03-31)
 
-1. P0: Englische Default-Lokalisierung (oder i18n mit `en` Default) umsetzen.
-2. P1: Seed-Workflow umsetzen und mit Tests absichern.
-3. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.
+1. P1: Seed-Workflow umsetzen und mit Tests absichern.
+2. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.

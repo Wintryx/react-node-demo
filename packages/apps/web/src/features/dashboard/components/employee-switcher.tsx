@@ -1,5 +1,6 @@
 import { Select } from '../../../components/ui/select';
 import { Employee } from '../../../shared/api/types';
+import { dashboardCopy } from '../dashboard-copy';
 import { getEmployeeDisplayName } from '../utils';
 
 interface EmployeeSwitcherProps {
@@ -9,13 +10,13 @@ interface EmployeeSwitcherProps {
 }
 
 const employeeRoleLabels: Record<Employee['role'], string> = {
-  developer: 'Entwickler/in',
-  'team-lead': 'Teamleitung',
-  'engineering-manager': 'Engineering-Management',
-  'product-manager': 'Produktmanagement',
-  designer: 'Design',
-  'qa-engineer': 'QA',
-  'devops-engineer': 'DevOps',
+  developer: 'Developer',
+  'team-lead': 'Team lead',
+  'engineering-manager': 'Engineering manager',
+  'product-manager': 'Product manager',
+  designer: 'Designer',
+  'qa-engineer': 'QA engineer',
+  'devops-engineer': 'DevOps engineer',
 };
 
 export function EmployeeSwitcher({
@@ -26,7 +27,7 @@ export function EmployeeSwitcher({
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        Mitarbeitenden-Filter
+        {dashboardCopy.employees.employeeFilter}
       </p>
       <Select
         value={selectedEmployeeId?.toString() ?? ''}
@@ -34,7 +35,7 @@ export function EmployeeSwitcher({
           onChange(event.target.value.trim() === '' ? null : Number(event.target.value))
         }
       >
-        <option value="">Alle Mitarbeitenden</option>
+        <option value="">{dashboardCopy.employees.allEmployees}</option>
         {employees.map((employee) => (
           <option key={employee.id} value={employee.id}>
             {getEmployeeDisplayName(employee)} ({employeeRoleLabels[employee.role]})

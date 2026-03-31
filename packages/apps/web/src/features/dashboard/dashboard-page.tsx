@@ -1,9 +1,11 @@
 import { useState } from 'react';
 
 import { DashboardControlsPanel, DashboardHeader, DashboardTaskSection } from './components';
+import { dashboardCopy } from './dashboard-copy';
 import { DashboardViewMode } from './dashboard-view-mode';
 import { TaskFormDialog } from './form';
 import { useDashboardData, useEmployeeMutations, useTaskMutations } from './hooks';
+import { getEmployeeDisplayName } from './utils';
 import { Alert } from '../../components/ui/alert';
 import { Spinner } from '../../components/ui/spinner';
 import { CreateEmployeeRequest, Employee, Task, UpdateEmployeeRequest } from '../../shared/api/types';
@@ -43,6 +45,10 @@ export function DashboardPage() {
   };
 
   const handleDeleteTask = (task: Task): void => {
+    const confirmed = window.confirm(dashboardCopy.tasks.confirmDelete(task.title));
+    if (!confirmed) {
+      return;
+    }
     void taskMutations.deleteTask(task).catch(() => undefined);
   };
 
@@ -55,6 +61,13 @@ export function DashboardPage() {
   ): Promise<Employee> => employeeMutations.updateEmployee(employeeId, payload);
 
   const handleDeleteEmployee = async (employee: Employee): Promise<void> => {
+    const confirmed = window.confirm(
+      dashboardCopy.employees.confirmDelete(getEmployeeDisplayName(employee)),
+    );
+    if (!confirmed) {
+      return;
+    }
+
     await employeeMutations.deleteEmployee(employee);
     if (selectedEmployeeId === employee.id) {
       setSelectedEmployeeId(null);
@@ -73,7 +86,7 @@ export function DashboardPage() {
     return (
       <div className="mx-auto max-w-2xl p-6">
         <Alert variant="danger">
-          Mitarbeitende konnten nicht geladen werden. {employeesError?.message}
+          Failed to load employees. {employeesError?.message}
         </Alert>
       </div>
     );

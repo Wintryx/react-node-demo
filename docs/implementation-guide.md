@@ -1,6 +1,6 @@
 # Implementation Guide (auth-focused, pragmatic)
 
-Stand: 2026-03-30
+Stand: 2026-03-31
 
 ## 0. Review-Driven Refactoring Packages
 
@@ -9,7 +9,7 @@ Execution model (small, verifiable slices, no overengineering):
 1. Package 1 (completed): Docker Compose startup reliability.
 2. Package 2 (completed): `dueDate` clearing semantics for task updates + tests.
 3. Package 3 (completed): Employee CRUD frontend slice (API + mutation hook + UI + integration tests).
-4. Package 4: English as default UI language (including API error mapping texts).
+4. Package 4 (completed): English as default UI language (including API error mapping texts).
 5. Package 5: Seed-data workflow and final documentation alignment.
 
 Package 1 delivered:
@@ -33,6 +33,19 @@ Package 3 delivered:
 - Added API-layer tests for employees client (`employees-api.spec.ts`).
 - Added dashboard employee-management UI for create/edit/delete flows.
 - Added dashboard integration tests for employee create/edit/delete.
+
+Package 4 delivered:
+
+- Switched auth pages, dashboard UI labels, form labels, and timeline labels to English defaults.
+- Updated API error translation messages to English in `packages/apps/web/src/shared/api/errors.ts`.
+- Aligned web integration/unit tests with the English UI and error texts.
+- Verified with `npx nx test web` and `npx nx lint web`.
+
+Post-package 4 cleanup delivered:
+
+- Moved `window.confirm` calls from mutation hooks into the dashboard UI container layer.
+- Introduced a shared mutation helper for error mapping and mutation execution (`hooks/mutation-utils.ts`).
+- Centralized dashboard UI copy in one feature-local source (`dashboard-copy.ts`) and reused it in components/tests.
 
 ## 1. Goal
 

@@ -141,7 +141,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
                 size="sm"
                 className="h-6 w-6 p-0 hover:bg-black/10"
                 onClick={() => dismissToast(toast.id)}
-                aria-label="Hinweis schliessen"
+                aria-label="Dismiss notification"
               >
                 <X className="h-3.5 w-3.5" />
               </Button>

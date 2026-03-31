@@ -1,7 +1,6 @@
 import { ApiErrorPayload } from '@react-node-demo/shared-contracts';
 import axios from 'axios';
 
-
 type ApiErrorTranslator = (payload: ApiErrorPayload) => string;
 
 const toNumberParam = (payload: ApiErrorPayload, key: string): number | null => {
@@ -29,39 +28,39 @@ const translateValidationConstraint = (message: string): string => {
       pattern:
         /^password must contain at least one lowercase letter, one uppercase letter, one number and one special character\.$/,
       replace:
-        'Passwort muss mindestens einen Kleinbuchstaben, einen Großbuchstaben, eine Zahl und ein Sonderzeichen enthalten.',
+        'Password must include at least one lowercase letter, one uppercase letter, one number, and one special character.',
     },
     {
       pattern: /^email must be an email$/,
-      replace: 'E-Mail muss gültig sein.',
+      replace: 'Email must be valid.',
     },
     {
       pattern: /^password must be a string$/,
-      replace: 'Passwort muss ein Text sein.',
+      replace: 'Password must be a string.',
     },
     {
       pattern: /^password must be longer than or equal to (\d+) characters$/,
-      replace: 'Passwort muss mindestens $1 Zeichen lang sein.',
+      replace: 'Password must be at least $1 characters long.',
     },
     {
       pattern: /^password must be shorter than or equal to (\d+) characters$/,
-      replace: 'Passwort darf höchstens $1 Zeichen lang sein.',
+      replace: 'Password must be at most $1 characters long.',
     },
     {
       pattern: /^(.+) must be a string$/,
-      replace: '$1 muss ein Text sein.',
+      replace: '$1 must be a string.',
     },
     {
       pattern: /^(.+) must be an integer number$/,
-      replace: '$1 muss eine ganze Zahl sein.',
+      replace: '$1 must be an integer.',
     },
     {
       pattern: /^(.+) must not be less than (\d+)$/,
-      replace: '$1 darf nicht kleiner als $2 sein.',
+      replace: '$1 must not be less than $2.',
     },
     {
       pattern: /^(.+) must be a valid ISO 8601 date string$/,
-      replace: '$1 muss ein gültiges ISO-8601-Datum sein.',
+      replace: '$1 must be a valid ISO-8601 date string.',
     },
   ];
 
@@ -74,80 +73,80 @@ const translateValidationConstraint = (message: string): string => {
 };
 
 const errorCodeTranslators: Record<string, ApiErrorTranslator> = {
-  AUTH_INVALID_CREDENTIALS: () => 'Ungültige E-Mail oder falsches Passwort.',
+  AUTH_INVALID_CREDENTIALS: () => 'Invalid email or password.',
   AUTH_EMAIL_ALREADY_EXISTS: (payload) => {
     const email = toStringParam(payload, 'email');
     return email
-      ? `Ein Benutzer mit der E-Mail "${email}" existiert bereits.`
-      : 'Ein Benutzer mit dieser E-Mail existiert bereits.';
+      ? `A user with email "${email}" already exists.`
+      : 'A user with this email already exists.';
   },
-  AUTH_REFRESH_TOKEN_INVALID: () => 'Sitzung abgelaufen. Bitte erneut anmelden.',
+  AUTH_REFRESH_TOKEN_INVALID: () => 'Session expired. Please sign in again.',
   EMPLOYEE_EMAIL_ALREADY_EXISTS: (payload) => {
     const email = toStringParam(payload, 'email');
     return email
-      ? `Eine mitarbeitende Person mit der E-Mail "${email}" existiert bereits.`
-      : 'Eine mitarbeitende Person mit dieser E-Mail existiert bereits.';
+      ? `An employee with email "${email}" already exists.`
+      : 'An employee with this email already exists.';
   },
   EMPLOYEE_NOT_FOUND: (payload) => {
     const employeeId = toNumberParam(payload, 'employeeId');
     return employeeId !== null
-      ? `Mitarbeitende Person mit ID "${employeeId}" wurde nicht gefunden.`
-      : 'Mitarbeitende Person wurde nicht gefunden.';
+      ? `Employee with ID "${employeeId}" was not found.`
+      : 'Employee was not found.';
   },
   EMPLOYEE_HAS_ASSIGNED_TASKS: (payload) => {
     const employeeId = toNumberParam(payload, 'employeeId');
     return employeeId !== null
-      ? `Mitarbeitende Person mit ID "${employeeId}" hat zugewiesene Aufgaben und kann nicht gelöscht werden.`
-      : 'Mitarbeitende Person hat zugewiesene Aufgaben und kann nicht gelöscht werden.';
+      ? `Employee with ID "${employeeId}" has assigned tasks and cannot be deleted.`
+      : 'Employee has assigned tasks and cannot be deleted.';
   },
   TASK_NOT_FOUND: (payload) => {
     const taskId = toNumberParam(payload, 'taskId');
     return taskId !== null
-      ? `Aufgabe mit ID "${taskId}" wurde nicht gefunden.`
-      : 'Aufgabe wurde nicht gefunden.';
+      ? `Task with ID "${taskId}" was not found.`
+      : 'Task was not found.';
   },
   TASK_EMPLOYEE_NOT_FOUND: (payload) => {
     const employeeId = toNumberParam(payload, 'employeeId');
     return employeeId !== null
-      ? `Mitarbeitende Person mit ID "${employeeId}" wurde nicht gefunden.`
-      : 'Mitarbeitende Person wurde nicht gefunden.';
+      ? `Employee with ID "${employeeId}" was not found.`
+      : 'Employee was not found.';
   },
   TASK_SUBTASK_ASSIGNEE_NOT_FOUND: () =>
-    'Eine oder mehrere zugewiesene Personen bei Teilaufgaben existieren nicht.',
+    'One or more subtask assignees do not exist.',
   TASK_SUBTASK_NOT_BELONG_TO_TASK: (payload) => {
     const subtaskId = toNumberParam(payload, 'subtaskId');
     const taskId = toNumberParam(payload, 'taskId');
 
     if (subtaskId !== null && taskId !== null) {
-      return `Teilaufgabe "${subtaskId}" gehört nicht zu Aufgabe "${taskId}".`;
+      return `Subtask "${subtaskId}" does not belong to task "${taskId}".`;
     }
 
-    return 'Teilaufgabe gehört nicht zur angegebenen Aufgabe.';
+    return 'Subtask does not belong to the specified task.';
   },
-  TASK_DATE_RANGE_INVALID: () => 'Fälligkeitsdatum darf nicht vor dem Startdatum liegen.',
+  TASK_DATE_RANGE_INVALID: () => 'Due date must not be before start date.',
   TASK_SUBTASK_DATE_RANGE_INVALID: (payload) => {
     const index = toNumberParam(payload, 'subtaskIndex');
     return index !== null
-      ? `Enddatum der Teilaufgabe #${index + 1} darf nicht vor dem Startdatum liegen.`
-      : 'Enddatum der Teilaufgabe darf nicht vor dem Startdatum liegen.';
+      ? `End date of subtask #${index + 1} must not be before start date.`
+      : 'Subtask end date must not be before start date.';
   },
   TASK_EMPLOYEE_ID_QUERY_INVALID: () =>
-    'Query-Parameter "employeeId" muss eine positive Ganzzahl sein.',
+    'Query parameter "employeeId" must be a positive integer.',
   VALIDATION_ERROR: (payload) => {
     const errors = toStringArrayParam(payload, 'errors');
     if (errors.length === 0) {
-      return 'Validierung fehlgeschlagen.';
+      return 'Validation failed.';
     }
 
     return errors.map((entry) => translateValidationConstraint(entry)).join(' ');
   },
-  UNAUTHORIZED: () => 'Nicht autorisiert.',
-  FORBIDDEN: () => 'Zugriff verweigert.',
-  NOT_FOUND: () => 'Ressource wurde nicht gefunden.',
-  CONFLICT: () => 'Konflikt bei der Anfrage.',
-  BAD_REQUEST: () => 'Ungültige Anfrage.',
-  TOO_MANY_REQUESTS: () => 'Zu viele Anfragen. Bitte später erneut versuchen.',
-  INTERNAL_SERVER_ERROR: () => 'Interner Serverfehler. Bitte später erneut versuchen.',
+  UNAUTHORIZED: () => 'Unauthorized.',
+  FORBIDDEN: () => 'Access denied.',
+  NOT_FOUND: () => 'Resource not found.',
+  CONFLICT: () => 'Request conflict.',
+  BAD_REQUEST: () => 'Invalid request.',
+  TOO_MANY_REQUESTS: () => 'Too many requests. Please try again later.',
+  INTERNAL_SERVER_ERROR: () => 'Internal server error. Please try again later.',
 };
 
 const extractFallbackMessage = (payload: ApiErrorPayload | undefined): string | null => {
@@ -171,12 +170,12 @@ const extractFallbackMessage = (payload: ApiErrorPayload | undefined): string | 
 
 export const normalizeApiError = (error: unknown): Error => {
   if (!axios.isAxiosError<ApiErrorPayload>(error)) {
-    return new Error('Unerwarteter Fehler. Bitte erneut versuchen.');
+    return new Error('Unexpected error. Please try again.');
   }
 
   if (!error.response) {
     return new Error(
-      'Netzwerk-/CORS-Fehler: API ist nicht erreichbar oder durch CORS blockiert. Bitte API-URL und CORS_ORIGIN prüfen.',
+      'Network/CORS error: API is unreachable or blocked by CORS. Please verify API URL and CORS_ORIGIN.',
     );
   }
 
@@ -194,5 +193,5 @@ export const normalizeApiError = (error: unknown): Error => {
     return new Error(fallbackMessage);
   }
 
-  return new Error('Anfrage fehlgeschlagen. Bitte erneut versuchen.');
+  return new Error('Request failed. Please try again.');
 };
