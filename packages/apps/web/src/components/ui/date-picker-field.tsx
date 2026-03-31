@@ -16,14 +16,14 @@ interface DatePickerFieldProps {
 }
 
 const formatDisplayDate = (value: string): string =>
-  new Intl.DateTimeFormat('de-DE', {
+  new Intl.DateTimeFormat('en-US', {
     dateStyle: 'medium',
   }).format(parseDateOnly(value));
 
 export function DatePickerField({
   value,
   onChange,
-  placeholder = 'Datum wählen',
+  placeholder = 'Select date',
   disabled = false,
   allowClear = false,
   className,
@@ -69,7 +69,7 @@ export function DatePickerField({
             size="sm"
             disabled={disabled}
             onClick={() => onChange(null)}
-            aria-label="Datum löschen"
+            aria-label="Clear date"
           >
             <X className="h-4 w-4" />
           </Button>

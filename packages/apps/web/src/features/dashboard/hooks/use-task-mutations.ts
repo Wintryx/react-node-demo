@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { tasksApi } from '../../../shared/api';
 import { CreateTaskRequest, Task, UpdateTaskRequest, UpsertSubtaskRequest } from '../../../shared/api/types';
 import { useToast } from '../../notifications/toast-context';
+import { dashboardCopy } from '../dashboard-copy';
 import { toUpsertSubtaskRequests } from '../utils';
+import { executeMutation } from './mutation-utils';
 
 interface UseTaskMutationsResult {
   actionError: string | null;
@@ -17,14 +19,6 @@ interface UseTaskMutationsResult {
   addSubtask(task: Task, title: string): void;
   removeSubtask(task: Task, subtaskId: number): void;
 }
-
-const mapError = (error: unknown): string => {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return 'Anfrage fehlgeschlagen. Bitte erneut versuchen.';
-};
 
 export const useTaskMutations = (): UseTaskMutationsResult => {
   const queryClient = useQueryClient();
@@ -62,21 +56,16 @@ export const useTaskMutations = (): UseTaskMutationsResult => {
   const isMutating =
     createTaskMutation.isPending || updateTaskMutation.isPending || deleteTaskMutation.isPending;
 
-  const runMutation = async (execute: () => Promise<void>): Promise<void> => {
-    setActionError(null);
-
-    try {
-      await execute();
-    } catch (error: unknown) {
-      setActionError(mapError(error));
-      throw error;
-    }
-  };
+  const runMutation = async (execute: () => Promise<void>): Promise<void> =>
+    executeMutation(setActionError, execute);
 
   const createTask = async (payload: CreateTaskRequest): Promise<void> => {
     await runMutation(async () => {
       await createTaskMutation.mutateAsync(payload);
-      success('Aufgabe erstellt', `"${payload.title.trim()}" wurde erfolgreich erstellt.`);
+      success(
+        dashboardCopy.tasks.createdToastTitle,
+        dashboardCopy.tasks.createdToastDescription(payload.title.trim()),
+      );
     });
   };
 
@@ -88,7 +77,10 @@ export const useTaskMutations = (): UseTaskMutationsResult => {
     await runMutation(async () => {
       await updateTaskMutation.mutateAsync({ taskId, payload });
       if (notifySuccess) {
-        success('Aufgabe aktualisiert', 'Deine Änderungen wurden gespeichert.');
+        success(
+          dashboardCopy.tasks.updatedToastTitle,
+          dashboardCopy.tasks.updatedToastDescription,
+        );
       }
     });
   };
@@ -98,14 +90,12 @@ export const useTaskMutations = (): UseTaskMutationsResult => {
   };
 
   const deleteTask = async (task: Task): Promise<void> => {
-    const confirmed = window.confirm(`Aufgabe "${task.title}" löschen?`);
-    if (!confirmed) {
-      return;
-    }
-
     await runMutation(async () => {
       await deleteTaskMutation.mutateAsync(task.id);
-      success('Aufgabe gelöscht', `"${task.title}" wurde gelöscht.`);
+      success(
+        dashboardCopy.tasks.deletedToastTitle,
+        dashboardCopy.tasks.deletedToastDescription(task.title),
+      );
     });
   };
 

@@ -37,6 +37,17 @@ describe('Auth API', () => {
     return refreshCookie.split(';')[0];
   };
 
+  const refreshWithCookie = (refreshCookie: string) =>
+    axios.post<AuthResponse>(
+      '/auth/refresh',
+      {},
+      {
+        headers: {
+          Cookie: refreshCookie,
+        },
+      },
+    );
+
   beforeAll(async () => {
     authContext = await createAuthContext();
   });
@@ -73,19 +84,39 @@ describe('Auth API', () => {
   it('refreshes access token with refresh cookie', async () => {
     const loginRes = await axios.post<AuthResponse>('/auth/login', authContext.credentials);
     const refreshCookie = extractRefreshCookie(loginRes.headers);
-    const refreshRes = await axios.post<AuthResponse>(
-      '/auth/refresh',
-      {},
-      {
-        headers: {
-          Cookie: refreshCookie,
-        },
-      },
-    );
+    const refreshRes = await refreshWithCookie(refreshCookie);
 
     expect(refreshRes.status).toBe(200);
     expect(refreshRes.data.accessToken.length).toBeGreaterThan(20);
     expect(refreshRes.data.user.email).toBe(authContext.credentials.email.toLowerCase());
+    expect(extractRefreshCookie(refreshRes.headers)).toContain('refreshToken=');
+  });
+
+  it('rotates refresh token and rejects the previous refresh cookie', async () => {
+    const loginRes = await axios.post<AuthResponse>('/auth/login', authContext.credentials);
+    const firstRefreshCookie = extractRefreshCookie(loginRes.headers);
+
+    const firstRefreshRes = await refreshWithCookie(firstRefreshCookie);
+    expect(firstRefreshRes.status).toBe(200);
+    const rotatedRefreshCookie = extractRefreshCookie(firstRefreshRes.headers);
+    expect(rotatedRefreshCookie).not.toBe(firstRefreshCookie);
+
+    const replayRes = await axios.post(
+      '/auth/refresh',
+      {},
+      {
+        headers: {
+          Cookie: firstRefreshCookie,
+        },
+        validateStatus: () => true,
+      },
+    );
+    expect(replayRes.status).toBe(401);
+    expect(replayRes.data?.code).toBe('AUTH_REFRESH_TOKEN_INVALID');
+
+    const secondRefreshRes = await refreshWithCookie(rotatedRefreshCookie);
+    expect(secondRefreshRes.status).toBe(200);
+    expect(secondRefreshRes.data.user.email).toBe(authContext.credentials.email.toLowerCase());
   });
 
   it('returns 401 when refresh cookie is missing', async () => {

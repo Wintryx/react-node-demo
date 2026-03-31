@@ -1,10 +1,11 @@
-import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { createContext, type ReactNode, useContext, useState } from 'react';
 
-import { AuthSession, clearAuthSession, readAuthSession, writeAuthSession } from './auth-storage';
+import { authSessionManager } from './auth-session-manager';
+import { AuthSession } from './auth-storage';
+import { useAuthBootstrap } from './use-auth-bootstrap';
+import { useUnauthorizedRedirect } from './use-unauthorized-redirect';
 import { authApi } from '../../shared/api';
 import { AuthUser, LoginRequest, RegisterRequest } from '../../shared/api/types';
-import { setUnauthorizedHandler } from '../../shared/api/unauthorized-handler';
 
 interface AuthContextValue {
   accessToken: string | null;
@@ -23,36 +24,14 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [session, setSession] = useState<AuthSession | null>(() => readAuthSession());
+  const [session, setSession] = useState<AuthSession | null>(() => authSessionManager.read());
+  const isInitializing = useAuthBootstrap(setSession);
 
-  useEffect(() => {
-    setUnauthorizedHandler(() => {
-      clearAuthSession();
-      setSession(null);
-
-      if (location.pathname === '/login' || location.pathname === '/register') {
-        return;
-      }
-
-      navigate('/login', {
-        replace: true,
-        state: {
-          from: location.pathname,
-        },
-      });
-    });
-
-    return () => {
-      setUnauthorizedHandler(null);
-    };
-  }, [location.pathname, navigate]);
-
-  const persistSession = (nextSession: AuthSession): void => {
-    writeAuthSession(nextSession);
-    setSession(nextSession);
+  const persistSession = (nextSession: Pick<AuthSession, 'accessToken' | 'user'>): void => {
+    setSession(authSessionManager.persist(nextSession));
   };
+
+  useUnauthorizedRedirect(setSession);
 
   const login = async (payload: LoginRequest): Promise<void> => {
     const response = await authApi.login(payload);
@@ -72,7 +51,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = (): void => {
     void authApi.logout().catch(() => undefined);
-    clearAuthSession();
+    authSessionManager.clear();
     setSession(null);
   };
 
@@ -82,7 +61,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         accessToken: session?.accessToken ?? null,
         currentUser: session?.user ?? null,
         isAuthenticated: Boolean(session?.accessToken),
-        isInitializing: false,
+        isInitializing,
         login,
         register,
         logout,

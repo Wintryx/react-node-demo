@@ -19,6 +19,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Logout user
+         * @description Clears refresh token cookie and invalidates the persisted refresh token for the current session.
+         */
+        post: operations["AuthController_logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refresh access token
+         * @description Uses the HttpOnly refresh token cookie to issue a new JWT access token without re-entering credentials.
+         */
+        post: operations["AuthController_refresh"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/register": {
         parameters: {
             query?: never;
@@ -477,10 +517,10 @@ export interface components {
             description?: string;
             /**
              * Format: date-time
-             * @description Updated ISO-8601 due date.
+             * @description Updated ISO-8601 due date. Set to null to clear an existing due date.
              * @example 2026-03-25T17:00:00.000Z
              */
-            dueDate?: string;
+            dueDate?: Record<string, never> | null;
             /**
              * @description Updated employee id that owns the task.
              * @example 1
@@ -593,6 +633,65 @@ export interface operations {
                 content?: never;
             };
             /** @description Too many login attempts. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AuthController_logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Logout completed and refresh token cookie cleared. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Too many logout attempts. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AuthController_refresh: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns a new access token for a valid refresh token cookie. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthResponseDto"];
+                };
+            };
+            /** @description Refresh token is missing or invalid. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Too many refresh attempts. */
             429: {
                 headers: {
                     [name: string]: unknown;

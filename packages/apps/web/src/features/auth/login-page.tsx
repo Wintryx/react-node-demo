@@ -50,16 +50,16 @@ export function LoginPage() {
 
   return (
     <AuthPageShell
-      title="Willkommen zurück"
-      description="Melde dich an, um auf das Aufgaben-Board zuzugreifen."
-      footerLabel="Noch kein Account?"
-      footerLinkLabel="Registrieren"
+      title="Welcome back"
+      description="Sign in to access your task board."
+      footerLabel="No account yet?"
+      footerLinkLabel="Register"
       footerLinkTo="/register"
     >
       <CardContent>
         <form className="space-y-4" onSubmit={onSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="login-email">E-Mail</Label>
+            <Label htmlFor="login-email">Email</Label>
             <Input
               id="login-email"
               type="email"
@@ -74,7 +74,7 @@ export function LoginPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="login-password">Passwort</Label>
+            <Label htmlFor="login-password">Password</Label>
             <Input
               id="login-password"
               type="password"
@@ -93,10 +93,10 @@ export function LoginPage() {
             {loginMutation.isPending ? (
               <span className="inline-flex items-center gap-2">
                 <Spinner />
-                Anmeldung läuft...
+                Signing in...
               </span>
             ) : (
-              'Anmelden'
+              'Sign in'
             )}
           </Button>
         </form>

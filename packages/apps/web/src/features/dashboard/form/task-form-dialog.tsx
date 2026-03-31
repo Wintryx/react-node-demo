@@ -14,6 +14,7 @@ import { TaskFormSubtasksEditor } from './task-form-subtasks-editor';
 import { useTaskFormState } from './use-task-form-state';
 import { Alert } from '../../../components/ui/alert';
 import { Button } from '../../../components/ui/button';
+import { dashboardCopy } from '../dashboard-copy';
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -29,22 +30,22 @@ interface TaskFormDialogProps {
 
 const validateFormState = (formState: TaskFormState): string | null => {
   if (!formState.title.trim()) {
-    return 'Titel ist erforderlich.';
+    return dashboardCopy.tasks.validations.titleRequired;
   }
 
   if (!formState.startDate) {
-    return 'Startdatum ist erforderlich.';
+    return dashboardCopy.tasks.validations.startDateRequired;
   }
 
   if (!formState.employeeId) {
-    return 'Mitarbeitende Person ist erforderlich.';
+    return dashboardCopy.tasks.validations.assigneeRequired;
   }
 
   const hasInvalidSubtask = formState.subtasks.some(
     (subtask) => subtask.title.trim().length === 0 || subtask.startDate.length === 0,
   );
   if (hasInvalidSubtask) {
-    return 'Jede Teilaufgabe braucht einen Titel und ein Startdatum.';
+    return dashboardCopy.tasks.validations.subtaskInvalid;
   }
 
   return null;
@@ -105,10 +106,10 @@ export function TaskFormDialog({
         await onCreate(toCreateTaskPayload(formState));
       } else {
         if (!task) {
-          setErrorMessage('Aufgabenkontext fehlt.');
+          setErrorMessage(dashboardCopy.tasks.missingContext);
           return;
         }
-        await onUpdate(task.id, toUpdateTaskPayload(formState));
+        await onUpdate(task.id, toUpdateTaskPayload(formState, task));
       }
 
       onClose();
@@ -122,7 +123,9 @@ export function TaskFormDialog({
       <div className="w-full max-w-4xl rounded-xl border border-border bg-card shadow-2xl">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h3 className="font-display text-lg font-semibold">
-            {mode === 'create' ? 'Aufgabe erstellen' : `Aufgabe #${task?.id ?? ''} bearbeiten`}
+            {mode === 'create'
+              ? dashboardCopy.tasks.create
+              : dashboardCopy.tasks.editHeading(task?.id ?? '')}
           </h3>
           <Button type="button" variant="ghost" size="sm" onClick={onClose}>
             <X className="h-4 w-4" />
@@ -156,10 +159,10 @@ export function TaskFormDialog({
 
           <div className="flex items-center justify-end gap-3 border-t border-border pt-4">
             <Button type="button" variant="outline" disabled={isSubmitting} onClick={onClose}>
-              Abbrechen
+              {dashboardCopy.common.cancel}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {mode === 'create' ? 'Aufgabe erstellen' : 'Änderungen speichern'}
+              {mode === 'create' ? dashboardCopy.tasks.create : dashboardCopy.common.saveChanges}
             </Button>
           </div>
         </form>

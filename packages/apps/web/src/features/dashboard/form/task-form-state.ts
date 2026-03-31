@@ -98,7 +98,7 @@ export const mapTaskFormError = (error: unknown): string => {
     return error.message;
   }
 
-  return 'Anfrage fehlgeschlagen. Bitte erneut versuchen.';
+  return 'Request failed. Please try again.';
 };
 
 export const toCreateTaskPayload = (formState: TaskFormState): CreateTaskRequest => ({
@@ -112,13 +112,31 @@ export const toCreateTaskPayload = (formState: TaskFormState): CreateTaskRequest
   subtasks: formState.subtasks.map((subtask) => toUpsertSubtaskRequest(subtask)),
 });
 
-export const toUpdateTaskPayload = (formState: TaskFormState): UpdateTaskRequest => ({
+const resolveUpdateDueDate = (
+  formState: TaskFormState,
+  sourceTask: Task | null,
+): UpdateTaskRequest['dueDate'] => {
+  if (formState.dueDate) {
+    return toApiDateTime(formState.dueDate);
+  }
+
+  if (sourceTask?.dueDate) {
+    return null;
+  }
+
+  return undefined;
+};
+
+export const toUpdateTaskPayload = (
+  formState: TaskFormState,
+  sourceTask: Task | null,
+): UpdateTaskRequest => ({
   title: formState.title.trim(),
   description: formState.description.trim() || undefined,
   status: formState.status,
   priority: formState.priority,
   startDate: toApiDateTime(formState.startDate),
-  dueDate: formState.dueDate ? toApiDateTime(formState.dueDate) : undefined,
+  dueDate: resolveUpdateDueDate(formState, sourceTask),
   employeeId: formState.employeeId as number,
   subtasks: formState.subtasks.map((subtask) => toUpsertSubtaskRequest(subtask)),
 });

@@ -1,13 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { randomUUID } from 'node:crypto';
 
 import { getJwtRefreshTokenSecret } from './jwt-config';
-import {
-  RefreshTokenPayload,
-  RefreshTokenResult,
-  RefreshTokenSigner,
-} from '../../domain/refresh-token-signer';
+import { RefreshTokenPayload, RefreshTokenResult, RefreshTokenSigner, } from '../../domain/refresh-token-signer';
 
 @Injectable()
 export class JwtRefreshTokenSigner implements RefreshTokenSigner {
@@ -23,6 +20,7 @@ export class JwtRefreshTokenSigner implements RefreshTokenSigner {
     const refreshToken = await this.jwtService.signAsync(payload, {
       secret,
       expiresIn: expiresInSeconds,
+      jwtid: randomUUID(),
     });
     const expiresAt = new Date(Date.now() + expiresInSeconds * 1000);
 
@@ -36,10 +34,10 @@ export class JwtRefreshTokenSigner implements RefreshTokenSigner {
   async verify(refreshToken: string): Promise<RefreshTokenPayload | null> {
     const secret = getJwtRefreshTokenSecret(this.configService);
     try {
-      const payload = await this.jwtService.verifyAsync<RefreshTokenPayload>(refreshToken, {
+
+      return await this.jwtService.verifyAsync<RefreshTokenPayload>(refreshToken, {
         secret,
       });
-      return payload;
     } catch {
       return null;
     }

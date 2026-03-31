@@ -64,13 +64,14 @@ export class UpdateTaskDto {
   startDate?: string;
 
   @ApiPropertyOptional({
-    description: 'Updated ISO-8601 due date.',
+    description: 'Updated ISO-8601 due date. Set to null to clear an existing due date.',
     example: '2026-03-25T17:00:00.000Z',
     format: 'date-time',
+    nullable: true,
   })
   @IsOptional()
   @IsDateString()
-  dueDate?: string;
+  dueDate?: string | null;
 
   @ApiPropertyOptional({
     description: 'Updated employee id that owns the task.',

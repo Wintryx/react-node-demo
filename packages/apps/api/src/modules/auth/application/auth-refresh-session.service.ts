@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { createHash } from 'node:crypto';
 
 import { AuthUser } from '../domain/auth.model';
 import { AUTH_REPOSITORY, AuthRepository } from '../domain/auth.repository';
@@ -31,7 +32,9 @@ export class AuthRefreshSessionService {
       sub: user.id,
       email: user.email,
     });
-    const refreshTokenHash = await this.passwordHasher.hash(tokenResult.refreshToken);
+    const refreshTokenHash = await this.passwordHasher.hash(
+      this.toRefreshTokenHashInput(tokenResult.refreshToken),
+    );
 
     await this.authRepository.updateRefreshToken(user.id, refreshTokenHash, tokenResult.expiresAt);
 
@@ -56,7 +59,10 @@ export class AuthRefreshSessionService {
       return null;
     }
 
-    const tokenMatches = await this.passwordHasher.compare(refreshToken, user.refreshTokenHash);
+    const tokenMatches = await this.passwordHasher.compare(
+      this.toRefreshTokenHashInput(refreshToken),
+      user.refreshTokenHash,
+    );
     if (!tokenMatches) {
       return null;
     }
@@ -66,5 +72,9 @@ export class AuthRefreshSessionService {
 
   async clearForUser(userId: number): Promise<void> {
     await this.authRepository.clearRefreshToken(userId);
+  }
+
+  private toRefreshTokenHashInput(refreshToken: string): string {
+    return createHash('sha256').update(refreshToken).digest('hex');
   }
 }

@@ -41,7 +41,7 @@ export function RegisterPage() {
 
   const validateForm = (): boolean => {
     if (formValues.password !== formValues.confirmPassword) {
-      setFormError('Passwörter stimmen nicht überein.');
+      setFormError('Passwords do not match.');
       return false;
     }
 
@@ -69,16 +69,16 @@ export function RegisterPage() {
 
   return (
     <AuthPageShell
-      title="Konto erstellen"
-      description="Registriere dich, um das Aufgaben-Board zu verwalten."
-      footerLabel="Bereits registriert?"
-      footerLinkLabel="Anmelden"
+      title="Create account"
+      description="Register to manage your task board."
+      footerLabel="Already registered?"
+      footerLinkLabel="Sign in"
       footerLinkTo="/login"
     >
       <CardContent>
         <form className="space-y-4" onSubmit={onSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="register-email">E-Mail</Label>
+            <Label htmlFor="register-email">Email</Label>
             <Input
               id="register-email"
               type="email"
@@ -93,7 +93,7 @@ export function RegisterPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="register-password">Passwort</Label>
+            <Label htmlFor="register-password">Password</Label>
             <Input
               id="register-password"
               type="password"
@@ -110,7 +110,7 @@ export function RegisterPage() {
             <p className="text-xs text-muted-foreground">{passwordPolicyHint}</p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="register-password-confirm">Passwort bestätigen</Label>
+            <Label htmlFor="register-password-confirm">Confirm password</Label>
             <Input
               id="register-password-confirm"
               type="password"
@@ -130,10 +130,10 @@ export function RegisterPage() {
             {registerMutation.isPending ? (
               <span className="inline-flex items-center gap-2">
                 <Spinner />
-                Konto wird erstellt...
+                Creating account...
               </span>
             ) : (
-              'Konto erstellen'
+              'Create account'
             )}
           </Button>
         </form>

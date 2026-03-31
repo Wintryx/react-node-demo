@@ -152,8 +152,13 @@ export class AuthController {
       ttl: 60_000,
     },
   })
-  refresh(@Req() request: Request): Promise<AuthResponse> {
-    return this.refreshUseCase.execute(this.readRefreshToken(request));
+  async refresh(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<AuthResponse> {
+    const authResponse = await this.refreshUseCase.execute(this.readRefreshToken(request));
+    await this.issueRefreshTokenCookie(response, authResponse.user.id, authResponse.user.email);
+    return authResponse;
   }
 
   @ApiOperation({

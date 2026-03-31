@@ -1,12 +1,14 @@
 import { useState } from 'react';
 
 import { DashboardControlsPanel, DashboardHeader, DashboardTaskSection } from './components';
+import { dashboardCopy } from './dashboard-copy';
 import { DashboardViewMode } from './dashboard-view-mode';
 import { TaskFormDialog } from './form';
-import { useDashboardData, useTaskMutations } from './hooks';
+import { useDashboardData, useEmployeeMutations, useTaskMutations } from './hooks';
+import { getEmployeeDisplayName } from './utils';
 import { Alert } from '../../components/ui/alert';
 import { Spinner } from '../../components/ui/spinner';
-import { Task } from '../../shared/api/types';
+import { CreateEmployeeRequest, Employee, Task, UpdateEmployeeRequest } from '../../shared/api/types';
 import { useAuth } from '../auth/auth-context';
 
 export function DashboardPage() {
@@ -29,6 +31,7 @@ export function DashboardPage() {
     refreshData,
     setSelectedEmployeeId,
   } = useDashboardData();
+  const employeeMutations = useEmployeeMutations();
   const taskMutations = useTaskMutations();
 
   const handleEditTask = (task: Task): void => {
@@ -42,7 +45,33 @@ export function DashboardPage() {
   };
 
   const handleDeleteTask = (task: Task): void => {
+    const confirmed = window.confirm(dashboardCopy.tasks.confirmDelete(task.title));
+    if (!confirmed) {
+      return;
+    }
     void taskMutations.deleteTask(task).catch(() => undefined);
+  };
+
+  const handleCreateEmployee = async (payload: CreateEmployeeRequest): Promise<Employee> =>
+    employeeMutations.createEmployee(payload);
+
+  const handleUpdateEmployee = async (
+    employeeId: number,
+    payload: UpdateEmployeeRequest,
+  ): Promise<Employee> => employeeMutations.updateEmployee(employeeId, payload);
+
+  const handleDeleteEmployee = async (employee: Employee): Promise<void> => {
+    const confirmed = window.confirm(
+      dashboardCopy.employees.confirmDelete(getEmployeeDisplayName(employee)),
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    await employeeMutations.deleteEmployee(employee);
+    if (selectedEmployeeId === employee.id) {
+      setSelectedEmployeeId(null);
+    }
   };
 
   if (isEmployeesLoading) {
@@ -57,7 +86,7 @@ export function DashboardPage() {
     return (
       <div className="mx-auto max-w-2xl p-6">
         <Alert variant="danger">
-          Mitarbeitende konnten nicht geladen werden. {employeesError?.message}
+          Failed to load employees. {employeesError?.message}
         </Alert>
       </div>
     );
@@ -73,7 +102,13 @@ export function DashboardPage() {
             <DashboardControlsPanel
               employees={employees}
               selectedEmployeeId={selectedEmployeeId}
+              employeeActionError={employeeMutations.actionError}
+              isEmployeeMutating={employeeMutations.isMutating}
               onEmployeeChange={setSelectedEmployeeId}
+              onClearEmployeeActionError={employeeMutations.clearActionError}
+              onCreateEmployee={handleCreateEmployee}
+              onUpdateEmployee={handleUpdateEmployee}
+              onDeleteEmployee={handleDeleteEmployee}
               onRefresh={refreshData}
             />
           </section>

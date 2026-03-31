@@ -12,12 +12,18 @@ export type AuthResponse = Schemas['AuthResponseDto'];
 export type LoginRequest = Schemas['LoginDto'];
 export type RegisterRequest = Schemas['RegisterDto'];
 export type Employee = Schemas['EmployeeResponseDto'];
+export type CreateEmployeeRequest = Schemas['CreateEmployeeDto'];
+export type UpdateEmployeeRequest = Schemas['UpdateEmployeeDto'];
 export type TaskAssignee = Schemas['SubtaskAssigneeResponseDto'];
 export type UpsertSubtaskRequest = Schemas['UpsertSubtaskDto'];
 export type CreateTaskRequest = Schemas['CreateTaskDto'];
-export type UpdateTaskRequest = Schemas['UpdateTaskDto'];
 
 type NullableApiString = string | null;
+type RawUpdateTaskRequest = Schemas['UpdateTaskDto'];
+
+export type UpdateTaskRequest = Omit<RawUpdateTaskRequest, 'dueDate'> & {
+  dueDate?: NullableApiString;
+};
 
 // Swagger/OpenAPI generator currently emits nullable string response fields
 // as Record<string, never> | null. Normalize them for strict frontend typing.

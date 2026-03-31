@@ -2,19 +2,29 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { dashboardCopy } from './dashboard-copy';
 import App from '../../app/app';
 import { Employee, Task } from '../../shared/api/types';
+import { createAccessTokenForTest } from '../../shared/testing/auth-test-token';
 import { writeAuthSession } from '../auth/auth-storage';
 
 const {
+  refreshMock,
   listEmployeesMock,
+  createEmployeeMock,
+  updateEmployeeMock,
+  deleteEmployeeMock,
   listTasksMock,
   listTasksByEmployeeMock,
   createTaskMock,
   updateTaskMock,
   deleteTaskMock,
 } = vi.hoisted(() => ({
+  refreshMock: vi.fn(),
   listEmployeesMock: vi.fn(),
+  createEmployeeMock: vi.fn(),
+  updateEmployeeMock: vi.fn(),
+  deleteEmployeeMock: vi.fn(),
   listTasksMock: vi.fn(),
   listTasksByEmployeeMock: vi.fn(),
   createTaskMock: vi.fn(),
@@ -26,9 +36,13 @@ vi.mock('../../shared/api', () => ({
   authApi: {
     login: vi.fn(),
     register: vi.fn(),
+    refresh: refreshMock,
   },
   employeesApi: {
     list: listEmployeesMock,
+    create: createEmployeeMock,
+    update: updateEmployeeMock,
+    delete: deleteEmployeeMock,
   },
   tasksApi: {
     list: listTasksMock,
@@ -74,9 +88,19 @@ const taskFixture: Task = {
   ],
 };
 
+const employeeCreateFixture: Employee = {
+  id: 2,
+  firstName: 'Grace',
+  lastName: 'Hopper',
+  email: 'grace@example.com',
+  role: 'team-lead',
+  department: 'engineering',
+  createdAt: '2026-03-17T10:00:00.000Z',
+};
+
 const renderAuthenticatedApp = async (): Promise<void> => {
   writeAuthSession({
-    accessToken: 'test-token',
+    accessToken: createAccessTokenForTest(Math.floor(Date.now() / 1000) + 60 * 15),
     user: {
       id: 1,
       email: 'tester@example.com',
@@ -90,7 +114,7 @@ const renderAuthenticatedApp = async (): Promise<void> => {
     </MemoryRouter>,
   );
 
-  await screen.findByText('Aufgaben-Dashboard');
+  await screen.findByText(dashboardCopy.header.title);
 };
 
 describe('Dashboard CRUD integration', () => {
@@ -99,25 +123,38 @@ describe('Dashboard CRUD integration', () => {
     vi.clearAllMocks();
 
     listEmployeesMock.mockResolvedValue([employeeFixture]);
+    createEmployeeMock.mockResolvedValue(employeeCreateFixture);
+    updateEmployeeMock.mockResolvedValue(employeeFixture);
+    deleteEmployeeMock.mockResolvedValue(undefined);
     listTasksMock.mockResolvedValue([taskFixture]);
     listTasksByEmployeeMock.mockResolvedValue([taskFixture]);
     createTaskMock.mockResolvedValue(taskFixture);
     updateTaskMock.mockResolvedValue(taskFixture);
     deleteTaskMock.mockResolvedValue(undefined);
+    refreshMock.mockResolvedValue({
+      accessToken: createAccessTokenForTest(Math.floor(Date.now() / 1000) + 60 * 15),
+      tokenType: 'Bearer',
+      expiresIn: '15m',
+      user: {
+        id: 1,
+        email: 'tester@example.com',
+        createdAt: '2026-03-16T10:00:00.000Z',
+      },
+    });
   });
 
   it('creates a task from the modal', async () => {
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Neue Aufgabe' }));
-    await screen.findByRole('heading', { name: 'Aufgabe erstellen' });
+    fireEvent.click(await screen.findByRole('button', { name: dashboardCopy.tasks.newTask }));
+    await screen.findByRole('heading', { name: dashboardCopy.tasks.create });
 
-    fireEvent.change(screen.getByLabelText('Titel'), {
+    fireEvent.change(screen.getByLabelText('Title'), {
       target: {
         value: 'Newly created task',
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Aufgabe erstellen' }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.tasks.create }));
 
     await waitFor(() => {
       expect(createTaskMock).toHaveBeenCalledTimes(1);
@@ -138,42 +175,126 @@ describe('Dashboard CRUD integration', () => {
     expect(createPayload.startDate.endsWith('T12:00:00.000Z')).toBe(true);
   });
 
+  it('creates an employee from the management panel', async () => {
+    await renderAuthenticatedApp();
+
+    fireEvent.click(await screen.findByRole('button', { name: dashboardCopy.employees.addEmployee }));
+    await screen.findByLabelText(dashboardCopy.employees.firstName);
+
+    fireEvent.change(screen.getByLabelText(dashboardCopy.employees.firstName), {
+      target: {
+        value: 'Grace',
+      },
+    });
+    fireEvent.change(screen.getByLabelText(dashboardCopy.employees.lastName), {
+      target: {
+        value: 'Hopper',
+      },
+    });
+    fireEvent.change(screen.getByLabelText(dashboardCopy.employees.email), {
+      target: {
+        value: 'grace@example.com',
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.employees.createEmployee }));
+
+    await waitFor(() => {
+      expect(createEmployeeMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(createEmployeeMock).toHaveBeenCalledWith({
+      firstName: 'Grace',
+      lastName: 'Hopper',
+      email: 'grace@example.com',
+      role: 'developer',
+      department: 'engineering',
+    });
+  });
+
+  it('updates an employee from the management panel', async () => {
+    await renderAuthenticatedApp();
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: dashboardCopy.employees.editAria('Ada Lovelace'),
+      }),
+    );
+    await screen.findByText(dashboardCopy.employees.editEmployee);
+
+    fireEvent.change(screen.getByLabelText(dashboardCopy.employees.firstName), {
+      target: {
+        value: 'Ada-Updated',
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.common.saveChanges }));
+
+    await waitFor(() => {
+      expect(updateEmployeeMock).toHaveBeenCalledTimes(1);
+    });
+
+    const [employeeId, payload] = updateEmployeeMock.mock.calls[0] as [
+      number,
+      {
+        firstName: string;
+      },
+    ];
+    expect(employeeId).toBe(1);
+    expect(payload.firstName).toBe('Ada-Updated');
+  });
+
+  it('deletes an employee from the management panel after confirmation', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    await renderAuthenticatedApp();
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: dashboardCopy.employees.removeAria('Ada Lovelace'),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(deleteEmployeeMock).toHaveBeenCalledWith(1);
+    });
+
+    confirmSpy.mockRestore();
+  });
+
   it('shows modal validation errors for empty task title and invalid subtasks', async () => {
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Neue Aufgabe' }));
-    await screen.findByRole('heading', { name: 'Aufgabe erstellen' });
+    fireEvent.click(await screen.findByRole('button', { name: dashboardCopy.tasks.newTask }));
+    await screen.findByRole('heading', { name: dashboardCopy.tasks.create });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Aufgabe erstellen' }));
-    expect(await screen.findByText('Titel ist erforderlich.')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.tasks.create }));
+    const requiredTitleMessage = await screen.findByText(dashboardCopy.tasks.validations.titleRequired);
+    expect(requiredTitleMessage).toBeTruthy();
     expect(createTaskMock).not.toHaveBeenCalled();
 
-    fireEvent.change(screen.getByLabelText('Titel'), {
+    fireEvent.change(screen.getByLabelText('Title'), {
       target: {
         value: 'Task with invalid subtask',
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Teilaufgabe hinzufügen' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Aufgabe erstellen' }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.subtasks.addSubtask }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.tasks.create }));
 
-    expect(
-      await screen.findByText('Jede Teilaufgabe braucht einen Titel und ein Startdatum.'),
-    ).toBeTruthy();
+    const invalidSubtaskMessage = await screen.findByText(dashboardCopy.tasks.validations.subtaskInvalid);
+    expect(invalidSubtaskMessage).toBeTruthy();
     expect(createTaskMock).not.toHaveBeenCalled();
   });
 
   it('updates a task through the edit modal', async () => {
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Bearbeiten' }));
-    await screen.findByRole('heading', { name: 'Aufgabe #11 bearbeiten' });
+    fireEvent.click(await screen.findByRole('button', { name: dashboardCopy.tasks.edit }));
+    await screen.findByRole('heading', { name: dashboardCopy.tasks.editHeading(11) });
 
-    fireEvent.change(screen.getByLabelText('Titel'), {
+    fireEvent.change(screen.getByLabelText('Title'), {
       target: {
         value: 'Updated task title',
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Änderungen speichern' }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.common.saveChanges }));
 
     await waitFor(() => {
       expect(updateTaskMock).toHaveBeenCalled();
@@ -194,15 +315,15 @@ describe('Dashboard CRUD integration', () => {
     updateTaskMock.mockRejectedValueOnce(new Error('Task update failed.'));
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Bearbeiten' }));
-    await screen.findByRole('heading', { name: 'Aufgabe #11 bearbeiten' });
+    fireEvent.click(await screen.findByRole('button', { name: dashboardCopy.tasks.edit }));
+    await screen.findByRole('heading', { name: dashboardCopy.tasks.editHeading(11) });
 
-    fireEvent.change(screen.getByLabelText('Titel'), {
+    fireEvent.change(screen.getByLabelText('Title'), {
       target: {
         value: 'Updated but failing',
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Änderungen speichern' }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.common.saveChanges }));
 
     const errorMessages = await screen.findAllByText('Task update failed.');
     expect(errorMessages.length > 0).toBe(true);
@@ -212,7 +333,7 @@ describe('Dashboard CRUD integration', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Löschen' }));
+    fireEvent.click(await screen.findByRole('button', { name: dashboardCopy.tasks.delete }));
 
     await waitFor(() => {
       expect(deleteTaskMock).toHaveBeenCalledWith(11);
@@ -226,7 +347,7 @@ describe('Dashboard CRUD integration', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Löschen' }));
+    fireEvent.click(await screen.findByRole('button', { name: dashboardCopy.tasks.delete }));
 
     await waitFor(() => {
       expect(confirmSpy).toHaveBeenCalledTimes(1);
@@ -241,7 +362,7 @@ describe('Dashboard CRUD integration', () => {
     deleteTaskMock.mockRejectedValueOnce(new Error('Task delete failed.'));
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Löschen' }));
+    fireEvent.click(await screen.findByRole('button', { name: dashboardCopy.tasks.delete }));
 
     const errorMessage = await screen.findByText('Task delete failed.');
     expect(errorMessage).toBeTruthy();
@@ -253,15 +374,15 @@ describe('Dashboard CRUD integration', () => {
     createTaskMock.mockRejectedValueOnce(new Error('Task creation failed.'));
     await renderAuthenticatedApp();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Neue Aufgabe' }));
-    await screen.findByRole('heading', { name: 'Aufgabe erstellen' });
+    fireEvent.click(await screen.findByRole('button', { name: dashboardCopy.tasks.newTask }));
+    await screen.findByRole('heading', { name: dashboardCopy.tasks.create });
 
-    fireEvent.change(screen.getByLabelText('Titel'), {
+    fireEvent.change(screen.getByLabelText('Title'), {
       target: {
         value: 'Broken task',
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Aufgabe erstellen' }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.tasks.create }));
 
     const errorMessages = await screen.findAllByText('Task creation failed.');
     expect(errorMessages.length > 0).toBe(true);
@@ -270,13 +391,13 @@ describe('Dashboard CRUD integration', () => {
   it('updates task subtasks inline when adding and removing subtasks', async () => {
     await renderAuthenticatedApp();
 
-    const addInput = await screen.findByPlaceholderText('Teilaufgabe hinzufügen...');
+    const addInput = await screen.findByPlaceholderText(dashboardCopy.subtasks.addPlaceholder);
     fireEvent.change(addInput, {
       target: {
         value: 'Inline added subtask',
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Hinzufügen' }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.subtasks.add }));
 
     await waitFor(() => {
       expect(updateTaskMock).toHaveBeenCalled();
@@ -292,7 +413,9 @@ describe('Dashboard CRUD integration', () => {
 
     updateTaskMock.mockClear();
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Teilaufgabe Initial subtask entfernen' }),
+      await screen.findByRole('button', {
+        name: dashboardCopy.subtasks.removeAria('Initial subtask'),
+      }),
     );
 
     await waitFor(() => {
@@ -335,9 +458,12 @@ describe('Dashboard CRUD integration', () => {
   it('opens the edit modal when clicking a task in timeline view', async () => {
     await renderAuthenticatedApp();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Zeitachse' }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.tasks.timelineView }));
     fireEvent.click(await screen.findByRole('button', { name: /Initial task/i }));
 
-    expect(await screen.findByRole('heading', { name: 'Aufgabe #11 bearbeiten' })).toBeTruthy();
+    const editModalHeading = await screen.findByRole('heading', {
+      name: dashboardCopy.tasks.editHeading(11),
+    });
+    expect(editModalHeading).toBeTruthy();
   });
 });

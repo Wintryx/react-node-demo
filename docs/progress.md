@@ -1,6 +1,53 @@
 # Projektfortschritt
 
-Stand: 2026-03-17
+Stand: 2026-03-31
+
+## Refactoring-Pakete (ab 2026-03-30)
+
+- [x] Paket 1 - Docker Compose Startfähigkeit stabilisiert
+  - `docker-compose.yml` um fehlende Auth-Variablen ergänzt:
+    - `JWT_REFRESH_TOKEN_SECRET`
+    - `JWT_REFRESH_TOKEN_EXPIRES_IN`
+    - `AUTH_COOKIE_SAME_SITE`
+    - `AUTH_COOKIE_SECURE`
+    - `TYPEORM_MIGRATIONS_RUN`
+  - fail-fast-kompatible Default-Secrets mit ausreichender Mindestlänge gesetzt
+  - Compose auf lokalen Demo-Betrieb ausgerichtet (`NODE_ENV=development`)
+  - Verifiziert mit `docker compose config`
+- [x] Paket 2 - `dueDate`-Clearing-Fix (Update-Semantik + Tests)
+  - Backend akzeptiert explizites `dueDate: null` im Task-Update (`UpdateTaskDto`)
+  - Mapper-Semantik getrennt: `undefined` = unverändert, `null` = löschen
+  - Frontend-Update-Payload unterscheidet jetzt zuverlässig zwischen "unverändert" und "explizit gelöscht"
+  - Tests ergänzt:
+    - API Unit: `task-input.mapper.spec.ts`
+    - Web Unit: `task-form-state.spec.ts`
+    - API E2E: `tasks.spec.ts` (`dueDate` wird per PATCH auf `null` gelöscht)
+- [x] Paket 3 - Employee-CRUD-Frontend (API/Hook/UI + Integrationstests)
+  - Slice 3A umgesetzt (API + Hook-Grundlage)
+  - `employeesApi` um `create`, `update`, `delete` erweitert
+  - `useEmployeeMutations` als eigener Hook ergänzt (Smart-Logik, Query-Invalidation für `employees`/`tasks`)
+  - API-Client-Tests ergänzt: `employees-api.spec.ts`
+  - Slice 3B umgesetzt (Dashboard-UI + Integration)
+  - Employee-Management-Panel im Dashboard: Create/Edit/Delete
+  - Integrationstests ergänzt: Create/Edit/Delete Employee in `dashboard-crud.integration.spec.tsx`
+- [x] Paket 4 - UI-Sprache Englisch als Default (inkl. Error-Mapping)
+  - Auth-Views auf Englisch umgestellt (`login-page.tsx`, `register-page.tsx`, `password-rules.ts`)
+  - Dashboard-UI, Formulare und Timeline-Texte auf Englisch umgestellt
+  - API-Error-Mapping auf Englisch umgestellt (`shared/api/errors.ts`)
+  - Tests angepasst:
+    - `dashboard-crud.integration.spec.tsx`
+    - `errors.spec.ts`
+  - Verifiziert mit:
+    - `npx nx test web`
+    - `npx nx lint web`
+- [x] Cleanup nach Paket 4 - Refactor ohne Overengineering
+  - `window.confirm` aus Hook-Layer in UI/Container verschoben (`dashboard-page.tsx`)
+  - gemeinsame Mutation-Utility für Fehler-Mapping/Execution eingeführt (`hooks/mutation-utils.ts`)
+  - Dashboard-Copy zentralisiert (`dashboard-copy.ts`) und in Komponenten/Tests angebunden
+  - Verifiziert mit:
+    - `npx nx test web`
+    - `npx nx lint web`
+- [ ] Paket 5 - Seed-Workflow + Doku-Roundup
 
 ## Entscheidungen
 
@@ -25,9 +72,74 @@ Stand: 2026-03-17
   - Token-Storage in `sessionStorage` (Demo-Entscheidung)
   - Public Routes: `/login`, `/register`
   - Protected Route: `/app`
+  - Umgesetzter Ausbau: Session-Continuity in kleinen Schritten (Silent Refresh + kontrollierter 401-Retry + Rotation + Hardening-Doku)
+
+## Auth-Roadmap (Update 2026-03-24)
+
+Status:
+
+- Phase 1 abgeschlossen (2026-03-24)
+  - `authApi.refresh()` umgesetzt
+  - `AuthProvider` Bootstrap mit Session-Validierung und Refresh-Fallback umgesetzt
+  - Testabdeckung erweitert: `auth-context.spec.tsx` und `app.spec.tsx`
+- Phase 2 abgeschlossen (2026-03-24)
+  - kontrollierter 401-Retry mit Single-Flight-Refresh im API-Client umgesetzt
+  - neue Tests: `auth-refresh.spec.ts` (Endpoint-Erkennung, Erfolg/Fehler, Single-Flight)
+- Phase 3 abgeschlossen (2026-03-24)
+  - `/auth/refresh` rotiert Refresh-Token und setzt ein neues HttpOnly-Cookie
+  - Replay-Schutz verbessert: Refresh-Token werden vor Persistenz gehasht (SHA-256 -> bcrypt), um bcrypt-72-Byte-Trunkierung zu vermeiden
+  - API-Tests erweitert: Rotationsfall in `api-e2e/src/api/auth.spec.ts` + Regressionstest `auth-refresh-session.service.spec.ts`
+- Phase 4 abgeschlossen (2026-03-24)
+  - Session-Policy dokumentiert: `docs/security/session-policy.md`
+  - Produktions-Runbook dokumentiert: `docs/security/auth-production-runbook.md`
+  - Produktions-Guardrails ergänzt: API fail-fast bei unsicherer `CORS_ORIGIN`/`AUTH_COOKIE_SECURE` Konfiguration
+
+Kurzfazit (Phasen 1-4):
+Kernfazit: Silent-Refresh beim App-Start und kontrollierter 401-Retry halten die Session im normalen Nutzungsfluss stabil. Der Refresh-Flow wurde backendseitig durch Token-Rotation und Replay-Schutz gehärtet. Phase 4 ergänzt verbindliche Session-Policy, ein Produktions-Runbook und API-Guardrails gegen unsichere Cookie/CORS-Produktionskonfigurationen.
+
+Referenzdokumente:
+
+- `docs/descriptions/authentication-deep-dive.md`
+- `docs/descriptions/frontend-click-flow-guide.md`
+- `docs/security/session-policy.md`
+- `docs/security/auth-production-runbook.md`
+
+Zielbild:
+
+- Kurzlebiges Access Token bleibt (`15m` als Security-Basis).
+- Refresh Token bleibt im HttpOnly-Cookie.
+- Nutzer sollen bei abgelaufenem Access Token nicht unnötig sofort auf Login fallen.
+
+Geplante Häppchen:
+
+- [x] **Phase 1 - Silent Refresh Bootstrap (Frontend)**
+  - `authApi.refresh()` einführen
+  - `AuthProvider` startet mit `isInitializing=true`
+  - beim App-Start einmal `/auth/refresh` versuchen, wenn Session nicht verwertbar ist
+  - DoD: Reload nach >15min funktioniert ohne sofortige Login-Weiterleitung (bei gültigem Refresh-Cookie)
+
+- [x] **Phase 2 - Kontrollierter 401-Retry (Frontend)**
+  - Axios-Interceptor: bei erstem `401` einmal Refresh versuchen, Request einmalig wiederholen
+  - Single-Flight für parallele `401` Requests
+  - Schutz gegen Endlosschleife via Retry-Flag
+  - DoD: Access-Token-Ablauf während Nutzung löst nicht sofort Logout aus
+
+- [x] **Phase 3 - Refresh-Token-Rotation (Backend + Frontend)**
+  - `/auth/refresh` stellt neues Refresh-Cookie + neuen Hash in DB aus
+  - altes Refresh-Token wird dadurch unbrauchbar
+  - API-E2E-Tests um Rotationsfall erweitern
+  - DoD: Replay-Fenster reduziert, Logout/Refresh bleibt stabil
+
+- [x] **Phase 4 - Optionales Hardening**
+  - Session-Policy klar dokumentieren (Idle + Absolute Timeout)
+  - Produktions-Runbook für Cookie/CORS/Secret-Rotation ergänzen
 
 ## Erledigt
 
+- Auth Session Continuity - Phase 1 (Silent Refresh Bootstrap) umgesetzt
+- Auth Session Continuity - Phase 2 (401-Retry + Single-Flight) umgesetzt
+- Auth Session Continuity - Phase 3 (Refresh-Token-Rotation + Replay-Schutz) umgesetzt
+- Auth Session Continuity - Phase 4 (Policy + Runbook + Produktions-Guardrails) umgesetzt
 - Strenge Typisierung als Regel gesetzt:
   - `strict: true`
   - `noImplicitAny: true`
@@ -204,20 +316,68 @@ Stand: 2026-03-17
 - `npm run lint` erfolgreich
 - `npm run test` erfolgreich
 - `npm run build` erfolgreich
-- `npx nx run api-e2e:e2e` erfolgreich (20 Tests)
+- `npx nx run api-e2e:e2e` erfolgreich (21 Tests)
 - Re-Check am 2026-03-17:
   - API Unit: 14 Suites / 35 Tests erfolgreich
   - Web (Vitest): 10 Files / 42 Tests erfolgreich
   - API-E2E: 4 Suites / 20 Tests erfolgreich
+- Re-Check am 2026-03-24:
+  - API Unit: 16 Suites / 37 Tests erfolgreich
+  - API-E2E: 4 Suites / 21 Tests erfolgreich
+
+## Review-Feedback 2026-03-30 (offene Maßnahmen)
+
+- P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist. (Erledigt 2026-03-30)
+- P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages). (Erledigt 2026-03-31)
+- P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET` und konsistente Auth-Cookie-Settings), damit Fresh-Clone-Start stabil funktioniert. (Erledigt 2026-03-30)
+- P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
+- P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle).
+- P2: Transparenzabschnitt zu AI-unterstützter Entwicklung ergänzen (welche Teile assistiert waren, welche Architekturentscheidungen manuell getroffen wurden).
+- P2: Scope-Kalibrierung im Frontend/Docs vornehmen (Komplexität reduzieren, wo sie keinen funktionalen Mehrwert für den Requirement-Scope bringt).
+- P2: Session-Strategie für Production explizit entscheiden (weiter `sessionStorage` als Demo-Tradeoff vs. Memory-Token + Refresh-Only Ansatz).
+- P2: Roadmap für Per-User-Data-Isolation definieren (Ownership/Scope je Benutzer statt globalem Workspace).
+- Hinweis: Refresh-Token-Rotation ist bereits umgesetzt (Phase 3 abgeschlossen) und gilt nicht mehr als offener Punkt.
+
+Historische Restpunkte (nachrangig, durch Backlog oben übersteuert):
 
 ## Offene technische Punkte (relevant)
 
+Verbindlicher Backlog (Stand 2026-03-30):
+
+- P0: Employee-CRUD im Frontend nachziehen (Create/Edit/Delete inkl. Tests), damit der Requirement-Scope auch in der UI vollständig erfüllt ist. (Erledigt 2026-03-30)
+- P0: UI-Sprache auf Englisch als Default umstellen oder i18n mit `en` als Default einführen (inkl. Error-Messages in UI und `errors.ts`). (Erledigt 2026-03-31)
+- P0: `docker-compose.yml` um fehlende Pflicht-Variablen ergänzen (`JWT_REFRESH_TOKEN_SECRET`, `AUTH_COOKIE_SECURE`, `AUTH_COOKIE_SAME_SITE`) und Fresh-Clone-Start verifizieren. (Erledigt 2026-03-30)
+- P1: `dueDate`-Clearing im Task-Update-Flow explizit absichern (Unterscheidung zwischen "nicht geändert" vs. "explizit löschen") und mit Tests abdecken. (Erledigt 2026-03-30)
+- P1: Seed-Workflow für reproduzierbare Demo-Daten ergänzen (`npm`/`nx` Script + dev-only Seed-Quelle).
+- P2: Transparenzabschnitt zu AI-unterstützter Entwicklung ergänzen (welche Teile assistiert waren, welche Architekturentscheidungen manuell getroffen wurden).
+- Hinweis: Refresh-Token-Rotation ist bereits umgesetzt (Phase 3 abgeschlossen) und gilt nicht mehr als offener Punkt.
+
 - Optional: Seed-Daten für schnellere lokale UI-Demos
 - Auth-Hardening in späteren Schritten:
-  - Rotation/Revocation-Konzept
+  - Optional: Multi-Device Session-Management/Revocation
 
-## Nächste Schritte
+## Nächste Schritte (historisch)
 
-1. Optional: E2E UI-Smoke-Tests
+1. P1: Seed-Workflow umsetzen und mit Tests absichern.
 2. Optional: Seed-Workflow für reproduzierbare Demo-Daten
-3. Optional: Auth-Hardening (Refresh/Rotation/Revocation)
+3. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.
+
+## Review-Backlog 2026-03-30 (autoritativ für Umsetzung)
+
+- P0: Employee-CRUD-UI (Create/Edit/Delete) inkl. Integrationstests im Dashboard umsetzen. (Erledigt 2026-03-30)
+- P0: UI auf Englisch als Default (oder i18n mit `en` als Default) umstellen, inklusive `errors.ts`. (Erledigt 2026-03-31)
+- P0: Docker-Compose-Startfix umsetzen (`JWT_REFRESH_TOKEN_SECRET` + konsistente Cookie-Env-Werte). (Erledigt 2026-03-30)
+- P1: `dueDate`-Clearing-Bug im Task-Update-Mapper fixen und mit gezielten Tests absichern. (Erledigt 2026-03-30)
+- P1: Seed-Script für reproduzierbare Demo-Daten ergänzen.
+- P2: Transparenz zu AI-Assistenz dokumentieren (kurzer Abschnitt in Doku).
+- P2: Scope-Kalibrierung/Produktions-Roadmap festhalten (Session-Strategie, Per-User-Isolation).
+- Hinweis: Refresh-Token-Rotation ist bereits umgesetzt und nicht mehr offen.
+
+Empfohlene Reihenfolge:
+1. A: Seed-Workflow.
+2. B: Doku-Polish (AI-Transparenz + Scope-Kalibrierung).
+
+## Nächste Schritte (verbindlich, Stand 2026-03-31)
+
+1. P1: Seed-Workflow umsetzen und mit Tests absichern.
+2. P2: Doku-Polish (AI-Transparenz + Scope-Kalibrierung) abschließen.

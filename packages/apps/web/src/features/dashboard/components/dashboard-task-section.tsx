@@ -5,6 +5,7 @@ import { Button } from '../../../components/ui/button';
 import { Card, CardContent } from '../../../components/ui/card';
 import { Spinner } from '../../../components/ui/spinner';
 import { Task } from '../../../shared/api/types';
+import { dashboardCopy } from '../dashboard-copy';
 import { DashboardViewMode } from '../dashboard-view-mode';
 import { TaskBoard, TaskList, TaskTimeline } from '../views';
 
@@ -48,7 +49,7 @@ export function DashboardTaskSection({
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-xl font-semibold">Aufgaben</h2>
+        <h2 className="font-display text-xl font-semibold">{dashboardCopy.tasks.sectionTitle}</h2>
         <div className="flex items-center gap-2">
           <Button
             type="button"
@@ -56,7 +57,7 @@ export function DashboardTaskSection({
             size="sm"
             onClick={() => onChangeViewMode('list')}
           >
-            Liste
+            {dashboardCopy.tasks.listView}
           </Button>
           <Button
             type="button"
@@ -64,7 +65,7 @@ export function DashboardTaskSection({
             size="sm"
             onClick={() => onChangeViewMode('kanban')}
           >
-            Kanban
+            {dashboardCopy.tasks.kanbanView}
           </Button>
           <Button
             type="button"
@@ -72,7 +73,7 @@ export function DashboardTaskSection({
             size="sm"
             onClick={() => onChangeViewMode('timeline')}
           >
-            Zeitachse
+            {dashboardCopy.tasks.timelineView}
           </Button>
           <Button
             type="button"
@@ -80,12 +81,12 @@ export function DashboardTaskSection({
             disabled={employeesCount === 0}
             onClick={onOpenCreateTask}
           >
-            Neue Aufgabe
+            {dashboardCopy.tasks.newTask}
           </Button>
           {isTasksFetching ? (
             <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
               <Spinner />
-              Aktualisierung...
+              {dashboardCopy.tasks.refreshing}
             </span>
           ) : null}
         </div>
@@ -96,7 +97,7 @@ export function DashboardTaskSection({
       {employeesCount === 0 ? (
         <Card>
           <CardContent className="flex min-h-40 items-center justify-center text-muted-foreground">
-            Keine Mitarbeitenden vorhanden. Bitte zuerst Mitarbeitende anlegen.
+            {dashboardCopy.tasks.noEmployees}
           </CardContent>
         </Card>
       ) : isTasksLoading ? (

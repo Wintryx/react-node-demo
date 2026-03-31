@@ -13,17 +13,21 @@ export const expectHttpError = async (
   request: Promise<unknown>,
   expectedStatus: number,
 ): Promise<AxiosError<ErrorResponseBody>> => {
-  try {
-    await request;
-    fail(`Expected request to fail with ${expectedStatus}.`);
-  } catch (error: unknown) {
-    if (!axios.isAxiosError<ErrorResponseBody>(error)) {
-      throw error;
-    }
+  const error = await request.then(
+    () => null,
+    (caughtError: unknown) => caughtError,
+  );
 
-    expect(error.response?.status).toBe(expectedStatus);
-    return error;
+  if (!error) {
+    throw new Error(`Expected request to fail with ${expectedStatus}.`);
   }
+
+  if (!axios.isAxiosError<ErrorResponseBody>(error)) {
+    throw error;
+  }
+
+  expect(error.response?.status).toBe(expectedStatus);
+  return error;
 };
 
 export const expectHttpErrorCode = (
