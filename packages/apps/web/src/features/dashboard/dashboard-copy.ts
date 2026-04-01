@@ -1,4 +1,4 @@
-import { getRuntimeLanguage } from '../../shared/i18n/runtime';
+import { AppLanguage, getRuntimeLanguage } from '../../shared/i18n/runtime';
 
 const dashboardCopyByLanguage = {
   en: {
@@ -195,45 +195,26 @@ const dashboardCopyByLanguage = {
   },
 } as const;
 
-type DashboardCopy = (typeof dashboardCopyByLanguage)['en'];
+export type DashboardCopy = (typeof dashboardCopyByLanguage)['en'];
 
-const getLocalizedDashboardCopy = (): DashboardCopy => <DashboardCopy>dashboardCopyByLanguage[getRuntimeLanguage()];
+export const getDashboardCopy = (
+  language: AppLanguage = getRuntimeLanguage(),
+): DashboardCopy => <DashboardCopy>dashboardCopyByLanguage[language];
 
-const resolveValue = (path: PropertyKey[]): unknown => {
-  let current: unknown = getLocalizedDashboardCopy();
-  for (const segment of path) {
-    if (!current || typeof current !== 'object') {
-      return undefined;
-    }
-
-    current = (current as Record<PropertyKey, unknown>)[segment];
-  }
-
-  return current;
+export const dashboardCopy: DashboardCopy = {
+  get common() {
+    return getDashboardCopy().common;
+  },
+  get header() {
+    return getDashboardCopy().header;
+  },
+  get tasks() {
+    return getDashboardCopy().tasks;
+  },
+  get subtasks() {
+    return getDashboardCopy().subtasks;
+  },
+  get employees() {
+    return getDashboardCopy().employees;
+  },
 };
-
-const createDynamicProxy = (path: PropertyKey[]): unknown =>
-  new Proxy(() => undefined, {
-    get: (_target, property) => {
-      const value = resolveValue([...path, property]);
-      if (typeof value === 'function') {
-        return value;
-      }
-
-      if (value && typeof value === 'object') {
-        return createDynamicProxy([...path, property]);
-      }
-
-      return value;
-    },
-    apply: (_target, _thisArg, argumentList) => {
-      const value = resolveValue(path);
-      if (typeof value !== 'function') {
-        return undefined;
-      }
-
-      return value(...argumentList);
-    },
-  });
-
-export const dashboardCopy = createDynamicProxy([]) as DashboardCopy;

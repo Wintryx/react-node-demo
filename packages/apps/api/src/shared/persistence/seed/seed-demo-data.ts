@@ -214,8 +214,6 @@ export const seedDemoData = async (
       authUserRepository.create({
         email: demoAuthUser.email,
         passwordHash,
-        refreshTokenHash: null,
-        refreshTokenExpiresAt: null,
       }),
     );
     result.authUsersCreated += 1;

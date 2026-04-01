@@ -37,11 +37,18 @@ export type Task = Omit<Schemas['TaskResponseDto'], 'description' | 'dueDate' | 
   subtasks: Subtask[];
 };
 
+export interface ApiValidationIssue {
+  field: string;
+  rule: string;
+  message: string;
+}
+
 export interface ApiErrorPayload {
   statusCode?: number;
   code?: string;
   message?: string | string[];
   params?: Record<string, unknown>;
+  validationIssues?: ApiValidationIssue[];
   path?: string;
   timestamp?: string;
 }

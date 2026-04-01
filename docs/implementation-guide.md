@@ -18,6 +18,12 @@ Execution model (small, verifiable slices, no overengineering):
 10. Package 10 (completed): Smoke E2E for central authenticated flow.
 11. Package 11 (completed): Optional i18n (EN default, DE switch).
 12. Package 12 (completed): Optional multi-device refresh-session management.
+13. Package 13 (completed): Auth refresh-storage cleanup (single source of truth in refresh-session table).
+14. Package 14 (completed): i18n/copy finalization (dashboard copy without proxy magic + localized API error mapping).
+15. Package 15 (completed): Error-i18n refactor slice 1 (key-based translation in web error normalization).
+16. Package 16 (completed): Structured validation-issues payload in backend error contract (slice 2).
+17. Package 17 (completed): Frontend validation-issue-first mapping with legacy fallback (slice 3).
+18. Package 18 (completed): Error-flow cleanup with minimal legacy fallback (slice 4).
 
 Package 1 delivered:
 
@@ -109,6 +115,61 @@ Package 12 delivered:
   - refresh rotation explicitly revokes the previous session before issuing a new cookie.
 - Extended API unit and API E2E coverage for multi-device session behavior.
 
+Package 13 delivered:
+
+- Removed legacy refresh-token storage from `auth_users` domain/entity/repository paths.
+- Kept `auth_refresh_sessions` as the only runtime source of truth for refresh-session lifecycle.
+- Added cleanup migration to drop obsolete refresh columns from `auth_users`.
+- Updated seed/test helpers to match final refresh-session architecture.
+- Verified with `npx nx lint api`, `npx nx test api`, and `npx nx run api-e2e:e2e`.
+
+Package 14 delivered:
+
+- Replaced dynamic proxy approach in `dashboard-copy.ts` with explicit getter-based API to keep runtime behavior predictable.
+- Extended `normalizeApiError` message mapping to `en`/`de` using runtime language state.
+- Added German translation coverage in `errors.spec.ts`.
+- Verified with `npx nx lint web` and `npx nx test web`.
+
+Package 15 delivered:
+
+- Refactored web error normalization to resolve messages by i18n keys instead of embedding all localized strings in `errors.ts`.
+- Added centralized error dictionary with placeholder interpolation in:
+  - `packages/apps/web/src/shared/i18n/error-messages.ts`
+- Kept validation regex mapping as an intentional transition fallback, but switched those replacements to i18n-key-driven messages.
+- Extended tests for interpolation and localized non-axios fallback behavior.
+- Verified with `npx nx lint web` and `npx nx test web`.
+
+Package 16 delivered:
+
+- Extended backend error contract with `validationIssues` (`field`, `rule`, `message`) for machine-readable validation handling.
+- Kept `params.errors` in place for backward compatibility with existing clients.
+- Added ValidationPipe `exceptionFactory` mapping from `ValidationError[]` to the structured payload.
+- Added focused unit coverage for nested validation path mapping and E2E coverage for validation issue assertions.
+- Updated shared contracts (`ApiValidationIssue`) so frontend layers can consume structured issues in a typed way.
+- Verified with `npx nx lint api`, `npx nx test api`, `npx nx lint api-e2e`, `npx nx lint shared-contracts`, and `npx nx run api-e2e:e2e`.
+
+Package 17 delivered:
+
+- Updated web `normalizeApiError` flow to prioritize structured `validationIssues` for `VALIDATION_ERROR`.
+- Added rule-based i18n mapping for common validation rules (`isEmail`, `isString`, `isInt`, `min`, `minLength`, `maxLength`, `isDateString`, `isNotEmpty`, `whitelistValidation`, `isEnum`).
+- Kept backward-compatible fallback paths (`params.errors` and legacy regex translation) for mixed/older payloads.
+- Expanded web tests to verify:
+  - structured issues take precedence over `params.errors`,
+  - structured validation rendering in German.
+- Verified with `npx nx lint web` and `npx nx test web`.
+
+Package 18 delivered:
+
+- Removed regex-based legacy validation translation from web error normalization.
+- Final fallback policy is now intentionally minimal and explicit:
+  - primary: structured `validationIssues` with rule-based i18n mapping,
+  - secondary: raw legacy payload content (`params.errors` / `message`) for compatibility.
+- Reduced i18n error dictionary to currently used keys (removed obsolete regex-era translation keys).
+- Updated tests to assert the final behavior:
+  - structured issues remain the preferred path,
+  - legacy fallback is handled as raw text instead of inferred translation.
+- Verified with `npx nx lint web` and `npx nx test web`.
+
 ## 1. Goal
 
 This guide defines how to improve authentication/session behavior in small, safe increments:
@@ -130,7 +191,7 @@ Primary references:
 
 - Access token is stored in `sessionStorage` on web.
 - Refresh endpoint exists: `POST /auth/refresh`.
-- Refresh cookie is HttpOnly and persisted server-side as hash.
+- Refresh cookie is HttpOnly and persisted server-side in `auth_refresh_sessions` (hashed, per session/device).
 - Frontend uses silent refresh bootstrap and controlled `401` retry.
 - Result: access-token expiry is handled transparently in normal usage; refresh-cookie validity remains the backend session anchor.
 
@@ -313,7 +374,7 @@ Changes:
 ## 5. Non-goals (to avoid overengineering now)
 
 - No full auth subsystem rewrite.
-- No multi-device session management redesign in this iteration.
+- No further auth-model redesign beyond current refresh-session table approach.
 - No immediate move to memory-only access token unless explicitly prioritized.
 - No MFA/email verification scope creep for this phase.
 

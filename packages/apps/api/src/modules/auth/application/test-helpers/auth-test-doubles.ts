@@ -26,36 +26,10 @@ export class InMemoryAuthRepository implements AuthRepository {
       id: this.nextId++,
       email: input.email,
       passwordHash: input.passwordHash,
-      refreshTokenHash: null,
-      refreshTokenExpiresAt: null,
       createdAt: new Date(),
     };
     this.users.push(user);
     return user;
-  }
-
-  async updateRefreshToken(
-    userId: number,
-    refreshTokenHash: string,
-    refreshTokenExpiresAt: Date,
-  ): Promise<void> {
-    const user = this.users.find((entry) => entry.id === userId);
-    if (!user) {
-      return;
-    }
-
-    user.refreshTokenHash = refreshTokenHash;
-    user.refreshTokenExpiresAt = refreshTokenExpiresAt;
-  }
-
-  async clearRefreshToken(userId: number): Promise<void> {
-    const user = this.users.find((entry) => entry.id === userId);
-    if (!user) {
-      return;
-    }
-
-    user.refreshTokenHash = null;
-    user.refreshTokenExpiresAt = null;
   }
 
   async createRefreshSession(

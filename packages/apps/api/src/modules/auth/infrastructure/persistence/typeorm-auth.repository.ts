@@ -42,30 +42,6 @@ export class TypeOrmAuthRepository implements AuthRepository {
     return this.toDomainModel(savedEntity);
   }
 
-  async updateRefreshToken(
-    userId: number,
-    refreshTokenHash: string,
-    refreshTokenExpiresAt: Date,
-  ): Promise<void> {
-    await this.userRepository.update(
-      { id: userId },
-      {
-        refreshTokenHash,
-        refreshTokenExpiresAt,
-      },
-    );
-  }
-
-  async clearRefreshToken(userId: number): Promise<void> {
-    await this.userRepository.update(
-      { id: userId },
-      {
-        refreshTokenHash: null,
-        refreshTokenExpiresAt: null,
-      },
-    );
-  }
-
   async createRefreshSession(
     userId: number,
     sessionId: string,
@@ -127,8 +103,6 @@ export class TypeOrmAuthRepository implements AuthRepository {
       id: entity.id,
       email: entity.email,
       passwordHash: entity.passwordHash,
-      refreshTokenHash: entity.refreshTokenHash,
-      refreshTokenExpiresAt: entity.refreshTokenExpiresAt,
       createdAt: entity.createdAt,
     };
   }

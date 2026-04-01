@@ -40,8 +40,6 @@ export class AuthRefreshSessionService {
     const refreshTokenHash = await this.passwordHasher.hash(
       this.toRefreshTokenHashInput(tokenResult.refreshToken),
     );
-
-    await this.authRepository.updateRefreshToken(user.id, refreshTokenHash, tokenResult.expiresAt);
     await this.authRepository.createRefreshSession(
       user.id,
       tokenResult.sessionId,
@@ -100,7 +98,6 @@ export class AuthRefreshSessionService {
 
   async clearForUser(userId: number): Promise<void> {
     await this.authRepository.revokeAllRefreshSessions(userId);
-    await this.authRepository.clearRefreshToken(userId);
   }
 
   private toRefreshTokenHashInput(refreshToken: string): string {

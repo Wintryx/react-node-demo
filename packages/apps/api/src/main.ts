@@ -1,11 +1,17 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationError } from 'class-validator';
 import helmet from 'helmet';
 
 import { AppModule } from './app/app.module';
 import { shouldEnableSwagger } from './shared/docs/swagger-environment';
-import { ApiExceptionFilter } from './shared/errors';
+import {
+  ApiErrorCode,
+  ApiExceptionFilter,
+  createApiErrorPayload,
+  toValidationErrorDetails,
+} from './shared/errors';
 import { assertAuthRuntimeSecurity } from './shared/security/auth-runtime-security';
 
 const parseCorsOrigins = (rawOrigins: string | undefined): string[] => {
@@ -43,6 +49,19 @@ async function bootstrap() {
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
+      exceptionFactory: (validationErrors: ValidationError[]) => {
+        const { messages, issues } = toValidationErrorDetails(validationErrors);
+        return new BadRequestException(
+          createApiErrorPayload(
+            ApiErrorCode.VALIDATION_ERROR,
+            'Validation failed.',
+            {
+              errors: messages,
+            },
+            issues,
+          ),
+        );
+      },
     }),
   );
   app.useGlobalFilters(new ApiExceptionFilter());
