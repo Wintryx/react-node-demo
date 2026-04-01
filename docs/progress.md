@@ -1,6 +1,6 @@
 # Projektfortschritt
 
-Stand: 2026-03-31
+Stand: 2026-04-01
 
 ## Refactoring-Pakete (ab 2026-03-30)
 
@@ -218,6 +218,47 @@ Stand: 2026-03-31
   - Verifiziert mit:
     - `npx nx lint web`
     - `npx nx test web`
+- [x] Paket 19 - Pragmatic Code-Reduction Cleanup (4 Häppchen)
+  - Häppchen 1: ungenutzte Nx-Starter-Datei entfernt
+    - `packages/apps/web/src/app/nx-welcome.tsx`
+  - Häppchen 2: `errors.ts` intern entdoppelt
+    - parametrisierte Helper (`byStringParam`, `byNumberParam`, Field-Rule-Helper)
+    - Verhalten unverändert, aber weniger Boilerplate
+  - Häppchen 3: Dashboard-Integrationstest entdoppelt
+    - wiederkehrende UI-Aktionen in kleine Test-Helper extrahiert (Modal öffnen, Input setzen, Confirm)
+  - Häppchen 4: Swagger-Response-Duplikate reduziert
+    - neue Shared-Helper-Datei:
+      - `packages/apps/api/src/shared/docs/swagger-responses.ts`
+    - wiederholte Unauthorized/Validation-Decorator in Auth/Employees/Tasks-Controller auf Shared-Helper umgestellt
+  - Verifiziert mit:
+    - `npx nx lint web`
+    - `npx nx test web`
+    - `npx nx lint api`
+    - `npx nx test api`
+
+- [x] Paket 20 - Doku-Konsistenz + Dashboard-Test-Split + Employee-Panel-Refactor
+  - Häppchen 1: Auth-Dokumentation auf finalen Ist-Zustand konsolidiert
+    - `docs/security/session-policy.md` auf Session-Tabelle (`auth_refresh_sessions`) und `logout-all` aktualisiert
+    - `docs/descriptions/authentication-deep-dive.md` an Multi-Device-Session-Stand angepasst
+    - `packages/apps/api/README.md` um `POST /auth/logout-all` + finale Refresh-Session-Regeln erweitert
+    - `packages/apps/api-e2e/README.md` auf aktuelle Auth-/Smoke-Coverage aktualisiert
+  - Häppchen 2: Doku-Rollen entdoppelt (ohne Overengineering)
+    - `docs/implementation-guide.md` von doppelter Paket-Historie befreit, Fokus auf Umsetzungslogik
+    - `README.md` um klare Doku-Zuständigkeit (`progress.md` als Changelog-Quelle) geschärft
+    - `docs/progress.md` Auth-Roadmap als historisch markiert und auf verbindliche Quellen verwiesen
+  - Häppchen 3: Große Dashboard-Integrationstestdatei in kleinere Suites gesplittet
+    - gelöscht: `dashboard-crud.integration.spec.tsx`
+    - neu: `dashboard-employee-crud.integration.spec.tsx`
+    - neu: `dashboard-task-crud.integration.spec.tsx`
+    - neu: `dashboard-timeline.integration.spec.tsx`
+    - gemeinsamer Setup-/Mock-Helper: `dashboard-integration-test-utils.tsx`
+  - Häppchen 4: Employee-Management-Panel strukturell entkoppelt
+    - neuer Hook: `use-employee-management-form.ts`
+    - `employee-management-panel.tsx` auf schlankere UI-Verantwortung reduziert
+    - Form-State-/Validierungslogik aus dem Component herausgezogen
+  - Verifiziert mit:
+    - `npx nx lint web`
+    - `npx nx test web`
 
 ## Entscheidungen
 
@@ -244,9 +285,17 @@ Stand: 2026-03-31
   - Protected Route: `/app`
   - Umgesetzter Ausbau: Session-Continuity in kleinen Schritten (Silent Refresh + kontrollierter 401-Retry + Rotation + Hardening-Doku)
 
-## Auth-Roadmap (Update 2026-03-24)
+## Auth-Roadmap (historisch, Stand 2026-03-24)
 
-Status:
+Konsolidierungs-Hinweis:
+
+- Der finale Auth-Ist-Stand wird nicht mehr in diesem historischen Abschnitt gepflegt.
+- Verbindliche Quellen:
+  - `docs/descriptions/authentication-deep-dive.md`
+  - `docs/security/session-policy.md`
+  - `docs/security/auth-production-runbook.md`
+
+Historischer Status:
 
 - Phase 1 abgeschlossen (2026-03-24)
   - `authApi.refresh()` umgesetzt

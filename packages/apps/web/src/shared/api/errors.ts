@@ -10,7 +10,7 @@ type ValidationIssueRuleTranslator = (
   language: AppLanguage,
 ) => string;
 
-const t = (
+const getLocalizedErrorMessage = (
   language: AppLanguage,
   key: ErrorMessageKey,
   params?: Record<string, string | number>,
@@ -64,42 +64,52 @@ const parseNumberFromMessage = (message: string, pattern: RegExp): number | null
   return Number.isFinite(value) ? value : null;
 };
 
+const byStringParam = (
+  paramName: string,
+  withParamKey: ErrorMessageKey,
+  fallbackKey: ErrorMessageKey,
+): ApiErrorTranslator => (payload, language) => {
+  const value = toStringParam(payload, paramName);
+  if (value) {
+    return getLocalizedErrorMessage(language, withParamKey, { [paramName]: value });
+  }
+
+  return getLocalizedErrorMessage(language, fallbackKey);
+};
+
+const byNumberParam = (
+  paramName: string,
+  withParamKey: ErrorMessageKey,
+  fallbackKey: ErrorMessageKey,
+): ApiErrorTranslator => (payload, language) => {
+  const value = toNumberParam(payload, paramName);
+  if (value !== null) {
+    return getLocalizedErrorMessage(language, withParamKey, { [paramName]: value });
+  }
+
+  return getLocalizedErrorMessage(language, fallbackKey);
+};
+
+const byFieldRule = (key: ErrorMessageKey): ValidationIssueRuleTranslator => (issue, language) =>
+  getLocalizedErrorMessage(language, key, {
+    field: issue.field,
+  });
+
 const structuredValidationIssueTranslators: Record<string, ValidationIssueRuleTranslator> = {
-  isEmail: (issue, language) =>
-    t(language, 'validationIssueEmail', {
-      field: issue.field,
-    }),
-  isString: (issue, language) =>
-    t(language, 'validationIssueString', {
-      field: issue.field,
-    }),
-  isInt: (issue, language) =>
-    t(language, 'validationIssueInteger', {
-      field: issue.field,
-    }),
-  isNotEmpty: (issue, language) =>
-    t(language, 'validationIssueNotEmpty', {
-      field: issue.field,
-    }),
-  isDateString: (issue, language) =>
-    t(language, 'validationIssueIsoDate', {
-      field: issue.field,
-    }),
-  whitelistValidation: (issue, language) =>
-    t(language, 'validationIssueWhitelist', {
-      field: issue.field,
-    }),
-  isEnum: (issue, language) =>
-    t(language, 'validationIssueEnum', {
-      field: issue.field,
-    }),
+  isEmail: byFieldRule('validationIssueEmail'),
+  isString: byFieldRule('validationIssueString'),
+  isInt: byFieldRule('validationIssueInteger'),
+  isNotEmpty: byFieldRule('validationIssueNotEmpty'),
+  isDateString: byFieldRule('validationIssueIsoDate'),
+  whitelistValidation: byFieldRule('validationIssueWhitelist'),
+  isEnum: byFieldRule('validationIssueEnum'),
   min: (issue, language) => {
     const min = parseNumberFromMessage(issue.message, /must not be less than (\d+)/);
     if (min === null) {
       return issue.message;
     }
 
-    return t(language, 'validationIssueMin', {
+    return getLocalizedErrorMessage(language, 'validationIssueMin', {
       field: issue.field,
       min,
     });
@@ -113,7 +123,7 @@ const structuredValidationIssueTranslators: Record<string, ValidationIssueRuleTr
       return issue.message;
     }
 
-    return t(language, 'validationIssueMinLength', {
+    return getLocalizedErrorMessage(language, 'validationIssueMinLength', {
       field: issue.field,
       minLength,
     });
@@ -127,23 +137,11 @@ const structuredValidationIssueTranslators: Record<string, ValidationIssueRuleTr
       return issue.message;
     }
 
-    return t(language, 'validationIssueMaxLength', {
+    return getLocalizedErrorMessage(language, 'validationIssueMaxLength', {
       field: issue.field,
       maxLength,
     });
   },
-};
-
-const translateStructuredValidationIssue = (
-  issue: ApiValidationIssue,
-  language: AppLanguage,
-): string => {
-  const translator = structuredValidationIssueTranslators[issue.rule];
-  if (!translator) {
-    return issue.message;
-  }
-
-  return translator(issue, language);
 };
 
 const translateStructuredValidationIssues = (
@@ -151,102 +149,91 @@ const translateStructuredValidationIssues = (
   language: AppLanguage,
 ): string =>
   issues
-    .map((issue) => translateStructuredValidationIssue(issue, language))
+    .map((issue) => {
+      const translator = structuredValidationIssueTranslators[issue.rule];
+      return translator ? translator(issue, language) : issue.message;
+    })
     .join(' ');
 
+const translateValidationError = (payload: ApiErrorPayload, language: AppLanguage): string => {
+  const issues = toValidationIssues(payload);
+  if (issues.length > 0) {
+    return translateStructuredValidationIssues(issues, language);
+  }
+
+  const errors = toStringArrayParam(payload, 'errors');
+  if (errors.length > 0) {
+    return errors.join(' ');
+  }
+
+  return getLocalizedErrorMessage(language, 'validationFailed');
+};
+
 const errorCodeTranslators: Record<string, ApiErrorTranslator> = {
-  AUTH_INVALID_CREDENTIALS: (_, language) => t(language, 'authInvalidCredentials'),
-  AUTH_EMAIL_ALREADY_EXISTS: (payload, language) => {
-    const email = toStringParam(payload, 'email');
-    if (email) {
-      return t(language, 'authEmailAlreadyExistsWithEmail', { email });
-    }
-
-    return t(language, 'authEmailAlreadyExists');
-  },
-  AUTH_REFRESH_TOKEN_INVALID: (_, language) => t(language, 'authRefreshTokenInvalid'),
-  EMPLOYEE_EMAIL_ALREADY_EXISTS: (payload, language) => {
-    const email = toStringParam(payload, 'email');
-    if (email) {
-      return t(language, 'employeeEmailAlreadyExistsWithEmail', { email });
-    }
-
-    return t(language, 'employeeEmailAlreadyExists');
-  },
-  EMPLOYEE_NOT_FOUND: (payload, language) => {
-    const employeeId = toNumberParam(payload, 'employeeId');
-    if (employeeId !== null) {
-      return t(language, 'employeeNotFoundWithId', { employeeId });
-    }
-
-    return t(language, 'employeeNotFound');
-  },
-  EMPLOYEE_HAS_ASSIGNED_TASKS: (payload, language) => {
-    const employeeId = toNumberParam(payload, 'employeeId');
-    if (employeeId !== null) {
-      return t(language, 'employeeHasAssignedTasksWithId', { employeeId });
-    }
-
-    return t(language, 'employeeHasAssignedTasks');
-  },
-  TASK_NOT_FOUND: (payload, language) => {
-    const taskId = toNumberParam(payload, 'taskId');
-    if (taskId !== null) {
-      return t(language, 'taskNotFoundWithId', { taskId });
-    }
-
-    return t(language, 'taskNotFound');
-  },
-  TASK_EMPLOYEE_NOT_FOUND: (payload, language) => {
-    const employeeId = toNumberParam(payload, 'employeeId');
-    if (employeeId !== null) {
-      return t(language, 'taskEmployeeNotFoundWithId', { employeeId });
-    }
-
-    return t(language, 'taskEmployeeNotFound');
-  },
-  TASK_SUBTASK_ASSIGNEE_NOT_FOUND: (_, language) => t(language, 'taskSubtaskAssigneeNotFound'),
+  AUTH_INVALID_CREDENTIALS: (_, language) =>
+    getLocalizedErrorMessage(language, 'authInvalidCredentials'),
+  AUTH_EMAIL_ALREADY_EXISTS: byStringParam(
+    'email',
+    'authEmailAlreadyExistsWithEmail',
+    'authEmailAlreadyExists',
+  ),
+  AUTH_REFRESH_TOKEN_INVALID: (_, language) =>
+    getLocalizedErrorMessage(language, 'authRefreshTokenInvalid'),
+  EMPLOYEE_EMAIL_ALREADY_EXISTS: byStringParam(
+    'email',
+    'employeeEmailAlreadyExistsWithEmail',
+    'employeeEmailAlreadyExists',
+  ),
+  EMPLOYEE_NOT_FOUND: byNumberParam('employeeId', 'employeeNotFoundWithId', 'employeeNotFound'),
+  EMPLOYEE_HAS_ASSIGNED_TASKS: byNumberParam(
+    'employeeId',
+    'employeeHasAssignedTasksWithId',
+    'employeeHasAssignedTasks',
+  ),
+  TASK_NOT_FOUND: byNumberParam('taskId', 'taskNotFoundWithId', 'taskNotFound'),
+  TASK_EMPLOYEE_NOT_FOUND: byNumberParam(
+    'employeeId',
+    'taskEmployeeNotFoundWithId',
+    'taskEmployeeNotFound',
+  ),
+  TASK_SUBTASK_ASSIGNEE_NOT_FOUND: (_, language) =>
+    getLocalizedErrorMessage(language, 'taskSubtaskAssigneeNotFound'),
   TASK_SUBTASK_NOT_BELONG_TO_TASK: (payload, language) => {
     const subtaskId = toNumberParam(payload, 'subtaskId');
     const taskId = toNumberParam(payload, 'taskId');
     if (subtaskId !== null && taskId !== null) {
-      return t(language, 'taskSubtaskNotBelongToTaskWithIds', { subtaskId, taskId });
+      return getLocalizedErrorMessage(language, 'taskSubtaskNotBelongToTaskWithIds', {
+        subtaskId,
+        taskId,
+      });
     }
 
-    return t(language, 'taskSubtaskNotBelongToTask');
+    return getLocalizedErrorMessage(language, 'taskSubtaskNotBelongToTask');
   },
-  TASK_DATE_RANGE_INVALID: (_, language) => t(language, 'taskDateRangeInvalid'),
+  TASK_DATE_RANGE_INVALID: (_, language) =>
+    getLocalizedErrorMessage(language, 'taskDateRangeInvalid'),
   TASK_SUBTASK_DATE_RANGE_INVALID: (payload, language) => {
     const index = toNumberParam(payload, 'subtaskIndex');
     if (index !== null) {
-      return t(language, 'taskSubtaskDateRangeInvalidWithIndex', {
+      return getLocalizedErrorMessage(language, 'taskSubtaskDateRangeInvalidWithIndex', {
         subtaskPosition: index + 1,
       });
     }
 
-    return t(language, 'taskSubtaskDateRangeInvalid');
+    return getLocalizedErrorMessage(language, 'taskSubtaskDateRangeInvalid');
   },
-  TASK_EMPLOYEE_ID_QUERY_INVALID: (_, language) => t(language, 'taskEmployeeIdQueryInvalid'),
-  VALIDATION_ERROR: (payload, language) => {
-    const issues = toValidationIssues(payload);
-    if (issues.length > 0) {
-      return translateStructuredValidationIssues(issues, language);
-    }
-
-    const errors = toStringArrayParam(payload, 'errors');
-    if (errors.length > 0) {
-      return errors.join(' ');
-    }
-
-    return t(language, 'validationFailed');
-  },
-  UNAUTHORIZED: (_, language) => t(language, 'unauthorized'),
-  FORBIDDEN: (_, language) => t(language, 'forbidden'),
-  NOT_FOUND: (_, language) => t(language, 'notFound'),
-  CONFLICT: (_, language) => t(language, 'conflict'),
-  BAD_REQUEST: (_, language) => t(language, 'badRequest'),
-  TOO_MANY_REQUESTS: (_, language) => t(language, 'tooManyRequests'),
-  INTERNAL_SERVER_ERROR: (_, language) => t(language, 'internalServerError'),
+  TASK_EMPLOYEE_ID_QUERY_INVALID: (_, language) =>
+    getLocalizedErrorMessage(language, 'taskEmployeeIdQueryInvalid'),
+  VALIDATION_ERROR: translateValidationError,
+  UNAUTHORIZED: (_, language) => getLocalizedErrorMessage(language, 'unauthorized'),
+  FORBIDDEN: (_, language) => getLocalizedErrorMessage(language, 'forbidden'),
+  NOT_FOUND: (_, language) => getLocalizedErrorMessage(language, 'notFound'),
+  CONFLICT: (_, language) => getLocalizedErrorMessage(language, 'conflict'),
+  BAD_REQUEST: (_, language) => getLocalizedErrorMessage(language, 'badRequest'),
+  TOO_MANY_REQUESTS: (_, language) =>
+    getLocalizedErrorMessage(language, 'tooManyRequests'),
+  INTERNAL_SERVER_ERROR: (_, language) =>
+    getLocalizedErrorMessage(language, 'internalServerError'),
 };
 
 const extractFallbackMessage = (
@@ -285,11 +272,11 @@ export const normalizeApiError = (error: unknown): Error => {
   const language = getRuntimeLanguage();
 
   if (!axios.isAxiosError<ApiErrorPayload>(error)) {
-    return new Error(t(language, 'unexpectedError'));
+    return new Error(getLocalizedErrorMessage(language, 'unexpectedError'));
   }
 
   if (!error.response) {
-    return new Error(t(language, 'networkCorsError'));
+    return new Error(getLocalizedErrorMessage(language, 'networkCorsError'));
   }
 
   const payload = error.response.data;
@@ -306,5 +293,5 @@ export const normalizeApiError = (error: unknown): Error => {
     return new Error(fallbackMessage);
   }
 
-  return new Error(t(language, 'requestFailed'));
+  return new Error(getLocalizedErrorMessage(language, 'requestFailed'));
 };

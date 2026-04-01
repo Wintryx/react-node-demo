@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import {
   ApiBody,
-  ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNoContentResponse,
@@ -24,6 +23,7 @@ import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { Request, Response, CookieOptions } from 'express';
 
 import { getCookieValue } from './cookie-utils';
+import { ApiValidationBodyBadRequestResponse } from '../../../shared/docs/swagger-responses';
 import { AuthRefreshSessionService } from '../application/auth-refresh-session.service';
 import { AuthResponse } from '../application/auth-response.mapper';
 import { LoginUseCase } from '../application/login.use-case';
@@ -75,7 +75,7 @@ export class AuthController {
     description: 'Registers a user and returns a JWT access token.',
     type: AuthResponseDto,
   })
-  @ApiBadRequestResponse({ description: 'Validation failed for the request body.' })
+  @ApiValidationBodyBadRequestResponse()
   @ApiConflictResponse({ description: 'A user with the given email already exists.' })
   @ApiTooManyRequestsResponse({ description: 'Too many register attempts.' })
   @Public()
@@ -117,7 +117,7 @@ export class AuthController {
     description: 'Authenticates user credentials and returns a JWT access token.',
     type: AuthResponseDto,
   })
-  @ApiBadRequestResponse({ description: 'Validation failed for the request body.' })
+  @ApiValidationBodyBadRequestResponse()
   @ApiUnauthorizedResponse({ description: 'Invalid email or password.' })
   @ApiTooManyRequestsResponse({ description: 'Too many login attempts.' })
   @Public()

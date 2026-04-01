@@ -1,6 +1,6 @@
 # Authentication Deep Dive (Final State)
 
-Date: 2026-03-24  
+Date: 2026-04-01  
 Audience: Interview/presentation support for architecture, security, and UX continuity.
 
 ## 1. Final auth model at a glance
@@ -104,7 +104,7 @@ Relevant files:
 
 - Password hashing: bcrypt (12 rounds).
 - Access/refresh JWT secrets are mandatory and length-validated.
-- Refresh token stored server-side as hash with expiry.
+- Refresh token stored server-side as hashed session records (`auth_refresh_sessions`) with expiry.
 - Refresh cookie is HttpOnly and scoped to `/auth`.
 - Global JWT guard with explicit `@Public()` endpoints.
 - Auth endpoint throttling.
@@ -116,12 +116,11 @@ Relevant files:
 Current accepted tradeoffs:
 
 - Access token in `sessionStorage` is a demo pragmatism.
-- No multi-device session model/revocation list yet.
 - No MFA/email-verification flow in scope.
 
 Potential future steps:
 
-- Device-aware session inventory + targeted revocation.
+- Session inventory endpoint for user-facing "active devices" visibility.
 - Memory-only access-token strategy with refresh-cookie-first model.
 - CSRF token strategy for cookie-auth sensitive operations.
 - MFA and anomaly detection for higher assurance deployments.

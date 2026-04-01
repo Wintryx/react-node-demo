@@ -19,6 +19,7 @@ It provides the REST API and contains:
   - `POST /auth/login`
   - `POST /auth/refresh`
   - `POST /auth/logout`
+  - `POST /auth/logout-all`
 - Protected (JWT):
   - `GET /employees`
   - `POST /employees`
@@ -43,8 +44,10 @@ It provides the REST API and contains:
   - register is public
   - password is hashed with bcrypt
   - register/login return JWT access token and set HttpOnly refresh token cookie
-  - refresh endpoint returns new access token from refresh cookie
-  - logout endpoint clears/invalidate refresh session
+  - refresh endpoint returns new access token from refresh cookie and rotates refresh session
+  - refresh sessions are persisted server-side in `auth_refresh_sessions` (hashed, per session/device)
+  - logout endpoint clears/invalidates current refresh session
+  - logout-all endpoint clears cookie and revokes all user refresh sessions
 
 ## Demo Authorization Scope
 
