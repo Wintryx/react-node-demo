@@ -29,6 +29,9 @@ export class ApiExceptionFilter implements ExceptionFilter {
       code: errorPayload.code,
       message: errorPayload.message,
       ...(errorPayload.params ? { params: errorPayload.params } : {}),
+      ...(errorPayload.validationIssues
+        ? { validationIssues: errorPayload.validationIssues }
+        : {}),
       path: request.url,
       timestamp: new Date().toISOString(),
     };

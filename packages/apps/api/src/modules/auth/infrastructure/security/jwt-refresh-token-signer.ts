@@ -17,10 +17,11 @@ export class JwtRefreshTokenSigner implements RefreshTokenSigner {
     const secret = getJwtRefreshTokenSecret(this.configService);
     const expiresIn = this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRES_IN') ?? '7d';
     const expiresInSeconds = this.parseExpiresInToSeconds(expiresIn);
+    const sessionId = randomUUID();
     const refreshToken = await this.jwtService.signAsync(payload, {
       secret,
       expiresIn: expiresInSeconds,
-      jwtid: randomUUID(),
+      jwtid: sessionId,
     });
     const expiresAt = new Date(Date.now() + expiresInSeconds * 1000);
 
@@ -28,6 +29,7 @@ export class JwtRefreshTokenSigner implements RefreshTokenSigner {
       refreshToken,
       expiresIn,
       expiresAt,
+      sessionId,
     };
   }
 

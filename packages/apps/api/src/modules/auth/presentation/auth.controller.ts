@@ -33,6 +33,12 @@ import { RegisterUseCase } from '../application/register.use-case';
 import { Public } from './decorators/public.decorator';
 import { AuthResponseDto, LoginDto, RegisterDto } from './dto';
 
+const isThrottlingDisabled = process.env.DISABLE_THROTTLING === 'true';
+const registerThrottleLimit = isThrottlingDisabled ? 10_000 : 5;
+const loginThrottleLimit = isThrottlingDisabled ? 10_000 : 10;
+const refreshThrottleLimit = isThrottlingDisabled ? 10_000 : 30;
+const logoutThrottleLimit = isThrottlingDisabled ? 10_000 : 30;
+
 @ApiTags('auth')
 @Controller('auth')
 @UseGuards(ThrottlerGuard)
@@ -76,7 +82,7 @@ export class AuthController {
   @Post('register')
   @Throttle({
     default: {
-      limit: 5,
+      limit: registerThrottleLimit,
       ttl: 60_000,
     },
   })
@@ -119,7 +125,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Throttle({
     default: {
-      limit: 10,
+      limit: loginThrottleLimit,
       ttl: 60_000,
     },
   })
@@ -148,7 +154,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Throttle({
     default: {
-      limit: 30,
+      limit: refreshThrottleLimit,
       ttl: 60_000,
     },
   })
@@ -173,7 +179,7 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Throttle({
     default: {
-      limit: 30,
+      limit: logoutThrottleLimit,
       ttl: 60_000,
     },
   })
@@ -182,6 +188,32 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<void> {
     await this.logoutUseCase.execute(this.readRefreshToken(request));
+    response.clearCookie(
+      AuthController.REFRESH_TOKEN_COOKIE_NAME,
+      this.createRefreshCookieOptions(),
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Logout from all devices',
+    description: 'Revokes all refresh sessions for the authenticated user and clears refresh cookie.',
+  })
+  @ApiNoContentResponse({ description: 'All refresh sessions were revoked and refresh cookie cleared.' })
+  @ApiTooManyRequestsResponse({ description: 'Too many logout attempts.' })
+  @Public()
+  @Post('logout-all')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({
+    default: {
+      limit: logoutThrottleLimit,
+      ttl: 60_000,
+    },
+  })
+  async logoutAll(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<void> {
+    await this.logoutUseCase.executeAll(this.readRefreshToken(request));
     response.clearCookie(
       AuthController.REFRESH_TOKEN_COOKIE_NAME,
       this.createRefreshCookieOptions(),

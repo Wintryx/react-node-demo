@@ -99,6 +99,125 @@ Stand: 2026-03-31
   - Verifiziert mit:
     - `npx nx test web`
     - `npx nx lint web`
+- [x] Paket 10 - Smoke-E2E für zentrale Flows
+  - neue Smoke-Suite ergänzt: `packages/apps/api-e2e/src/api/smoke.spec.ts`
+  - deckt zentralen Happy-Path ab:
+    - Auth (registrierter Kontext)
+    - Employee Create
+    - Task Create/List/Update/Delete
+    - Employee Delete (Cleanup)
+  - E2E-Stabilität verbessert:
+    - test-spezifischer Throttling-Bypass via `DISABLE_THROTTLING=true` in `api-e2e`-Runtime
+    - Produktionsverhalten unverändert (Bypass nur explizit im E2E-Setup)
+  - Verifiziert mit:
+    - `npx nx run api-e2e:e2e`
+- [x] Paket 11 - Optionales i18n (EN-Default, DE optional)
+  - schlanke i18n-Basis ergänzt:
+    - `I18nProvider` + Runtime-Sprache (`en`/`de`)
+    - Persistenz der Sprachwahl in `localStorage`
+  - Language-Toggle ergänzt:
+    - Auth-Shell (`/login`, `/register`)
+    - Dashboard-Header (`/app`)
+  - Auth-Texte lokalisierbar gemacht:
+    - neue Copy-Datei `features/auth/auth-copy.ts`
+    - Password-Policy-Hinweis sprachabhängig
+  - Dashboard-Copy auf zweisprachiges Dictionary umgestellt (`en`/`de`) bei stabiler `dashboardCopy`-API
+  - Verifiziert mit:
+    - `npx nx lint web`
+    - `npx nx test web`
+- [x] Paket 12 - Optionales Multi-Device-Session-Management
+  - Backend auf session-basiertes Refresh-Management erweitert:
+    - neue Entity/Tabelle `auth_refresh_sessions`
+    - Migration ergänzt: `20260331130000-auth-refresh-sessions.migration.ts`
+  - Auth-Flow angepasst:
+    - parallele Geräte-Sessions möglich
+    - `logout` revoket nur die aktuelle Session
+    - `logout-all` revoket alle Sessions eines Users
+    - `refresh` rotiert Session sicher (alte Session wird vor Neu-Ausstellung revoket)
+  - Unit-/E2E-Tests erweitert:
+    - Auth-Use-Case/Service-Tests aktualisiert
+    - Auth-E2E um Multi-Device-Szenarien ergänzt
+  - Verifiziert mit:
+    - `npx nx test api`
+    - `npx nx lint api`
+    - `npx nx run api-e2e:e2e`
+- [x] Paket 13 - Auth-Refresh-Cleanup (Single Source of Truth)
+  - Legacy-Refresh-Felder aus `auth_users` entfernt:
+    - Domain/Repository-Vertrag bereinigt (`updateRefreshToken`/`clearRefreshToken` entfernt)
+    - TypeORM-Entity/-Repository auf Session-Tabelle als alleinige Quelle umgestellt
+  - Cleanup-Migration ergänzt:
+    - `20260331150000-auth-user-refresh-columns-cleanup.migration.ts`
+  - Seed/Tests auf den finalen Session-Ansatz angepasst
+  - Verifiziert mit:
+    - `npx nx lint api`
+    - `npx nx test api`
+    - `npx nx run api-e2e:e2e`
+- [x] Paket 14 - i18n/Copy-Finalisierung (ohne Proxy-Magic)
+  - `dashboard-copy.ts` auf explizite Getter-API umgestellt (kein dynamischer `Proxy`)
+  - `shared/api/errors.ts` sprachabhängig erweitert:
+    - API-Fehlermeldungen jetzt konsistent in `en`/`de`
+    - Validation-Constraint-Mapping ebenfalls sprachabhängig
+  - Encoding bereinigt:
+    - deutsche Umlaute/`ß` in relevanten Web-/Doku-Dateien auf korrekte UTF-8-Darstellung gebracht
+  - Web-Tests erweitert:
+    - `errors.spec.ts` um deutschen Übersetzungsfall ergänzt
+  - Verifiziert mit:
+    - `npx nx lint web`
+    - `npx nx test web`
+- [x] Paket 15 - Error-i18n Refactor (Häppchen 1)
+  - `errors.ts` von inline-Texten auf i18n-Key-Auflösung umgestellt
+  - neues zentrales Error-Dictionary ergänzt:
+    - `packages/apps/web/src/shared/i18n/error-messages.ts`
+  - Parametrisierung vereinheitlicht (Platzhalter `{{...}}`) für bekannte API-Fehlercodes
+  - Validation-Regex bleiben als Übergangs-Fallback, nutzen aber jetzt i18n-Keys statt hart codierter Sprachtexte
+  - Tests erweitert:
+    - Interpolationsfall (`AUTH_EMAIL_ALREADY_EXISTS`)
+    - lokalisierter Non-Axios-Fallback
+  - Verifiziert mit:
+    - `npx nx lint web`
+    - `npx nx test web`
+- [x] Paket 16 - Validation-Issues Contract (Häppchen 2)
+  - Backend-Validation auf strukturierte Fehlerdetails erweitert:
+    - neues Feld `validationIssues` in Error-Payload (`field`, `rule`, `message`)
+    - weiterhin rückwärtskompatibel mit `params.errors` (bestehende Clients bleiben stabil)
+  - `ValidationPipe` nutzt jetzt `exceptionFactory` mit strukturierter Ableitung aus `ValidationError[]`
+  - neue Helper/Tests ergänzt:
+    - `packages/apps/api/src/shared/errors/validation-issues.ts`
+    - `packages/apps/api/src/shared/errors/validation-issues.spec.ts`
+  - Shared-Contract erweitert:
+    - `packages/libs/shared-contracts/src/index.ts` um `ApiValidationIssue`
+  - E2E-Assertions erweitert:
+    - `employees.spec.ts` prüft jetzt zusätzlich `validationIssues`
+  - Verifiziert mit:
+    - `npx nx lint api`
+    - `npx nx test api`
+    - `npx nx lint api-e2e`
+    - `npx nx lint shared-contracts`
+    - `npx nx run api-e2e:e2e`
+- [x] Paket 17 - Frontend nutzt `validationIssues` primär (Häppchen 3)
+  - `errors.ts` priorisiert bei `VALIDATION_ERROR` jetzt strukturierte `validationIssues`
+  - regelbasierte Übersetzung über i18n-Keys (z. B. `isEmail`, `minLength`, `whitelistValidation`, `isEnum`)
+  - `params.errors` und Regex-Mapping bleiben als Legacy-Fallback erhalten
+  - zentrale Error-Übersetzungen erweitert/vereinheitlicht:
+    - `packages/apps/web/src/shared/i18n/error-messages.ts`
+  - Web-Tests erweitert:
+    - strukturierte Validation-Issues werden vor Legacy-`params.errors` verwendet
+    - deutscher Structured-Validation-Fall ergänzt
+  - Verifiziert mit:
+    - `npx nx lint web`
+    - `npx nx test web`
+- [x] Paket 18 - Error-Flow Cleanup (Häppchen 4)
+  - Regex-basierte Legacy-Übersetzungslogik aus `errors.ts` entfernt
+  - finaler Fallback-Pfad jetzt bewusst minimal:
+    - primär `validationIssues` (regelbasiert + i18n)
+    - sekundär rohe Legacy-Daten aus `params.errors`/`message`
+  - i18n-Error-Dictionary auf den finalen Bedarf reduziert (keine ungenutzten Regex-Altkeys)
+  - Tests auf den finalen Contract angepasst:
+    - Legacy-Fallback wird als Rohtext verifiziert
+    - strukturierte Validation-Issues bleiben priorisiert
+  - Verifiziert mit:
+    - `npx nx lint web`
+    - `npx nx test web`
 
 ## Entscheidungen
 
@@ -241,10 +360,10 @@ Geplante Häppchen:
   - Endpunkte: `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`
   - Passwort-Hashing mit `bcrypt` (12 rounds)
   - JWT Access Token Ausgabe bei Register/Login/Refresh
-  - HttpOnly Refresh-Token-Cookie Flow (Stage 1):
-    - Persistierter Refresh-Token-Hash in `auth_users`
-    - Refresh-Token-Verifikation via JWT + Hash-Abgleich
-    - Logout invalidiert serverseitige Refresh-Session
+  - HttpOnly Refresh-Token-Cookie Flow (finaler Stand):
+    - serverseitige Sessions in `auth_refresh_sessions` (nicht mehr in `auth_users`)
+    - Refresh-Token-Verifikation via JWT + Hash-Abgleich pro Session
+    - `logout` invalidiert die aktuelle Session, `logout-all` alle Sessions des Users
   - Globaler JWT Guard via `APP_GUARD`
   - `@Public()` für öffentliche Endpunkte
   - Strengeres Throttling auf Auth-Endpunkten
@@ -391,10 +510,11 @@ Abgeschlossene Pflichtpunkte:
 
 ## Optionale Produktverbesserungen (kein Pflicht-Backlog)
 
-- Smoke-E2E für zentrale UI-Flows als zusätzliche Regression-Sicherheit
-- Optionales i18n (zweisprachig), falls Englisch + Deutsch parallel benötigt wird
-- Optionales Auth-Hardening: Multi-Device Session-Management/Revocation
+- Smoke-E2E für zentrale Flows als zusätzliche Regression-Sicherheit. (Erledigt 2026-03-31)
+- Optionales i18n (zweisprachig, EN-Default mit DE-Umschaltung). (Erledigt 2026-03-31)
+- Optionales Auth-Hardening: Multi-Device Session-Management/Revocation. (Erledigt 2026-03-31)
 
 ## Nächste Schritte (verbindlich, Stand 2026-03-31)
 
 1. Keine offenen Pflichtpunkte aus dem Review-Backlog.
+

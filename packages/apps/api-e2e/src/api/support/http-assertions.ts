@@ -5,6 +5,11 @@ interface ErrorResponseBody {
   code?: string;
   message?: string | string[];
   params?: Record<string, unknown>;
+  validationIssues?: Array<{
+    field: string;
+    rule: string;
+    message: string;
+  }>;
   path?: string;
   timestamp?: string;
 }

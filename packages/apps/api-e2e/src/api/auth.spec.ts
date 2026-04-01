@@ -154,6 +154,72 @@ describe('Auth API', () => {
     expectHttpErrorCode(refreshError, 'AUTH_REFRESH_TOKEN_INVALID');
   });
 
+  it('keeps other device sessions valid when logging out current session', async () => {
+    const firstLoginRes = await axios.post<AuthResponse>('/auth/login', authContext.credentials);
+    const secondLoginRes = await axios.post<AuthResponse>('/auth/login', authContext.credentials);
+    const firstRefreshCookie = extractRefreshCookie(firstLoginRes.headers);
+    const secondRefreshCookie = extractRefreshCookie(secondLoginRes.headers);
+
+    const logoutRes = await axios.post(
+      '/auth/logout',
+      {},
+      {
+        headers: {
+          Cookie: firstRefreshCookie,
+        },
+      },
+    );
+    expect(logoutRes.status).toBe(204);
+
+    const revokedSessionRefresh = await axios.post('/auth/refresh', {}, {
+      headers: {
+        Cookie: firstRefreshCookie,
+      },
+      validateStatus: () => true,
+    });
+    expect(revokedSessionRefresh.status).toBe(401);
+    expect(revokedSessionRefresh.data?.code).toBe('AUTH_REFRESH_TOKEN_INVALID');
+
+    const activeSessionRefresh = await refreshWithCookie(secondRefreshCookie);
+    expect(activeSessionRefresh.status).toBe(200);
+  });
+
+  it('revokes all refresh sessions on logout-all', async () => {
+    const firstLoginRes = await axios.post<AuthResponse>('/auth/login', authContext.credentials);
+    const secondLoginRes = await axios.post<AuthResponse>('/auth/login', authContext.credentials);
+    const firstRefreshCookie = extractRefreshCookie(firstLoginRes.headers);
+    const secondRefreshCookie = extractRefreshCookie(secondLoginRes.headers);
+
+    const logoutAllRes = await axios.post(
+      '/auth/logout-all',
+      {},
+      {
+        headers: {
+          Cookie: secondRefreshCookie,
+        },
+      },
+    );
+    expect(logoutAllRes.status).toBe(204);
+
+    const firstRefreshAfterLogoutAll = await axios.post('/auth/refresh', {}, {
+      headers: {
+        Cookie: firstRefreshCookie,
+      },
+      validateStatus: () => true,
+    });
+    expect(firstRefreshAfterLogoutAll.status).toBe(401);
+    expect(firstRefreshAfterLogoutAll.data?.code).toBe('AUTH_REFRESH_TOKEN_INVALID');
+
+    const secondRefreshAfterLogoutAll = await axios.post('/auth/refresh', {}, {
+      headers: {
+        Cookie: secondRefreshCookie,
+      },
+      validateStatus: () => true,
+    });
+    expect(secondRefreshAfterLogoutAll.status).toBe(401);
+    expect(secondRefreshAfterLogoutAll.data?.code).toBe('AUTH_REFRESH_TOKEN_INVALID');
+  });
+
   it('returns 401 for invalid credentials', async () => {
     const invalidCredentialsError = await expectHttpError(
       axios.post('/auth/login', {

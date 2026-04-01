@@ -11,11 +11,27 @@ export class LogoutUseCase {
       return;
     }
 
-    const user = await this.authRefreshSessionService.resolveUserByRefreshToken(refreshToken);
-    if (!user) {
+    const refreshSession = await this.authRefreshSessionService.resolveRefreshSession(refreshToken);
+    if (!refreshSession) {
       return;
     }
 
-    await this.authRefreshSessionService.clearForUser(user.id);
+    await this.authRefreshSessionService.revokeRefreshSession(
+      refreshSession.user.id,
+      refreshSession.sessionId,
+    );
+  }
+
+  async executeAll(refreshToken: string | undefined): Promise<void> {
+    if (!refreshToken) {
+      return;
+    }
+
+    const refreshSession = await this.authRefreshSessionService.resolveRefreshSession(refreshToken);
+    if (!refreshSession) {
+      return;
+    }
+
+    await this.authRefreshSessionService.clearForUser(refreshSession.user.id);
   }
 }

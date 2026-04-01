@@ -1,20 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 
+import { AuthRefreshSessionOrmEntity } from './auth-refresh-session.orm-entity';
 import { AuthUserOrmEntity } from './auth-user.orm-entity';
-import { CreateAuthUserInput, AuthUser } from '../../domain/auth.model';
+import { AuthRefreshSession, CreateAuthUserInput, AuthUser } from '../../domain/auth.model';
 import { AuthRepository } from '../../domain/auth.repository';
 
 @Injectable()
 export class TypeOrmAuthRepository implements AuthRepository {
   constructor(
     @InjectRepository(AuthUserOrmEntity)
-    private readonly repository: Repository<AuthUserOrmEntity>,
+    private readonly userRepository: Repository<AuthUserOrmEntity>,
+    @InjectRepository(AuthRefreshSessionOrmEntity)
+    private readonly sessionRepository: Repository<AuthRefreshSessionOrmEntity>,
   ) {}
 
   async findById(userId: number): Promise<AuthUser | null> {
-    const entity = await this.repository.findOne({
+    const entity = await this.userRepository.findOne({
       where: {
         id: userId,
       },
@@ -24,7 +27,7 @@ export class TypeOrmAuthRepository implements AuthRepository {
   }
 
   async findByEmail(email: string): Promise<AuthUser | null> {
-    const entity = await this.repository.findOne({
+    const entity = await this.userRepository.findOne({
       where: {
         email,
       },
@@ -34,31 +37,63 @@ export class TypeOrmAuthRepository implements AuthRepository {
   }
 
   async create(input: CreateAuthUserInput): Promise<AuthUser> {
-    const entity = this.repository.create(input);
-    const savedEntity = await this.repository.save(entity);
+    const entity = this.userRepository.create(input);
+    const savedEntity = await this.userRepository.save(entity);
     return this.toDomainModel(savedEntity);
   }
 
-  async updateRefreshToken(
+  async createRefreshSession(
     userId: number,
+    sessionId: string,
     refreshTokenHash: string,
     refreshTokenExpiresAt: Date,
   ): Promise<void> {
-    await this.repository.update(
-      { id: userId },
+    const entity = this.sessionRepository.create({
+      sessionId,
+      userId,
+      refreshTokenHash,
+      refreshTokenExpiresAt,
+      revokedAt: null,
+    });
+    await this.sessionRepository.save(entity);
+  }
+
+  async findActiveRefreshSession(
+    userId: number,
+    sessionId: string,
+  ): Promise<AuthRefreshSession | null> {
+    const entity = await this.sessionRepository.findOne({
+      where: {
+        sessionId,
+        userId,
+        revokedAt: IsNull(),
+      },
+    });
+
+    return entity ? this.toRefreshSessionModel(entity) : null;
+  }
+
+  async revokeRefreshSession(userId: number, sessionId: string): Promise<void> {
+    await this.sessionRepository.update(
       {
-        refreshTokenHash,
-        refreshTokenExpiresAt,
+        userId,
+        sessionId,
+        revokedAt: IsNull(),
+      },
+      {
+        revokedAt: new Date(),
       },
     );
   }
 
-  async clearRefreshToken(userId: number): Promise<void> {
-    await this.repository.update(
-      { id: userId },
+  async revokeAllRefreshSessions(userId: number): Promise<void> {
+    await this.sessionRepository.update(
       {
-        refreshTokenHash: null,
-        refreshTokenExpiresAt: null,
+        userId,
+        revokedAt: IsNull(),
+      },
+      {
+        revokedAt: new Date(),
       },
     );
   }
@@ -68,9 +103,19 @@ export class TypeOrmAuthRepository implements AuthRepository {
       id: entity.id,
       email: entity.email,
       passwordHash: entity.passwordHash,
-      refreshTokenHash: entity.refreshTokenHash,
-      refreshTokenExpiresAt: entity.refreshTokenExpiresAt,
       createdAt: entity.createdAt,
+    };
+  }
+
+  private toRefreshSessionModel(entity: AuthRefreshSessionOrmEntity): AuthRefreshSession {
+    return {
+      sessionId: entity.sessionId,
+      userId: entity.userId,
+      refreshTokenHash: entity.refreshTokenHash,
+      expiresAt: entity.refreshTokenExpiresAt,
+      revokedAt: entity.revokedAt,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
     };
   }
 }

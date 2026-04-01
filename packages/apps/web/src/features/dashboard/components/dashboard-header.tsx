@@ -1,6 +1,7 @@
 import { LogOut } from 'lucide-react';
 
 import { Button } from '../../../components/ui';
+import { LanguageToggle } from '../../i18n';
 import { dashboardCopy } from '../dashboard-copy';
 
 interface DashboardHeaderProps {
@@ -19,10 +20,13 @@ export function DashboardHeader({ userEmail, onSignOut }: DashboardHeaderProps) 
             <span className="font-semibold text-foreground">{userEmail}</span>
           </p>
         </div>
-        <Button variant="outline" onClick={onSignOut}>
-          <LogOut className="mr-2 h-4 w-4" />
-          {dashboardCopy.header.signOut}
-        </Button>
+        <div className="flex items-center gap-2">
+          <LanguageToggle />
+          <Button variant="outline" onClick={onSignOut}>
+            <LogOut className="mr-2 h-4 w-4" />
+            {dashboardCopy.header.signOut}
+          </Button>
+        </div>
       </div>
     </header>
   );

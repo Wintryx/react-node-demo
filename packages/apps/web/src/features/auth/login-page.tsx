@@ -3,8 +3,10 @@ import { SyntheticEvent, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from './auth-context';
+import { getAuthCopy } from './auth-copy';
 import { AuthPageShell } from './auth-page-shell';
 import { Alert, Button, CardContent, Input, Label, Spinner } from '../../components/ui';
+import { useI18n } from '../i18n';
 
 interface LoginFormValues {
   email: string;
@@ -19,6 +21,8 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
+  const { language } = useI18n();
+  const copy = getAuthCopy(language);
 
   const [formValues, setFormValues] = useState<LoginFormValues>({
     email: '',
@@ -45,16 +49,17 @@ export function LoginPage() {
 
   return (
     <AuthPageShell
-      title="Welcome back"
-      description="Sign in to access your task board."
-      footerLabel="No account yet?"
-      footerLinkLabel="Register"
+      title={copy.login.title}
+      description={copy.login.description}
+      footerLabel={copy.login.footerLabel}
+      footerLinkLabel={copy.login.footerLinkLabel}
       footerLinkTo="/register"
+      badgeText={copy.shell.badge}
     >
       <CardContent>
         <form className="space-y-4" onSubmit={onSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="login-email">Email</Label>
+            <Label htmlFor="login-email">{copy.login.email}</Label>
             <Input
               id="login-email"
               type="email"
@@ -69,7 +74,7 @@ export function LoginPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="login-password">Password</Label>
+            <Label htmlFor="login-password">{copy.login.password}</Label>
             <Input
               id="login-password"
               type="password"
@@ -88,10 +93,10 @@ export function LoginPage() {
             {loginMutation.isPending ? (
               <span className="inline-flex items-center gap-2">
                 <Spinner />
-                Signing in...
+                {copy.login.submitting}
               </span>
             ) : (
-              'Sign in'
+              copy.login.submit
             )}
           </Button>
         </form>

@@ -11,6 +11,11 @@ interface UserIdentity {
   email: string;
 }
 
+interface ResolvedRefreshSession {
+  user: AuthUser;
+  sessionId: string;
+}
+
 interface RefreshTokenIssue {
   refreshToken: string;
   expiresAt: Date;
@@ -35,8 +40,12 @@ export class AuthRefreshSessionService {
     const refreshTokenHash = await this.passwordHasher.hash(
       this.toRefreshTokenHashInput(tokenResult.refreshToken),
     );
-
-    await this.authRepository.updateRefreshToken(user.id, refreshTokenHash, tokenResult.expiresAt);
+    await this.authRepository.createRefreshSession(
+      user.id,
+      tokenResult.sessionId,
+      refreshTokenHash,
+      tokenResult.expiresAt,
+    );
 
     return {
       refreshToken: tokenResult.refreshToken,
@@ -45,33 +54,50 @@ export class AuthRefreshSessionService {
   }
 
   async resolveUserByRefreshToken(refreshToken: string): Promise<AuthUser | null> {
+    const refreshSession = await this.resolveRefreshSession(refreshToken);
+    return refreshSession?.user ?? null;
+  }
+
+  async resolveRefreshSession(refreshToken: string): Promise<ResolvedRefreshSession | null> {
     const payload = await this.refreshTokenSigner.verify(refreshToken);
-    if (!payload) {
+    if (!payload || !payload.jti) {
       return null;
     }
 
     const user = await this.authRepository.findById(payload.sub);
-    if (!user || !user.refreshTokenHash || !user.refreshTokenExpiresAt) {
+    if (!user) {
       return null;
     }
 
-    if (user.refreshTokenExpiresAt.getTime() <= Date.now()) {
+    const activeSession = await this.authRepository.findActiveRefreshSession(user.id, payload.jti);
+    if (!activeSession) {
+      return null;
+    }
+
+    if (activeSession.expiresAt.getTime() <= Date.now()) {
       return null;
     }
 
     const tokenMatches = await this.passwordHasher.compare(
       this.toRefreshTokenHashInput(refreshToken),
-      user.refreshTokenHash,
+      activeSession.refreshTokenHash,
     );
     if (!tokenMatches) {
       return null;
     }
 
-    return user;
+    return {
+      user,
+      sessionId: activeSession.sessionId,
+    };
+  }
+
+  async revokeRefreshSession(userId: number, sessionId: string): Promise<void> {
+    await this.authRepository.revokeRefreshSession(userId, sessionId);
   }
 
   async clearForUser(userId: number): Promise<void> {
-    await this.authRepository.clearRefreshToken(userId);
+    await this.authRepository.revokeAllRefreshSessions(userId);
   }
 
   private toRefreshTokenHashInput(refreshToken: string): string {

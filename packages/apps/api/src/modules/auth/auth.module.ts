@@ -14,6 +14,7 @@ import { ACCESS_TOKEN_SIGNER } from './domain/access-token-signer';
 import { AUTH_REPOSITORY } from './domain/auth.repository';
 import { PASSWORD_HASHER } from './domain/password-hasher';
 import { REFRESH_TOKEN_SIGNER } from './domain/refresh-token-signer';
+import { AuthRefreshSessionOrmEntity } from './infrastructure/persistence/auth-refresh-session.orm-entity';
 import { AuthUserOrmEntity } from './infrastructure/persistence/auth-user.orm-entity';
 import { TypeOrmAuthRepository } from './infrastructure/persistence/typeorm-auth.repository';
 import { BcryptPasswordHasher } from './infrastructure/security/bcrypt-password-hasher';
@@ -26,7 +27,7 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AuthUserOrmEntity]),
+    TypeOrmModule.forFeature([AuthUserOrmEntity, AuthRefreshSessionOrmEntity]),
     PassportModule.register({
       defaultStrategy: 'jwt',
     }),

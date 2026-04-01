@@ -62,6 +62,16 @@ describe('Employees API', () => {
     );
     expectHttpErrorCode(invalidRoleError, 'VALIDATION_ERROR');
     expect(Array.isArray(invalidRoleError.response?.data?.params?.errors)).toBe(true);
+    expect(Array.isArray(invalidRoleError.response?.data?.validationIssues)).toBe(true);
+    expect(invalidRoleError.response?.data?.validationIssues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          field: 'role',
+          rule: expect.any(String),
+          message: expect.any(String),
+        }),
+      ]),
+    );
   });
 
   it('updates an employee and normalizes email', async () => {

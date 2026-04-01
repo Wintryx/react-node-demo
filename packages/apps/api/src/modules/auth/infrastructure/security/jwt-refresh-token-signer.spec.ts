@@ -28,6 +28,7 @@ describe('JwtRefreshTokenSigner', () => {
     const second = await signer.sign(payload);
 
     expect(first.refreshToken).not.toBe(second.refreshToken);
+    expect(first.sessionId).not.toBe(second.sessionId);
     await expect(signer.verify(first.refreshToken)).resolves.toMatchObject(payload);
     await expect(signer.verify(second.refreshToken)).resolves.toMatchObject(payload);
     expect(first.expiresAt.getTime()).toBeGreaterThan(Date.now());

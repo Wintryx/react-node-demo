@@ -7,7 +7,7 @@ import {
 } from './test-helpers/auth-test-doubles';
 
 describe('LogoutUseCase', () => {
-  it('clears persisted refresh token for valid refresh token', async () => {
+  it('revokes only the current refresh session for valid refresh token', async () => {
     const repository = new InMemoryAuthRepository();
     const passwordHasher = new FakePasswordHasher();
     const refreshSessionService = new AuthRefreshSessionService(
@@ -19,17 +19,27 @@ describe('LogoutUseCase', () => {
       email: 'demo@example.com',
       passwordHash: await passwordHasher.hash('StrongPassword!1'),
     });
-    const refreshIssue = await refreshSessionService.issueForUser({
+    const firstRefreshIssue = await refreshSessionService.issueForUser({
+      id: user.id,
+      email: user.email,
+    });
+    const secondRefreshIssue = await refreshSessionService.issueForUser({
       id: user.id,
       email: user.email,
     });
     const useCase = new LogoutUseCase(refreshSessionService);
 
-    await useCase.execute(refreshIssue.refreshToken);
+    await useCase.execute(firstRefreshIssue.refreshToken);
 
-    const persisted = await repository.findById(user.id);
-    expect(persisted?.refreshTokenHash).toBeNull();
-    expect(persisted?.refreshTokenExpiresAt).toBeNull();
+    await expect(
+      refreshSessionService.resolveUserByRefreshToken(firstRefreshIssue.refreshToken),
+    ).resolves.toBeNull();
+    await expect(
+      refreshSessionService.resolveUserByRefreshToken(secondRefreshIssue.refreshToken),
+    ).resolves.toMatchObject({
+      id: user.id,
+      email: user.email,
+    });
   });
 
   it('silently succeeds when token is missing', async () => {
@@ -42,5 +52,37 @@ describe('LogoutUseCase', () => {
     );
 
     await expect(useCase.execute(undefined)).resolves.toBeUndefined();
+  });
+
+  it('revokes all user sessions when executeAll is called', async () => {
+    const repository = new InMemoryAuthRepository();
+    const passwordHasher = new FakePasswordHasher();
+    const refreshSessionService = new AuthRefreshSessionService(
+      repository,
+      passwordHasher,
+      new FakeRefreshTokenSigner(),
+    );
+    const user = await repository.create({
+      email: 'demo@example.com',
+      passwordHash: await passwordHasher.hash('StrongPassword!1'),
+    });
+    const firstRefreshIssue = await refreshSessionService.issueForUser({
+      id: user.id,
+      email: user.email,
+    });
+    const secondRefreshIssue = await refreshSessionService.issueForUser({
+      id: user.id,
+      email: user.email,
+    });
+    const useCase = new LogoutUseCase(refreshSessionService);
+
+    await useCase.executeAll(secondRefreshIssue.refreshToken);
+
+    await expect(
+      refreshSessionService.resolveUserByRefreshToken(firstRefreshIssue.refreshToken),
+    ).resolves.toBeNull();
+    await expect(
+      refreshSessionService.resolveUserByRefreshToken(secondRefreshIssue.refreshToken),
+    ).resolves.toBeNull();
   });
 });

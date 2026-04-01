@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode, useState } from 'react';
 
 import { AuthProvider } from '../features/auth/auth-context';
+import { I18nProvider } from '../features/i18n';
 import { ToastProvider } from '../features/notifications/toast-context';
 
 interface AppProvidersProps {
@@ -23,9 +24,11 @@ export function AppProviders({ children }: AppProvidersProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <AuthProvider>{children}</AuthProvider>
-      </ToastProvider>
+      <I18nProvider>
+        <ToastProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ToastProvider>
+      </I18nProvider>
     </QueryClientProvider>
   );
 }

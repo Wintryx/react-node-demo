@@ -3,9 +3,11 @@ import { SyntheticEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from './auth-context';
+import { getAuthCopy } from './auth-copy';
 import { AuthPageShell } from './auth-page-shell';
-import { passwordPolicyHint, passwordPolicyRegex } from './password-rules';
+import { getPasswordPolicyHint, passwordPolicyRegex } from './password-rules';
 import { Alert, Button, CardContent, Input, Label, Spinner } from '../../components/ui';
+import { useI18n } from '../i18n';
 
 interface RegisterFormValues {
   email: string;
@@ -16,6 +18,9 @@ interface RegisterFormValues {
 export function RegisterPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
+  const { language } = useI18n();
+  const copy = getAuthCopy(language);
+  const passwordPolicyHint = getPasswordPolicyHint(language);
 
   const [formValues, setFormValues] = useState<RegisterFormValues>({
     email: '',
@@ -36,7 +41,7 @@ export function RegisterPage() {
 
   const validateForm = (): boolean => {
     if (formValues.password !== formValues.confirmPassword) {
-      setFormError('Passwords do not match.');
+      setFormError(copy.register.passwordMismatch);
       return false;
     }
 
@@ -64,16 +69,17 @@ export function RegisterPage() {
 
   return (
     <AuthPageShell
-      title="Create account"
-      description="Register to manage your task board."
-      footerLabel="Already registered?"
-      footerLinkLabel="Sign in"
+      title={copy.register.title}
+      description={copy.register.description}
+      footerLabel={copy.register.footerLabel}
+      footerLinkLabel={copy.register.footerLinkLabel}
       footerLinkTo="/login"
+      badgeText={copy.shell.badge}
     >
       <CardContent>
         <form className="space-y-4" onSubmit={onSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="register-email">Email</Label>
+            <Label htmlFor="register-email">{copy.register.email}</Label>
             <Input
               id="register-email"
               type="email"
@@ -88,7 +94,7 @@ export function RegisterPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="register-password">Password</Label>
+            <Label htmlFor="register-password">{copy.register.password}</Label>
             <Input
               id="register-password"
               type="password"
@@ -105,7 +111,7 @@ export function RegisterPage() {
             <p className="text-xs text-muted-foreground">{passwordPolicyHint}</p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="register-password-confirm">Confirm password</Label>
+            <Label htmlFor="register-password-confirm">{copy.register.confirmPassword}</Label>
             <Input
               id="register-password-confirm"
               type="password"
@@ -125,10 +131,10 @@ export function RegisterPage() {
             {registerMutation.isPending ? (
               <span className="inline-flex items-center gap-2">
                 <Spinner />
-                Creating account...
+                {copy.register.submitting}
               </span>
             ) : (
-              'Create account'
+              copy.register.submit
             )}
           </Button>
         </form>
