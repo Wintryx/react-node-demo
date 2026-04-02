@@ -1,7 +1,7 @@
-import { ApiErrorPayload, ApiValidationIssue } from '@react-node-demo/shared-contracts';
+﻿import { ApiErrorPayload, ApiValidationIssue } from '@react-node-demo/shared-contracts';
 import axios from 'axios';
 
-import { ErrorMessageKey, getErrorMessage } from '../i18n/error-messages';
+import { ErrorMessageKey, getErrorMessage } from '../i18n/error-translations';
 import { AppLanguage, getRuntimeLanguage } from '../i18n/runtime';
 
 type ApiErrorTranslator = (payload: ApiErrorPayload, language: AppLanguage) => string;

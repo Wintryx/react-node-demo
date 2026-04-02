@@ -1,7 +1,6 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+﻿import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { dashboardCopy } from './dashboard-copy';
 import {
   confirmActionDialog,
   getDashboardApiMocks,
@@ -12,6 +11,7 @@ import {
   resetDashboardApiMocks,
   setInputValueByLabel,
 } from './dashboard-integration-test-utils';
+import { dashboardTranslations } from './dashboard-translations';
 
 describe('Dashboard task CRUD integration', () => {
   const { createTaskMock, updateTaskMock, deleteTaskMock } =
@@ -26,7 +26,7 @@ describe('Dashboard task CRUD integration', () => {
 
     await openCreateTaskModal();
     setInputValueByLabel('Title', 'Newly created task');
-    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.tasks.create }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardTranslations.tasks.create }));
 
     await waitFor(() => {
       expect(createTaskMock).toHaveBeenCalledTimes(1);
@@ -51,17 +51,17 @@ describe('Dashboard task CRUD integration', () => {
     await renderAuthenticatedApp();
 
     await openCreateTaskModal();
-    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.tasks.create }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardTranslations.tasks.create }));
 
-    const requiredTitleMessage = await screen.findByText(dashboardCopy.tasks.validations.titleRequired);
+    const requiredTitleMessage = await screen.findByText(dashboardTranslations.tasks.validations.titleRequired);
     expect(requiredTitleMessage).toBeTruthy();
     expect(createTaskMock).not.toHaveBeenCalled();
 
     setInputValueByLabel('Title', 'Task with invalid subtask');
-    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.subtasks.addSubtask }));
-    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.tasks.create }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardTranslations.subtasks.addSubtask }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardTranslations.tasks.create }));
 
-    const invalidSubtaskMessage = await screen.findByText(dashboardCopy.tasks.validations.subtaskInvalid);
+    const invalidSubtaskMessage = await screen.findByText(dashboardTranslations.tasks.validations.subtaskInvalid);
     expect(invalidSubtaskMessage).toBeTruthy();
     expect(createTaskMock).not.toHaveBeenCalled();
   });
@@ -71,7 +71,7 @@ describe('Dashboard task CRUD integration', () => {
 
     await openEditTaskModal();
     setInputValueByLabel('Title', 'Updated task title');
-    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.common.saveChanges }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardTranslations.common.saveChanges }));
 
     await waitFor(() => {
       expect(updateTaskMock).toHaveBeenCalled();
@@ -94,7 +94,7 @@ describe('Dashboard task CRUD integration', () => {
 
     await openEditTaskModal();
     setInputValueByLabel('Title', 'Updated but failing');
-    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.common.saveChanges }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardTranslations.common.saveChanges }));
 
     const errorMessages = await screen.findAllByText('Task update failed.');
     expect(errorMessages.length > 0).toBe(true);
@@ -115,7 +115,7 @@ describe('Dashboard task CRUD integration', () => {
     await renderAuthenticatedApp();
 
     await openTaskDeleteDialog();
-    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.common.cancel }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardTranslations.common.cancel }));
     expect(deleteTaskMock).not.toHaveBeenCalled();
   });
 
@@ -136,7 +136,7 @@ describe('Dashboard task CRUD integration', () => {
 
     await openCreateTaskModal();
     setInputValueByLabel('Title', 'Broken task');
-    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.tasks.create }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardTranslations.tasks.create }));
 
     const errorMessages = await screen.findAllByText('Task creation failed.');
     expect(errorMessages.length > 0).toBe(true);
@@ -145,13 +145,13 @@ describe('Dashboard task CRUD integration', () => {
   it('updates task subtasks inline when adding and removing subtasks', async () => {
     await renderAuthenticatedApp();
 
-    const addInput = await screen.findByPlaceholderText(dashboardCopy.subtasks.addPlaceholder);
+    const addInput = await screen.findByPlaceholderText(dashboardTranslations.subtasks.addPlaceholder);
     fireEvent.change(addInput, {
       target: {
         value: 'Inline added subtask',
       },
     });
-    fireEvent.click(screen.getByRole('button', { name: dashboardCopy.subtasks.add }));
+    fireEvent.click(screen.getByRole('button', { name: dashboardTranslations.subtasks.add }));
 
     await waitFor(() => {
       expect(updateTaskMock).toHaveBeenCalled();
@@ -168,7 +168,7 @@ describe('Dashboard task CRUD integration', () => {
     updateTaskMock.mockClear();
     fireEvent.click(
       await screen.findByRole('button', {
-        name: dashboardCopy.subtasks.removeAria('Initial subtask'),
+        name: dashboardTranslations.subtasks.removeAria('Initial subtask'),
       }),
     );
 

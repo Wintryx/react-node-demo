@@ -1,8 +1,8 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+﻿import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { vi } from 'vitest';
 
-import { dashboardCopy } from './dashboard-copy';
+import { dashboardTranslations } from './dashboard-translations';
 import App from '../../app/app';
 import { Employee, Task } from '../../shared/api/types';
 import { createAccessTokenForTest } from '../../shared/testing/auth-test-token';
@@ -135,7 +135,7 @@ export const renderAuthenticatedApp = async (): Promise<void> => {
     </MemoryRouter>,
   );
 
-  await screen.findByText(dashboardCopy.header.title);
+  await screen.findByText(dashboardTranslations.header.title);
 };
 
 export const clickButtonByName = async (
@@ -153,25 +153,25 @@ export const setInputValueByLabel = (label: string, value: string): void => {
 };
 
 export const openCreateTaskModal = async (): Promise<void> => {
-  await clickButtonByName(dashboardCopy.tasks.newTask);
-  await screen.findByRole('heading', { name: dashboardCopy.tasks.create });
+  await clickButtonByName(dashboardTranslations.tasks.newTask);
+  await screen.findByRole('heading', { name: dashboardTranslations.tasks.create });
 };
 
 export const openEditTaskModal = async (taskId = 11): Promise<void> => {
-  await clickButtonByName(dashboardCopy.tasks.edit);
-  await screen.findByRole('heading', { name: dashboardCopy.tasks.editHeading(taskId) });
+  await clickButtonByName(dashboardTranslations.tasks.edit);
+  await screen.findByRole('heading', { name: dashboardTranslations.tasks.editHeading(taskId) });
 };
 
 export const openTaskDeleteDialog = async (): Promise<void> => {
-  await clickButtonByName(dashboardCopy.tasks.delete);
-  await screen.findByRole('heading', { name: dashboardCopy.tasks.confirmDeleteTitle });
+  await clickButtonByName(dashboardTranslations.tasks.delete);
+  await screen.findByRole('heading', { name: dashboardTranslations.tasks.confirmDeleteTitle });
 };
 
 export const confirmActionDialog = (): void => {
-  fireEvent.click(screen.getByRole('button', { name: dashboardCopy.common.confirmAction }));
+  fireEvent.click(screen.getByRole('button', { name: dashboardTranslations.common.confirmAction }));
 };
 
 export const openCreateEmployeeModal = async (): Promise<void> => {
-  await clickButtonByName(dashboardCopy.employees.addEmployee);
-  await screen.findByLabelText(dashboardCopy.employees.firstName);
+  await clickButtonByName(dashboardTranslations.employees.addEmployee);
+  await screen.findByLabelText(dashboardTranslations.employees.firstName);
 };

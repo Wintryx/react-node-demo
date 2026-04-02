@@ -1,9 +1,9 @@
-import { CalendarClock, CircleCheckBig, Clock3, Pencil, Trash2 } from 'lucide-react';
+﻿import { CalendarClock, CircleCheckBig, Clock3, Pencil, Trash2 } from 'lucide-react';
 
 import { TaskSubtasksInline } from './task-subtasks-inline';
 import { Badge, Button, Card, CardContent } from '../../../components/ui';
 import { Task } from '../../../shared/api/types';
-import { dashboardCopy } from '../dashboard-copy';
+import { dashboardTranslations } from '../dashboard-translations';
 import {
   formatTaskDate,
   getCompletedSubtasksCount,
@@ -44,17 +44,17 @@ export function TaskCard({
             <div className="flex items-center gap-2">
               <Badge variant={taskStatusVariant[task.status]}>{taskStatusLabels[task.status]}</Badge>
               <Badge variant={taskPriorityVariant[task.priority]}>{taskPriorityLabels[task.priority]}</Badge>
-              {overdue ? <Badge variant="danger">{dashboardCopy.tasks.overdue}</Badge> : null}
+              {overdue ? <Badge variant="danger">{dashboardTranslations.tasks.overdue}</Badge> : null}
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Button type="button" variant="outline" size="sm" disabled={isPending} onClick={() => onEdit(task)}>
               <Pencil className="mr-1 h-3.5 w-3.5" />
-              {dashboardCopy.tasks.edit}
+              {dashboardTranslations.tasks.edit}
             </Button>
             <Button type="button" variant="danger" size="sm" disabled={isPending} onClick={() => onDelete(task)}>
               <Trash2 className="mr-1 h-3.5 w-3.5" />
-              {dashboardCopy.tasks.delete}
+              {dashboardTranslations.tasks.delete}
             </Button>
           </div>
         </div>
@@ -64,15 +64,15 @@ export function TaskCard({
         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
             <CalendarClock className="h-4 w-4" />
-            {dashboardCopy.tasks.duePrefix} {formatTaskDate(task.dueDate)}
+            {dashboardTranslations.tasks.duePrefix} {formatTaskDate(task.dueDate)}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <Clock3 className="h-4 w-4" />
-            {dashboardCopy.tasks.subtasksPrefix} {task.subtasks.length}
+            {dashboardTranslations.tasks.subtasksPrefix} {task.subtasks.length}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <CircleCheckBig className="h-4 w-4" />
-            {dashboardCopy.tasks.donePrefix} {getCompletedSubtasksCount(task)}
+            {dashboardTranslations.tasks.donePrefix} {getCompletedSubtasksCount(task)}
           </span>
         </div>
 

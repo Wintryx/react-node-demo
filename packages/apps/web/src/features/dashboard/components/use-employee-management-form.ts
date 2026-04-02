@@ -1,7 +1,7 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 
 import { Employee, EmployeeDepartment, EmployeeRole } from '../../../shared/api/types';
-import { dashboardCopy } from '../dashboard-copy';
+import { dashboardTranslations } from '../dashboard-translations';
 
 export interface EmployeeFormState {
   firstName: string;
@@ -31,13 +31,13 @@ export const validateEmployeeFormState = (
   formState: EmployeeFormState,
 ): string | null => {
   if (!formState.firstName.trim()) {
-    return dashboardCopy.employees.validations.firstNameRequired;
+    return dashboardTranslations.employees.validations.firstNameRequired;
   }
   if (!formState.lastName.trim()) {
-    return dashboardCopy.employees.validations.lastNameRequired;
+    return dashboardTranslations.employees.validations.lastNameRequired;
   }
   if (!formState.email.trim()) {
-    return dashboardCopy.employees.validations.emailRequired;
+    return dashboardTranslations.employees.validations.emailRequired;
   }
 
   return null;

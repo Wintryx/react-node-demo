@@ -100,6 +100,39 @@ export const mapTaskFormError = (error: unknown): string => {
   return 'Request failed. Please try again.';
 };
 
+export interface TaskValidationCopy {
+  titleRequired: string;
+  startDateRequired: string;
+  assigneeRequired: string;
+  subtaskInvalid: string;
+}
+
+export const validateTaskFormState = (
+  formState: TaskFormState,
+  messages: TaskValidationCopy,
+): string | null => {
+  if (!formState.title.trim()) {
+    return messages.titleRequired;
+  }
+
+  if (!formState.startDate) {
+    return messages.startDateRequired;
+  }
+
+  if (!formState.employeeId) {
+    return messages.assigneeRequired;
+  }
+
+  const hasInvalidSubtask = formState.subtasks.some(
+    (subtask) => subtask.title.trim().length === 0 || subtask.startDate.length === 0,
+  );
+  if (hasInvalidSubtask) {
+    return messages.subtaskInvalid;
+  }
+
+  return null;
+};
+
 export const toCreateTaskPayload = (formState: TaskFormState): CreateTaskRequest => ({
   title: formState.title.trim(),
   description: formState.description.trim() || undefined,

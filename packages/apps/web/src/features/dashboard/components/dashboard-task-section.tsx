@@ -1,8 +1,8 @@
-import { AlertTriangle } from 'lucide-react';
+﻿import { AlertTriangle } from 'lucide-react';
 
 import { Alert, Button, Card, CardContent, Spinner } from '../../../components/ui';
 import { Task } from '../../../shared/api/types';
-import { dashboardCopy } from '../dashboard-copy';
+import { dashboardTranslations } from '../dashboard-translations';
 import { DashboardViewMode } from '../dashboard-view-mode';
 import { TaskBoard, TaskList, TaskTimeline } from '../views';
 
@@ -46,7 +46,7 @@ export function DashboardTaskSection({
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-xl font-semibold">{dashboardCopy.tasks.sectionTitle}</h2>
+        <h2 className="font-display text-xl font-semibold">{dashboardTranslations.tasks.sectionTitle}</h2>
         <div className="flex items-center gap-2">
           <Button
             type="button"
@@ -54,7 +54,7 @@ export function DashboardTaskSection({
             size="sm"
             onClick={() => onChangeViewMode('list')}
           >
-            {dashboardCopy.tasks.listView}
+            {dashboardTranslations.tasks.listView}
           </Button>
           <Button
             type="button"
@@ -62,7 +62,7 @@ export function DashboardTaskSection({
             size="sm"
             onClick={() => onChangeViewMode('kanban')}
           >
-            {dashboardCopy.tasks.kanbanView}
+            {dashboardTranslations.tasks.kanbanView}
           </Button>
           <Button
             type="button"
@@ -70,7 +70,7 @@ export function DashboardTaskSection({
             size="sm"
             onClick={() => onChangeViewMode('timeline')}
           >
-            {dashboardCopy.tasks.timelineView}
+            {dashboardTranslations.tasks.timelineView}
           </Button>
           <Button
             type="button"
@@ -78,12 +78,12 @@ export function DashboardTaskSection({
             disabled={employeesCount === 0}
             onClick={onOpenCreateTask}
           >
-            {dashboardCopy.tasks.newTask}
+            {dashboardTranslations.tasks.newTask}
           </Button>
           {isTasksFetching ? (
             <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
               <Spinner />
-              {dashboardCopy.tasks.refreshing}
+              {dashboardTranslations.tasks.refreshing}
             </span>
           ) : null}
         </div>
@@ -94,7 +94,7 @@ export function DashboardTaskSection({
       {employeesCount === 0 ? (
         <Card>
           <CardContent className="flex min-h-40 items-center justify-center text-muted-foreground">
-            {dashboardCopy.tasks.noEmployees}
+            {dashboardTranslations.tasks.noEmployees}
           </CardContent>
         </Card>
       ) : isTasksLoading ? (

@@ -1,273 +1,44 @@
-# Implementation Guide (auth-focused, pragmatic)
+# Implementation Guide (Pragmatic, No Overengineering)
 
-Stand: 2026-04-01
+Status date: 2026-04-01
 
-## 0. Review-Driven Refactoring Packages
+## Purpose
 
-Execution model: small, verifiable slices without overengineering.
+This guide is intentionally short and execution-oriented.  
+Detailed package history is tracked in `docs/progress.md` and Git history.
 
-Status overview:
+## Current Baseline
 
-- Package 1-6: baseline review fixes (compose env completeness, due-date clearing, employee CRUD in frontend, English default UI, seed flow, documentation polish).
-- Package 7-10: quality/stability improvements (confirm-dialog refactor, pragmatic UI barrel imports, router test warnings, smoke E2E).
-- Package 11-14: product polish and auth maturity (optional i18n, multi-device refresh sessions, session-table single source of truth, copy/error mapping finalization).
-- Package 15-19: error-contract cleanup and pragmatic code reduction (validation issues, web error normalization simplification, Swagger decorator dedup, integration-test dedup).
-- Package 20: documentation consistency pass, dashboard integration-test split, and employee form-state refactor.
+- Auth/session flow is complete for demo scope:
+  - startup silent refresh
+  - controlled one-time `401` retry with single-flight
+  - refresh session rotation and revocation (`logout`, `logout-all`)
+- Mandatory review gaps are closed.
+- Test baseline is stable (`web` lint/test green on latest refactor slice).
 
-Single source of truth for package-level details:
+## Working Rules
 
-- Full per-package changelog and verification commands live in `docs/progress.md`.
-- This guide intentionally keeps only implementation direction and decision criteria.
+1. Prefer small slices that can be verified independently.
+2. Keep public behavior stable unless explicitly changing product behavior.
+3. Avoid new abstraction layers without clear reduction of duplication or risk.
+4. For each slice:
+   - implement
+   - run targeted lint/tests
+   - update `docs/progress.md`
 
-## 1. Goal
+## Active Simplification Backlog
 
-This guide defines how to improve authentication/session behavior in small, safe increments:
+1. Documentation simplification and clear ownership.
+2. Test fixture/data centralization (focus on `api-e2e` duplication hotspots).
+3. i18n file split by locale for maintainability.
+4. One additional UI form decoupling (state/validation out of view component).
 
-- Keep short-lived access tokens (security baseline).
-- Use refresh token cookie for smooth session continuity.
-- Avoid overengineering.
-- Preserve current architecture style (DDD-light backend, pragmatic frontend hooks/api layer).
+Current state:
 
-Primary references:
+- The four simplification slices above are implemented (chunk 21 baseline).
 
-- `docs/descriptions/authentication-deep-dive.md`
-- `docs/descriptions/frontend-click-flow-guide.md`
-- `docs/progress.md`
+## Definition of Done (per slice)
 
----
-
-## 2. Current state (short)
-
-- Access token is stored in `sessionStorage` on web.
-- Refresh endpoint exists: `POST /auth/refresh`.
-- Refresh cookie is HttpOnly and persisted server-side in `auth_refresh_sessions` (hashed, per session/device).
-- Frontend uses silent refresh bootstrap and controlled `401` retry.
-- Result: access-token expiry is handled transparently in normal usage; refresh-cookie validity remains the backend session anchor.
-
----
-
-## 3. Target state (MVP-first)
-
-1. Silent refresh on app bootstrap.
-2. Controlled one-time retry on `401` with single-flight refresh.
-3. Refresh-token rotation in refresh endpoint.
-4. Optional hardening/documentation updates.
-
-Current execution status:
-
-- [x] Phase 1 completed on 2026-03-24
-- [x] Phase 2 completed on 2026-03-24
-- [x] Phase 3 completed on 2026-03-24
-- [x] Phase 4 completed on 2026-03-24
-
-Summary of delivered auth changes (Phases 1-4):
-The authentication flow now keeps users signed in smoothly across access-token expiry by combining startup silent refresh with controlled one-time `401` retry and single-flight coordination. On the backend, refresh-token rotation is active and replay resistance was improved by hashing refresh-token input via `sha256` before bcrypt verification/persistence. Phase 4 finalized the operational side with a documented session policy, a production runbook, and startup guardrails that fail fast on insecure cookie/CORS production settings. The result is better UX continuity without weakening the security baseline, with behavior covered by focused frontend, API unit, and API E2E tests.
-
----
-
-## 4. Phase plan (small chunks)
-
-## Phase 1 - Silent refresh bootstrap (Frontend MVP)
-
-Status: completed on 2026-03-24.
-
-Goal:
-
-- App start should attempt recovery via refresh cookie before forcing logged-out state.
-
-Files:
-
-- `packages/apps/web/src/shared/api/auth-api.ts`
-- `packages/apps/web/src/features/auth/auth-context.tsx`
-- `packages/apps/web/src/features/auth/protected-route.tsx`
-- `packages/apps/web/src/features/auth/public-auth-route.tsx`
-
-Changes:
-
-1. Add `authApi.refresh(): Promise<AuthResponse>`.
-2. In `AuthProvider`, introduce real bootstrap:
-   - initial `isInitializing = true`
-   - read local session
-   - if session missing/invalid, call `authApi.refresh()` once
-   - on success: persist `{ accessToken, user }`
-   - on failure: clear session
-   - finally set `isInitializing = false`
-3. Keep route guards unchanged in behavior, but rely on real initialization state.
-
-Definition of Done:
-
-- Reload after >15 minutes no longer immediately drops to login if refresh cookie is valid.
-- During bootstrap, routes show deterministic loading state (no flicker/loop).
-
-Tests:
-
-- Add unit/integration tests for `AuthProvider` bootstrap paths.
-- Manual check:
-  - login
-  - wait > access token TTL
-  - browser refresh
-  - app recovers session if refresh cookie is valid.
-
----
-
-## Phase 2 - Controlled `401` retry with single-flight (Frontend)
-
-Status: completed on 2026-03-24.
-
-Goal:
-
-- Token expiry during active use should not force immediate logout.
-
-Files:
-
-- `packages/apps/web/src/shared/api/client.ts`
-- `packages/apps/web/src/shared/api/unauthorized-handler.ts` (reuse existing fallback)
-
-Changes:
-
-1. Extend axios response interceptor:
-   - on first `401`, trigger refresh flow
-   - retry original request exactly once
-   - add retry marker on request config (avoid loops)
-2. Implement single-flight refresh:
-   - one shared in-flight refresh promise
-   - concurrent `401` requests await same promise.
-3. If refresh fails:
-   - clear session
-   - invoke unauthorized handler (existing redirect behavior).
-
-Definition of Done:
-
-- Parallel `401`s produce one refresh request.
-- Requests are retried once and succeed after refresh.
-- Refresh failure leads to clean, deterministic logout.
-
-Tests:
-
-- Interceptor tests:
-  - retry-once path
-  - no infinite loop
-  - refresh failure path
-  - parallel `401` single-flight path.
-
----
-
-## Phase 3 - Refresh token rotation (Backend + E2E)
-
-Status: completed on 2026-03-24.
-
-Goal:
-
-- Reduce refresh-token replay window.
-
-Files:
-
-- `packages/apps/api/src/modules/auth/presentation/auth.controller.ts`
-- `packages/apps/api/src/modules/auth/application/auth-refresh-session.service.ts`
-- `packages/apps/api/src/modules/auth/infrastructure/security/jwt-refresh-token-signer.ts`
-- `packages/apps/api-e2e/src/api/auth.spec.ts`
-- `packages/apps/api/src/modules/auth/application/auth-refresh-session.service.spec.ts`
-
-Changes:
-
-1. In refresh endpoint:
-   - after successful refresh-token validation, issue a new refresh token
-   - persist new refresh hash + expiry
-   - set new refresh cookie in response.
-2. Keep access-token response contract unchanged.
-3. Ensure each issued refresh token is unique (`jti`) so rotation is deterministic.
-4. Hash refresh tokens via `sha256` before bcrypt compare/persist to avoid bcrypt 72-byte truncation edge cases.
-5. Extend tests to assert rotation and replay invalidation semantics.
-
-Definition of Done:
-
-- Old refresh token is invalid after successful refresh.
-- Logout still invalidates refresh session correctly.
-- Existing auth E2E remains green.
-
----
-
-## Phase 4 - Optional hardening (only if time remains)
-
-Status: completed on 2026-03-24.
-
-Goal:
-
-- Improve operational clarity without major feature expansion.
-
-Files:
-
-- `docs/security/session-policy.md`
-- `docs/security/auth-production-runbook.md`
-- `packages/apps/api/src/shared/security/auth-runtime-security.ts`
-- `packages/apps/api/src/shared/security/auth-runtime-security.spec.ts`
-- `packages/apps/api/src/main.ts`
-
-Changes:
-
-1. Document session policy:
-   - access-token TTL
-   - idle timeout
-   - absolute session lifetime.
-2. Add deployment/security checklist:
-   - cookie flags
-   - CORS origins
-   - JWT secret rotation process.
-3. Add production startup guardrails:
-   - require explicit `CORS_ORIGIN` allowlist in production
-   - reject wildcard or localhost CORS origins in production
-   - require `AUTH_COOKIE_SECURE=true` in production
-
----
-
-## 5. Non-goals (to avoid overengineering now)
-
-- No full auth subsystem rewrite.
-- No further auth-model redesign beyond current refresh-session table approach.
-- No immediate move to memory-only access token unless explicitly prioritized.
-- No MFA/email verification scope creep for this phase.
-
----
-
-## 6. Verification checklist per phase
-
-For each phase:
-
-1. Implement minimal change set.
-2. Run targeted tests for changed module.
-3. Run regression checks:
-   - `npm run lint`
-   - `npm run test`
-4. Update docs (`progress.md` + relevant guide section).
-5. Commit with focused message (one phase per commit).
-
----
-
-## 7. Recommended execution order
-
-1. Phase 1 (highest UX impact, low complexity)
-2. Phase 2 (stability during active usage)
-3. Phase 3 (security hardening with bounded backend change)
-4. Phase 4 (operational hardening/documentation) completed
-
----
-
-## 8. Working mode with Codex
-
-Per chunk:
-
-1. Request exactly one phase scope.
-2. Ask for implementation + tests + doc update in one PR-sized change.
-3. Require explicit DoD check in final response.
-4. Continue to next chunk only after manual verification.
-
----
-
-## 9. P2 Documentation Outcome
-
-- AI transparency is now documented in root README (`## AI-assisted Development Transparency`).
-- Scope calibration is now documented in root/API README:
-  - session strategy tradeoff and production target,
-  - shared demo scope vs. per-user/role authorization target,
-  - complexity boundary against overengineering.
-- Review-driven mandatory backlog items are complete; remaining roadmap items are optional product polish.
+- Lint/tests green for affected project(s).
+- No behavior regression in core auth/dashboard flows.
+- `docs/progress.md` reflects the real state.

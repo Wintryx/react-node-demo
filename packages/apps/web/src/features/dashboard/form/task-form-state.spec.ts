@@ -1,8 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
-import { TaskFormState, toUpdateTaskPayload } from './task-form-state';
+import {
+  TaskFormState,
+  toUpdateTaskPayload,
+  validateTaskFormState,
+} from './task-form-state';
 import { Task } from '../../../shared/api/types';
 
+const validationMessages = {
+  titleRequired: 'title-required',
+  startDateRequired: 'start-required',
+  assigneeRequired: 'assignee-required',
+  subtaskInvalid: 'subtask-invalid',
+};
 
 const baseFormState = (dueDate: string | null): TaskFormState => ({
   title: 'Update title',
@@ -13,6 +23,13 @@ const baseFormState = (dueDate: string | null): TaskFormState => ({
   dueDate,
   employeeId: 1,
   subtasks: [],
+});
+
+const validFormState = (): TaskFormState => ({
+  ...baseFormState(null),
+  title: 'Valid title',
+  startDate: '2026-04-02',
+  employeeId: 1,
 });
 
 const baseTask = (dueDate: string | null): Task => ({
@@ -45,5 +62,41 @@ describe('task form state payload mapping', () => {
   it('keeps dueDate undefined when no due date exists and none is entered', () => {
     const payload = toUpdateTaskPayload(baseFormState(null), baseTask(null));
     expect(payload.dueDate).toBeUndefined();
+  });
+});
+
+describe('task form state validation', () => {
+  it('returns title validation message when title is empty', () => {
+    const invalidState: TaskFormState = {
+      ...validFormState(),
+      title: '   ',
+    };
+
+    expect(validateTaskFormState(invalidState, validationMessages)).toBe(
+      validationMessages.titleRequired,
+    );
+  });
+
+  it('returns subtask validation message when subtask is incomplete', () => {
+    const invalidState: TaskFormState = {
+      ...validFormState(),
+      subtasks: [
+        {
+          title: '',
+          completed: false,
+          startDate: '',
+          endDate: null,
+          assigneeId: null,
+        },
+      ],
+    };
+
+    expect(validateTaskFormState(invalidState, validationMessages)).toBe(
+      validationMessages.subtaskInvalid,
+    );
+  });
+
+  it('returns null for valid state', () => {
+    expect(validateTaskFormState(validFormState(), validationMessages)).toBeNull();
   });
 });

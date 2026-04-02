@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+﻿import { X } from 'lucide-react';
 import { SyntheticEvent, useEffect, useState } from 'react';
 
 
@@ -6,15 +6,15 @@ import { TaskFormCoreFields } from './task-form-core-fields';
 import {
   mapTaskFormError,
   TaskFormMode,
-  TaskFormState,
   toCreateTaskPayload,
   toUpdateTaskPayload,
+  validateTaskFormState,
 } from './task-form-state';
 import { TaskFormSubtasksEditor } from './task-form-subtasks-editor';
 import { useTaskFormState } from './use-task-form-state';
 import { Alert, Button } from '../../../components/ui';
 import { CreateTaskRequest, Employee, Task, UpdateTaskRequest } from '../../../shared/api/types';
-import { dashboardCopy } from '../dashboard-copy';
+import { dashboardTranslations } from '../dashboard-translations';
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -27,29 +27,6 @@ interface TaskFormDialogProps {
   onCreate(payload: CreateTaskRequest): Promise<void>;
   onUpdate(taskId: number, payload: UpdateTaskRequest): Promise<void>;
 }
-
-const validateFormState = (formState: TaskFormState): string | null => {
-  if (!formState.title.trim()) {
-    return dashboardCopy.tasks.validations.titleRequired;
-  }
-
-  if (!formState.startDate) {
-    return dashboardCopy.tasks.validations.startDateRequired;
-  }
-
-  if (!formState.employeeId) {
-    return dashboardCopy.tasks.validations.assigneeRequired;
-  }
-
-  const hasInvalidSubtask = formState.subtasks.some(
-    (subtask) => subtask.title.trim().length === 0 || subtask.startDate.length === 0,
-  );
-  if (hasInvalidSubtask) {
-    return dashboardCopy.tasks.validations.subtaskInvalid;
-  }
-
-  return null;
-};
 
 export function TaskFormDialog({
   open,
@@ -95,7 +72,10 @@ export function TaskFormDialog({
     event.preventDefault();
     setErrorMessage(null);
 
-    const validationError = validateFormState(formState);
+    const validationError = validateTaskFormState(
+      formState,
+      dashboardTranslations.tasks.validations,
+    );
     if (validationError) {
       setErrorMessage(validationError);
       return;
@@ -106,7 +86,7 @@ export function TaskFormDialog({
         await onCreate(toCreateTaskPayload(formState));
       } else {
         if (!task) {
-          setErrorMessage(dashboardCopy.tasks.missingContext);
+          setErrorMessage(dashboardTranslations.tasks.missingContext);
           return;
         }
         await onUpdate(task.id, toUpdateTaskPayload(formState, task));
@@ -124,8 +104,8 @@ export function TaskFormDialog({
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h3 className="font-display text-lg font-semibold">
             {mode === 'create'
-              ? dashboardCopy.tasks.create
-              : dashboardCopy.tasks.editHeading(task?.id ?? '')}
+              ? dashboardTranslations.tasks.create
+              : dashboardTranslations.tasks.editHeading(task?.id ?? '')}
           </h3>
           <Button type="button" variant="ghost" size="sm" onClick={onClose}>
             <X className="h-4 w-4" />
@@ -159,10 +139,10 @@ export function TaskFormDialog({
 
           <div className="flex items-center justify-end gap-3 border-t border-border pt-4">
             <Button type="button" variant="outline" disabled={isSubmitting} onClick={onClose}>
-              {dashboardCopy.common.cancel}
+              {dashboardTranslations.common.cancel}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {mode === 'create' ? dashboardCopy.tasks.create : dashboardCopy.common.saveChanges}
+              {mode === 'create' ? dashboardTranslations.tasks.create : dashboardTranslations.common.saveChanges}
             </Button>
           </div>
         </form>

@@ -1,10 +1,10 @@
-import { useMutation } from '@tanstack/react-query';
+﻿import { useMutation } from '@tanstack/react-query';
 import { SyntheticEvent, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from './auth-context';
-import { getAuthCopy } from './auth-copy';
 import { AuthPageShell } from './auth-page-shell';
+import { getAuthTranslations } from './auth-translations';
 import { Alert, Button, CardContent, Input, Label, Spinner } from '../../components/ui';
 import { useI18n } from '../i18n';
 
@@ -22,7 +22,7 @@ export function LoginPage() {
   const location = useLocation();
   const { login } = useAuth();
   const { language } = useI18n();
-  const copy = getAuthCopy(language);
+  const translations = getAuthTranslations(language);
 
   const [formValues, setFormValues] = useState<LoginFormValues>({
     email: '',
@@ -49,17 +49,17 @@ export function LoginPage() {
 
   return (
     <AuthPageShell
-      title={copy.login.title}
-      description={copy.login.description}
-      footerLabel={copy.login.footerLabel}
-      footerLinkLabel={copy.login.footerLinkLabel}
+      title={translations.login.title}
+      description={translations.login.description}
+      footerLabel={translations.login.footerLabel}
+      footerLinkLabel={translations.login.footerLinkLabel}
       footerLinkTo="/register"
-      badgeText={copy.shell.badge}
+      badgeText={translations.shell.badge}
     >
       <CardContent>
         <form className="space-y-4" onSubmit={onSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="login-email">{copy.login.email}</Label>
+            <Label htmlFor="login-email">{translations.login.email}</Label>
             <Input
               id="login-email"
               type="email"
@@ -74,7 +74,7 @@ export function LoginPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="login-password">{copy.login.password}</Label>
+            <Label htmlFor="login-password">{translations.login.password}</Label>
             <Input
               id="login-password"
               type="password"
@@ -93,10 +93,10 @@ export function LoginPage() {
             {loginMutation.isPending ? (
               <span className="inline-flex items-center gap-2">
                 <Spinner />
-                {copy.login.submitting}
+                {translations.login.submitting}
               </span>
             ) : (
-              copy.login.submit
+              translations.login.submit
             )}
           </Button>
         </form>

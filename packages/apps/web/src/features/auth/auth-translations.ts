@@ -1,6 +1,6 @@
-import { AppLanguage } from '../../shared/i18n/runtime';
+﻿import { AppLanguage } from '../../shared/i18n/runtime';
 
-const authCopyByLanguage = {
+const authTranslationsByLanguage = {
   en: {
     shell: {
       badge: 'React + NestJS Demo',
@@ -61,6 +61,6 @@ const authCopyByLanguage = {
   },
 } as const;
 
-export type AuthCopy = (typeof authCopyByLanguage)['en'];
+export type AuthTranslations = (typeof authTranslationsByLanguage)['en'];
 
-export const getAuthCopy = (language: AppLanguage): AuthCopy => <AuthCopy>authCopyByLanguage[language];
+export const getAuthTranslations = (language: AppLanguage): AuthTranslations => <AuthTranslations>authTranslationsByLanguage[language];

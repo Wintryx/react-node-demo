@@ -1,10 +1,10 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+﻿import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { tasksApi } from '../../../shared/api';
 import { CreateTaskRequest, Task, UpdateTaskRequest, UpsertSubtaskRequest } from '../../../shared/api/types';
 import { useToast } from '../../notifications/toast-context';
-import { dashboardCopy } from '../dashboard-copy';
+import { dashboardTranslations } from '../dashboard-translations';
 import { toUpsertSubtaskRequests } from '../utils';
 import { executeMutation } from './mutation-utils';
 
@@ -63,8 +63,8 @@ export const useTaskMutations = (): UseTaskMutationsResult => {
     await runMutation(async () => {
       await createTaskMutation.mutateAsync(payload);
       success(
-        dashboardCopy.tasks.createdToastTitle,
-        dashboardCopy.tasks.createdToastDescription(payload.title.trim()),
+        dashboardTranslations.tasks.createdToastTitle,
+        dashboardTranslations.tasks.createdToastDescription(payload.title.trim()),
       );
     });
   };
@@ -78,8 +78,8 @@ export const useTaskMutations = (): UseTaskMutationsResult => {
       await updateTaskMutation.mutateAsync({ taskId, payload });
       if (notifySuccess) {
         success(
-          dashboardCopy.tasks.updatedToastTitle,
-          dashboardCopy.tasks.updatedToastDescription,
+          dashboardTranslations.tasks.updatedToastTitle,
+          dashboardTranslations.tasks.updatedToastDescription,
         );
       }
     });
@@ -93,8 +93,8 @@ export const useTaskMutations = (): UseTaskMutationsResult => {
     await runMutation(async () => {
       await deleteTaskMutation.mutateAsync(task.id);
       success(
-        dashboardCopy.tasks.deletedToastTitle,
-        dashboardCopy.tasks.deletedToastDescription(task.title),
+        dashboardTranslations.tasks.deletedToastTitle,
+        dashboardTranslations.tasks.deletedToastDescription(task.title),
       );
     });
   };

@@ -1,7 +1,6 @@
-import { waitFor } from '@testing-library/react';
+﻿import { waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { dashboardCopy } from './dashboard-copy';
 import {
   clickButtonByName,
   confirmActionDialog,
@@ -11,6 +10,7 @@ import {
   resetDashboardApiMocks,
   setInputValueByLabel,
 } from './dashboard-integration-test-utils';
+import { dashboardTranslations } from './dashboard-translations';
 
 describe('Dashboard employee CRUD integration', () => {
   const { createEmployeeMock, updateEmployeeMock, deleteEmployeeMock } =
@@ -24,10 +24,10 @@ describe('Dashboard employee CRUD integration', () => {
     await renderAuthenticatedApp();
 
     await openCreateEmployeeModal();
-    setInputValueByLabel(dashboardCopy.employees.firstName, 'Grace');
-    setInputValueByLabel(dashboardCopy.employees.lastName, 'Hopper');
-    setInputValueByLabel(dashboardCopy.employees.email, 'grace@example.com');
-    await clickButtonByName(dashboardCopy.employees.createEmployee);
+    setInputValueByLabel(dashboardTranslations.employees.firstName, 'Grace');
+    setInputValueByLabel(dashboardTranslations.employees.lastName, 'Hopper');
+    setInputValueByLabel(dashboardTranslations.employees.email, 'grace@example.com');
+    await clickButtonByName(dashboardTranslations.employees.createEmployee);
 
     await waitFor(() => {
       expect(createEmployeeMock).toHaveBeenCalledTimes(1);
@@ -45,9 +45,9 @@ describe('Dashboard employee CRUD integration', () => {
   it('updates an employee from the management panel', async () => {
     await renderAuthenticatedApp();
 
-    await clickButtonByName(dashboardCopy.employees.editAria('Ada Lovelace'));
-    setInputValueByLabel(dashboardCopy.employees.firstName, 'Ada-Updated');
-    await clickButtonByName(dashboardCopy.common.saveChanges);
+    await clickButtonByName(dashboardTranslations.employees.editAria('Ada Lovelace'));
+    setInputValueByLabel(dashboardTranslations.employees.firstName, 'Ada-Updated');
+    await clickButtonByName(dashboardTranslations.common.saveChanges);
 
     await waitFor(() => {
       expect(updateEmployeeMock).toHaveBeenCalledTimes(1);
@@ -67,7 +67,7 @@ describe('Dashboard employee CRUD integration', () => {
   it('deletes an employee from the management panel after confirmation', async () => {
     await renderAuthenticatedApp();
 
-    await clickButtonByName(dashboardCopy.employees.removeAria('Ada Lovelace'));
+    await clickButtonByName(dashboardTranslations.employees.removeAria('Ada Lovelace'));
     confirmActionDialog();
 
     await waitFor(() => {

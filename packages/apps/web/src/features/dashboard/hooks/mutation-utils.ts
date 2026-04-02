@@ -1,13 +1,13 @@
-import { Dispatch, SetStateAction } from 'react';
+﻿import { Dispatch, SetStateAction } from 'react';
 
-import { dashboardCopy } from '../dashboard-copy';
+import { dashboardTranslations } from '../dashboard-translations';
 
 export const mapMutationError = (error: unknown): string => {
   if (error instanceof Error) {
     return error.message;
   }
 
-  return dashboardCopy.common.requestFailed;
+  return dashboardTranslations.common.requestFailed;
 };
 
 export const executeMutation = async <T>(

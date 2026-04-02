@@ -1,10 +1,10 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+﻿import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { employeesApi } from '../../../shared/api';
 import { CreateEmployeeRequest, Employee, UpdateEmployeeRequest } from '../../../shared/api/types';
 import { useToast } from '../../notifications/toast-context';
-import { dashboardCopy } from '../dashboard-copy';
+import { dashboardTranslations } from '../dashboard-translations';
 import { getEmployeeDisplayName } from '../utils';
 import { executeMutation } from './mutation-utils';
 
@@ -60,8 +60,8 @@ export const useEmployeeMutations = (): UseEmployeeMutationsResult => {
     runMutation(async () => {
       const employee = await createEmployeeMutation.mutateAsync(payload);
       success(
-        dashboardCopy.employees.createdToastTitle,
-        dashboardCopy.employees.createdToastDescription(getEmployeeDisplayName(employee)),
+        dashboardTranslations.employees.createdToastTitle,
+        dashboardTranslations.employees.createdToastDescription(getEmployeeDisplayName(employee)),
       );
       return employee;
     });
@@ -73,8 +73,8 @@ export const useEmployeeMutations = (): UseEmployeeMutationsResult => {
     runMutation(async () => {
       const employee = await updateEmployeeMutation.mutateAsync({ employeeId, payload });
       success(
-        dashboardCopy.employees.updatedToastTitle,
-        dashboardCopy.employees.updatedToastDescription(getEmployeeDisplayName(employee)),
+        dashboardTranslations.employees.updatedToastTitle,
+        dashboardTranslations.employees.updatedToastDescription(getEmployeeDisplayName(employee)),
       );
       return employee;
     });
@@ -83,8 +83,8 @@ export const useEmployeeMutations = (): UseEmployeeMutationsResult => {
     await runMutation(async () => {
       await deleteEmployeeMutation.mutateAsync(employee.id);
       success(
-        dashboardCopy.employees.deletedToastTitle,
-        dashboardCopy.employees.deletedToastDescription(getEmployeeDisplayName(employee)),
+        dashboardTranslations.employees.deletedToastTitle,
+        dashboardTranslations.employees.deletedToastDescription(getEmployeeDisplayName(employee)),
       );
     });
   };
