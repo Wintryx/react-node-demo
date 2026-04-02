@@ -6,6 +6,7 @@ Stand: 2026-04-02
 
 - Review-Pflichtpunkte sind umgesetzt (Employee-CRUD UI, English default, Compose-Startfähigkeit, dueDate-Clearing, Seed-Flow).
 - Auth-Flow ist auf finalem Stand mit `auth_refresh_sessions`, Rotation, `logout` und `logout-all`.
+- Language-Toggle im Dashboard schaltet Texte jetzt direkt bei Klick (EN/DE) ohne zusätzlichen Refresh.
 - Web/API-Lint und Tests laufen grün für die zuletzt umgesetzten Häppchen.
 
 ## Laufende Refactoring-Initiative (Vereinfachung)

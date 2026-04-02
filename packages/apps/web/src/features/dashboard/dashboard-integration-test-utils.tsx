@@ -96,6 +96,7 @@ const routerFuture = {
 
 export const resetDashboardApiMocks = (): void => {
   window.sessionStorage.clear();
+  window.localStorage.clear();
   vi.clearAllMocks();
 
   dashboardApiMocks.listEmployeesMock.mockResolvedValue([employeeFixture]);

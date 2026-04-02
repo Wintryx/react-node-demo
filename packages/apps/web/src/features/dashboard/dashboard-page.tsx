@@ -6,7 +6,7 @@ import {
   DashboardHeader,
   DashboardTaskSection,
 } from './components';
-import { dashboardTranslations } from './dashboard-translations';
+import { getDashboardTranslations } from './dashboard-translations';
 import { DashboardViewMode } from './dashboard-view-mode';
 import { TaskFormDialog } from './form';
 import { useDashboardData, useEmployeeMutations, useTaskMutations } from './hooks';
@@ -14,6 +14,7 @@ import { getEmployeeDisplayName } from './utils';
 import { Alert, Spinner } from '../../components/ui';
 import { CreateEmployeeRequest, Employee, Task, UpdateEmployeeRequest } from '../../shared/api/types';
 import { useAuth } from '../auth/auth-context';
+import { useI18n } from '../i18n';
 
 type PendingDeleteAction =
   | { kind: 'task'; task: Task }
@@ -22,6 +23,8 @@ type PendingDeleteAction =
 
 export function DashboardPage() {
   const { currentUser, logout } = useAuth();
+  const { language } = useI18n();
+  const dashboardTranslations = getDashboardTranslations(language);
   const [viewMode, setViewMode] = useState<DashboardViewMode>('list');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
