@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+﻿import { FormEvent } from 'react';
 
 import { Alert, Button, Input, Label, Select } from '../../../components/ui';
 import {
@@ -8,8 +8,12 @@ import {
   EmployeeRole,
   UpdateEmployeeRequest,
 } from '../../../shared/api/types';
-import { dashboardCopy } from '../dashboard-copy';
+import { dashboardTranslations } from '../dashboard-translations';
 import { getEmployeeDisplayName } from '../utils';
+import {
+  useEmployeeManagementForm,
+  validateEmployeeFormState,
+} from './use-employee-management-form';
 
 interface EmployeeManagementPanelProps {
   employees: Employee[];
@@ -20,22 +24,6 @@ interface EmployeeManagementPanelProps {
   onUpdateEmployee(employeeId: number, payload: UpdateEmployeeRequest): Promise<Employee>;
   onDeleteEmployee(employee: Employee): Promise<void>;
 }
-
-interface EmployeeFormState {
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: EmployeeRole;
-  department: EmployeeDepartment;
-}
-
-const DEFAULT_FORM_STATE: EmployeeFormState = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  role: 'developer',
-  department: 'engineering',
-};
 
 const employeeRoleOptions: Array<{ value: EmployeeRole; label: string }> = [
   { value: 'developer', label: 'Developer' },
@@ -56,28 +44,6 @@ const employeeDepartmentOptions: Array<{ value: EmployeeDepartment; label: strin
   { value: 'people', label: 'People' },
 ];
 
-const toFormState = (employee: Employee): EmployeeFormState => ({
-  firstName: employee.firstName,
-  lastName: employee.lastName,
-  email: employee.email,
-  role: employee.role,
-  department: employee.department,
-});
-
-const validateFormState = (formState: EmployeeFormState): string | null => {
-  if (!formState.firstName.trim()) {
-    return dashboardCopy.employees.validations.firstNameRequired;
-  }
-  if (!formState.lastName.trim()) {
-    return dashboardCopy.employees.validations.lastNameRequired;
-  }
-  if (!formState.email.trim()) {
-    return dashboardCopy.employees.validations.emailRequired;
-  }
-
-  return null;
-};
-
 export function EmployeeManagementPanel({
   employees,
   isMutating,
@@ -87,41 +53,26 @@ export function EmployeeManagementPanel({
   onUpdateEmployee,
   onDeleteEmployee,
 }: EmployeeManagementPanelProps) {
-  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
-  const [isCreateMode, setIsCreateMode] = useState(false);
-  const [formState, setFormState] = useState<EmployeeFormState>(DEFAULT_FORM_STATE);
-  const [validationError, setValidationError] = useState<string | null>(null);
-
-  const isFormOpen = isCreateMode || editingEmployee !== null;
-
-  const resetForm = (): void => {
-    setIsCreateMode(false);
-    setEditingEmployee(null);
-    setFormState(DEFAULT_FORM_STATE);
-    setValidationError(null);
-  };
-
-  const handleOpenCreate = (): void => {
-    onClearActionError();
-    setValidationError(null);
-    setEditingEmployee(null);
-    setFormState(DEFAULT_FORM_STATE);
-    setIsCreateMode(true);
-  };
-
-  const handleOpenEdit = (employee: Employee): void => {
-    onClearActionError();
-    setValidationError(null);
-    setIsCreateMode(false);
-    setEditingEmployee(employee);
-    setFormState(toFormState(employee));
-  };
+  const {
+    editingEmployee,
+    isCreateMode,
+    isFormOpen,
+    formState,
+    validationError,
+    setValidationError,
+    setFormField,
+    openCreate,
+    openEdit,
+    resetForm,
+  } = useEmployeeManagementForm({
+    onClearActionError,
+  });
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setValidationError(null);
 
-    const validationMessage = validateFormState(formState);
+    const validationMessage = validateEmployeeFormState(formState);
     if (validationMessage) {
       setValidationError(validationMessage);
       return;
@@ -154,11 +105,11 @@ export function EmployeeManagementPanel({
     <div className="space-y-3 rounded-md border border-border p-3">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          {dashboardCopy.employees.managementTitle}
+          {dashboardTranslations.employees.managementTitle}
         </p>
         {!isFormOpen ? (
-          <Button type="button" size="sm" onClick={handleOpenCreate} disabled={isMutating}>
-            {dashboardCopy.employees.addEmployee}
+          <Button type="button" size="sm" onClick={openCreate} disabled={isMutating}>
+            {dashboardTranslations.employees.addEmployee}
           </Button>
         ) : null}
       </div>
@@ -168,46 +119,44 @@ export function EmployeeManagementPanel({
       {isFormOpen ? (
         <form className="space-y-3 rounded-md border border-border p-3" onSubmit={handleSubmit}>
           <p className="text-sm font-semibold">
-            {isCreateMode ? dashboardCopy.employees.createEmployee : dashboardCopy.employees.editEmployee}
+            {isCreateMode ? dashboardTranslations.employees.createEmployee : dashboardTranslations.employees.editEmployee}
           </p>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1">
-              <Label htmlFor="employee-first-name">{dashboardCopy.employees.firstName}</Label>
+              <Label htmlFor="employee-first-name">{dashboardTranslations.employees.firstName}</Label>
               <Input
                 id="employee-first-name"
                 value={formState.firstName}
-                onChange={(event) => setFormState((current) => ({ ...current, firstName: event.target.value }))}
+                onChange={(event) => setFormField('firstName', event.target.value)}
                 disabled={isMutating}
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="employee-last-name">{dashboardCopy.employees.lastName}</Label>
+              <Label htmlFor="employee-last-name">{dashboardTranslations.employees.lastName}</Label>
               <Input
                 id="employee-last-name"
                 value={formState.lastName}
-                onChange={(event) => setFormState((current) => ({ ...current, lastName: event.target.value }))}
+                onChange={(event) => setFormField('lastName', event.target.value)}
                 disabled={isMutating}
               />
             </div>
             <div className="space-y-1 sm:col-span-2">
-              <Label htmlFor="employee-email">{dashboardCopy.employees.email}</Label>
+              <Label htmlFor="employee-email">{dashboardTranslations.employees.email}</Label>
               <Input
                 id="employee-email"
                 type="email"
                 value={formState.email}
-                onChange={(event) => setFormState((current) => ({ ...current, email: event.target.value }))}
+                onChange={(event) => setFormField('email', event.target.value)}
                 disabled={isMutating}
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="employee-role">{dashboardCopy.employees.role}</Label>
+              <Label htmlFor="employee-role">{dashboardTranslations.employees.role}</Label>
               <Select
                 id="employee-role"
                 value={formState.role}
-                onChange={(event) =>
-                  setFormState((current) => ({ ...current, role: event.target.value as EmployeeRole }))
-                }
+                onChange={(event) => setFormField('role', event.target.value as EmployeeRole)}
                 disabled={isMutating}
               >
                 {employeeRoleOptions.map((option) => (
@@ -218,15 +167,12 @@ export function EmployeeManagementPanel({
               </Select>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="employee-department">{dashboardCopy.employees.department}</Label>
+              <Label htmlFor="employee-department">{dashboardTranslations.employees.department}</Label>
               <Select
                 id="employee-department"
                 value={formState.department}
                 onChange={(event) =>
-                  setFormState((current) => ({
-                    ...current,
-                    department: event.target.value as EmployeeDepartment,
-                  }))
+                  setFormField('department', event.target.value as EmployeeDepartment)
                 }
                 disabled={isMutating}
               >
@@ -241,17 +187,17 @@ export function EmployeeManagementPanel({
 
           <div className="flex items-center justify-end gap-2">
             <Button type="button" variant="outline" size="sm" onClick={resetForm} disabled={isMutating}>
-              {dashboardCopy.common.cancel}
+              {dashboardTranslations.common.cancel}
             </Button>
             <Button type="submit" size="sm" disabled={isMutating}>
-              {isCreateMode ? dashboardCopy.employees.createEmployee : dashboardCopy.common.saveChanges}
+              {isCreateMode ? dashboardTranslations.employees.createEmployee : dashboardTranslations.common.saveChanges}
             </Button>
           </div>
         </form>
       ) : null}
 
       {employees.length === 0 ? (
-        <Alert>{dashboardCopy.employees.noEmployeesYet}</Alert>
+        <Alert>{dashboardTranslations.employees.noEmployeesYet}</Alert>
       ) : (
         <ul className="space-y-2">
           {employees.map((employee) => {
@@ -270,11 +216,11 @@ export function EmployeeManagementPanel({
                     type="button"
                     size="sm"
                     variant="outline"
-                    onClick={() => handleOpenEdit(employee)}
+                    onClick={() => openEdit(employee)}
                     disabled={isMutating}
-                    aria-label={dashboardCopy.employees.editAria(employeeName)}
+                    aria-label={dashboardTranslations.employees.editAria(employeeName)}
                   >
-                    {dashboardCopy.employees.edit}
+                    {dashboardTranslations.employees.edit}
                   </Button>
                   <Button
                     type="button"
@@ -282,9 +228,9 @@ export function EmployeeManagementPanel({
                     variant="outline"
                     onClick={() => void onDeleteEmployee(employee)}
                     disabled={isMutating}
-                    aria-label={dashboardCopy.employees.removeAria(employeeName)}
+                    aria-label={dashboardTranslations.employees.removeAria(employeeName)}
                   >
-                    {dashboardCopy.employees.removeEmployee}
+                    {dashboardTranslations.employees.removeEmployee}
                   </Button>
                 </div>
               </li>

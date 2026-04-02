@@ -1,6 +1,6 @@
 # Session Policy
 
-Last updated: 2026-03-24
+Last updated: 2026-04-01
 
 ## Objective
 
@@ -15,7 +15,7 @@ Define a clear, predictable, and secure session lifecycle for this project.
 - Refresh token:
   - Transport: HttpOnly cookie (`refreshToken`)
   - Lifetime: `7d` (`JWT_REFRESH_TOKEN_EXPIRES_IN`)
-  - Server persistence: hashed in `auth_users.refreshTokenHash`
+  - Server persistence: hashed in `auth_refresh_sessions` (per session/device)
   - Rotation: enabled on every successful `POST /auth/refresh`
 
 ## Timeouts
@@ -39,6 +39,7 @@ Define a clear, predictable, and secure session lifecycle for this project.
   - On refresh failure, session is cleared and unauthorized flow redirects to login.
 - Logout:
   - `POST /auth/logout` clears refresh cookie and invalidates persisted refresh session server-side.
+  - `POST /auth/logout-all` clears refresh cookie and revokes all persisted refresh sessions for the current user.
 
 ## Security Notes
 

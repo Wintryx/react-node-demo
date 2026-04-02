@@ -1,8 +1,9 @@
 import { AxiosInstance } from 'axios';
 
-import { EmployeeResponse, TaskResponse } from './support/api-types';
+import { TaskResponse } from './support/api-types';
 import { AuthContext, createAuthContext } from './support/auth-helpers';
-import { buildEmployeePayload, buildTaskPayload, buildUniqueSuffix } from './support/fixtures';
+import { buildUniqueSuffix } from './support/fixtures';
+import { createEmployeeForTest, createTaskForTest } from './support/resource-helpers';
 
 describe('Smoke E2E', () => {
   let authContext: AuthContext;
@@ -15,38 +16,30 @@ describe('Smoke E2E', () => {
 
   it('runs the central authenticated workflow without regressions', async () => {
     const suffix = buildUniqueSuffix();
-    const createdEmployee = await client.post<EmployeeResponse>(
-      '/employees',
-      buildEmployeePayload(suffix),
-    );
+    const createdEmployee = await createEmployeeForTest(client, suffix);
 
-    expect(createdEmployee.status).toBe(201);
-    expect(createdEmployee.data.id).toBeGreaterThan(0);
+    expect(createdEmployee.id).toBeGreaterThan(0);
 
-    const createdTask = await client.post<TaskResponse>(
-      '/tasks',
-      buildTaskPayload(createdEmployee.data.id, suffix),
-    );
+    const createdTask = await createTaskForTest(client, createdEmployee.id, suffix);
 
-    expect(createdTask.status).toBe(201);
-    expect(createdTask.data.employeeId).toBe(createdEmployee.data.id);
+    expect(createdTask.employeeId).toBe(createdEmployee.id);
 
     const filteredTasks = await client.get<TaskResponse[]>(
-      `/tasks?employeeId=${createdEmployee.data.id}`,
+      `/tasks?employeeId=${createdEmployee.id}`,
     );
     expect(filteredTasks.status).toBe(200);
-    expect(filteredTasks.data.some((task) => task.id === createdTask.data.id)).toBe(true);
+    expect(filteredTasks.data.some((task) => task.id === createdTask.id)).toBe(true);
 
-    const updatedTask = await client.patch<TaskResponse>(`/tasks/${createdTask.data.id}`, {
+    const updatedTask = await client.patch<TaskResponse>(`/tasks/${createdTask.id}`, {
       status: 'done',
     });
     expect(updatedTask.status).toBe(200);
     expect(updatedTask.data.status).toBe('done');
 
-    const deleteTaskResponse = await client.delete(`/tasks/${createdTask.data.id}`);
+    const deleteTaskResponse = await client.delete(`/tasks/${createdTask.id}`);
     expect(deleteTaskResponse.status).toBe(204);
 
-    const deleteEmployeeResponse = await client.delete(`/employees/${createdEmployee.data.id}`);
+    const deleteEmployeeResponse = await client.delete(`/employees/${createdEmployee.id}`);
     expect(deleteEmployeeResponse.status).toBe(204);
   });
 });

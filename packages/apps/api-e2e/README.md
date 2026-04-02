@@ -28,6 +28,8 @@ The suite starts its own API process on a dedicated dynamic local port
   - register success
   - duplicate email conflict (`409`)
   - login success
+  - refresh rotation behavior
+  - logout-all session revocation
   - invalid credentials (`401`)
   - protected route access without token (`401`)
   - protected route access with token (`200`)
@@ -43,7 +45,8 @@ The suite starts its own API process on a dedicated dynamic local port
   - date range validation
   - update including subtasks
   - delete + not-found case
+  - smoke flow for authenticated core CRUD path
 
 ## Next
 
-- Extend coverage for frontend integration flow once UI calls are in place.
+- Optional UI-driven E2E flow (browser-level) if end-to-end frontend automation is prioritized.

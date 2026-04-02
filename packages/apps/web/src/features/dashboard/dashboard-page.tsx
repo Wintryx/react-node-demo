@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 
 import {
   ConfirmActionDialog,
@@ -6,7 +6,7 @@ import {
   DashboardHeader,
   DashboardTaskSection,
 } from './components';
-import { dashboardCopy } from './dashboard-copy';
+import { dashboardTranslations } from './dashboard-translations';
 import { DashboardViewMode } from './dashboard-view-mode';
 import { TaskFormDialog } from './form';
 import { useDashboardData, useEmployeeMutations, useTaskMutations } from './hooks';
@@ -106,13 +106,13 @@ export function DashboardPage() {
 
   const deleteDialogTitle =
     pendingDeleteAction?.kind === 'task'
-      ? dashboardCopy.tasks.confirmDeleteTitle
-      : dashboardCopy.employees.confirmDeleteTitle;
+      ? dashboardTranslations.tasks.confirmDeleteTitle
+      : dashboardTranslations.employees.confirmDeleteTitle;
   const deleteDialogDescription =
     pendingDeleteAction?.kind === 'task'
-      ? dashboardCopy.tasks.confirmDelete(pendingDeleteAction.task.title)
+      ? dashboardTranslations.tasks.confirmDelete(pendingDeleteAction.task.title)
       : pendingDeleteAction?.kind === 'employee'
-        ? dashboardCopy.employees.confirmDelete(
+        ? dashboardTranslations.employees.confirmDelete(
             getEmployeeDisplayName(pendingDeleteAction.employee),
           )
         : '';

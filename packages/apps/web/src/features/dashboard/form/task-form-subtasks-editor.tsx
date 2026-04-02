@@ -1,7 +1,7 @@
-import { EditableSubtask } from './task-form-state';
+﻿import { EditableSubtask } from './task-form-state';
 import { Button, DatePickerField, Input, Label, Select } from '../../../components/ui';
 import { Employee } from '../../../shared/api/types';
-import { dashboardCopy } from '../dashboard-copy';
+import { dashboardTranslations } from '../dashboard-translations';
 import { getEmployeeDisplayName } from '../utils';
 
 interface TaskFormSubtasksEditorProps {
@@ -24,14 +24,14 @@ export function TaskFormSubtasksEditor({
   return (
     <div className="space-y-3 border-t border-border pt-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold">{dashboardCopy.subtasks.title}</p>
+        <p className="text-sm font-semibold">{dashboardTranslations.subtasks.title}</p>
         <Button type="button" size="sm" variant="secondary" disabled={isSubmitting} onClick={onAddSubtask}>
-          {dashboardCopy.subtasks.addSubtask}
+          {dashboardTranslations.subtasks.addSubtask}
         </Button>
       </div>
 
       {subtasks.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{dashboardCopy.subtasks.noSubtasksAdded}</p>
+        <p className="text-sm text-muted-foreground">{dashboardTranslations.subtasks.noSubtasksAdded}</p>
       ) : (
         <div className="space-y-3">
           {subtasks.map((subtask, index) => (
@@ -39,7 +39,7 @@ export function TaskFormSubtasksEditor({
               <div className="flex items-center justify-between gap-3">
                 <Input
                   value={subtask.title}
-                  placeholder={dashboardCopy.subtasks.titlePlaceholder}
+                  placeholder={dashboardTranslations.subtasks.titlePlaceholder}
                   disabled={isSubmitting}
                   onChange={(event) => onChangeSubtask(index, { title: event.target.value })}
                 />
@@ -50,13 +50,13 @@ export function TaskFormSubtasksEditor({
                   disabled={isSubmitting}
                   onClick={() => onRemoveSubtask(index)}
                 >
-                  {dashboardCopy.subtasks.remove}
+                  {dashboardTranslations.subtasks.remove}
                 </Button>
               </div>
 
               <div className="grid gap-3 md:grid-cols-3">
                 <div className="space-y-2">
-                  <Label>{dashboardCopy.subtasks.start}</Label>
+                  <Label>{dashboardTranslations.subtasks.start}</Label>
                   <DatePickerField
                     value={subtask.startDate}
                     disabled={isSubmitting}
@@ -64,7 +64,7 @@ export function TaskFormSubtasksEditor({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>{dashboardCopy.subtasks.end}</Label>
+                  <Label>{dashboardTranslations.subtasks.end}</Label>
                   <DatePickerField
                     value={subtask.endDate}
                     disabled={isSubmitting}
@@ -73,7 +73,7 @@ export function TaskFormSubtasksEditor({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>{dashboardCopy.subtasks.assignedTo}</Label>
+                  <Label>{dashboardTranslations.subtasks.assignedTo}</Label>
                   <Select
                     value={subtask.assigneeId?.toString() ?? ''}
                     disabled={isSubmitting}
@@ -83,7 +83,7 @@ export function TaskFormSubtasksEditor({
                       })
                     }
                   >
-                    <option value="">{dashboardCopy.subtasks.unassigned}</option>
+                    <option value="">{dashboardTranslations.subtasks.unassigned}</option>
                     {employees.map((employee) => (
                       <option key={employee.id} value={employee.id}>
                         {getEmployeeDisplayName(employee)}
@@ -101,7 +101,7 @@ export function TaskFormSubtasksEditor({
                   disabled={isSubmitting}
                   onChange={(event) => onChangeSubtask(index, { completed: event.target.checked })}
                 />
-                {dashboardCopy.subtasks.completed}
+                {dashboardTranslations.subtasks.completed}
               </label>
             </div>
           ))}

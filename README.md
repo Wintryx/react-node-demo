@@ -374,4 +374,5 @@ This README is a living document.
 
 - It is updated after each implementation chunk.
 - Technical progress is tracked in `docs/progress.md`.
-- Architecture and implementation details live in `docs/implementation-guide.md`.
+- Architecture and implementation strategy live in `docs/implementation-guide.md`.
+- Package-level historical detail is tracked only in `docs/progress.md` to avoid duplicate changelogs.

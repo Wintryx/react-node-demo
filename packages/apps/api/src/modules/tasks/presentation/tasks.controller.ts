@@ -24,12 +24,12 @@ import {
   ApiParam,
   ApiQuery,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 import { CreateTaskDto, TaskResponseDto, UpdateTaskDto } from './dto';
 import { toCreateTaskInput, toUpdateTaskInput } from './task-input.mapper';
 import { DEMO_AUTH_SCOPE_NOTE } from '../../../shared/docs/swagger-notes';
+import { ApiBearerTokenUnauthorizedResponse } from '../../../shared/docs/swagger-responses';
 import { ApiErrorCode, createApiErrorPayload } from '../../../shared/errors';
 import { CreateTaskUseCase } from '../application/create-task.use-case';
 import { DeleteTaskUseCase } from '../application/delete-task.use-case';
@@ -65,7 +65,7 @@ export class TasksController {
     isArray: true,
   })
   @ApiBadRequestResponse({ description: 'Invalid query parameter "employeeId".' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid bearer token.' })
+  @ApiBearerTokenUnauthorizedResponse()
   @Get()
   listTasks(@Query('employeeId') employeeId?: string): Promise<Task[]> {
     const parsedEmployeeId = this.parseEmployeeId(employeeId);
@@ -112,7 +112,7 @@ export class TasksController {
   @ApiNotFoundResponse({
     description: 'Referenced employee or one or more subtask assignees were not found.',
   })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid bearer token.' })
+  @ApiBearerTokenUnauthorizedResponse()
   @Post()
   createTask(@Body() dto: CreateTaskDto): Promise<Task> {
     return this.createTaskUseCase.execute(toCreateTaskInput(dto));
@@ -163,7 +163,7 @@ export class TasksController {
   @ApiNotFoundResponse({
     description: 'Task, referenced employee, or one or more subtask assignees were not found.',
   })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid bearer token.' })
+  @ApiBearerTokenUnauthorizedResponse()
   @Patch(':id')
   updateTask(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateTaskDto): Promise<Task> {
     return this.updateTaskUseCase.execute(id, toUpdateTaskInput(dto));
@@ -182,7 +182,7 @@ export class TasksController {
   @ApiNoContentResponse({ description: 'Deletes a task (subtasks are deleted as well).' })
   @ApiBadRequestResponse({ description: 'Invalid task id.' })
   @ApiNotFoundResponse({ description: 'Task not found.' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid bearer token.' })
+  @ApiBearerTokenUnauthorizedResponse()
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteTask(@Param('id', ParseIntPipe) id: number): Promise<void> {

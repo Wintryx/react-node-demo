@@ -1,10 +1,10 @@
-import { RefreshCcw } from 'lucide-react';
+﻿import { RefreshCcw } from 'lucide-react';
 
 import { EmployeeManagementPanel } from './employee-management-panel';
 import { EmployeeSwitcher } from './employee-switcher';
 import { Alert, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui';
 import { CreateEmployeeRequest, Employee, UpdateEmployeeRequest } from '../../../shared/api/types';
-import { dashboardCopy } from '../dashboard-copy';
+import { dashboardTranslations } from '../dashboard-translations';
 
 interface DashboardControlsPanelProps {
   employees: Employee[];
@@ -34,8 +34,8 @@ export function DashboardControlsPanel({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{dashboardCopy.employees.workspaceControls}</CardTitle>
-        <CardDescription>{dashboardCopy.employees.filterDescription}</CardDescription>
+        <CardTitle className="text-base">{dashboardTranslations.employees.workspaceControls}</CardTitle>
+        <CardDescription>{dashboardTranslations.employees.filterDescription}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {employees.length > 0 ? (
@@ -45,11 +45,11 @@ export function DashboardControlsPanel({
             onChange={onEmployeeChange}
           />
         ) : (
-          <Alert>{dashboardCopy.employees.noEmployees}</Alert>
+          <Alert>{dashboardTranslations.employees.noEmployees}</Alert>
         )}
         <Button variant="secondary" className="w-full" onClick={onRefresh}>
           <RefreshCcw className="mr-2 h-4 w-4" />
-          {dashboardCopy.employees.refreshData}
+          {dashboardTranslations.employees.refreshData}
         </Button>
         <EmployeeManagementPanel
           employees={employees}

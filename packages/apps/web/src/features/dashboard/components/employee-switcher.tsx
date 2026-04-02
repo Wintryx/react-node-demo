@@ -1,6 +1,6 @@
-import { Select } from '../../../components/ui';
+﻿import { Select } from '../../../components/ui';
 import { Employee } from '../../../shared/api/types';
-import { dashboardCopy } from '../dashboard-copy';
+import { dashboardTranslations } from '../dashboard-translations';
 import { getEmployeeDisplayName } from '../utils';
 
 interface EmployeeSwitcherProps {
@@ -27,7 +27,7 @@ export function EmployeeSwitcher({
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        {dashboardCopy.employees.employeeFilter}
+        {dashboardTranslations.employees.employeeFilter}
       </p>
       <Select
         value={selectedEmployeeId?.toString() ?? ''}
@@ -35,7 +35,7 @@ export function EmployeeSwitcher({
           onChange(event.target.value.trim() === '' ? null : Number(event.target.value))
         }
       >
-        <option value="">{dashboardCopy.employees.allEmployees}</option>
+        <option value="">{dashboardTranslations.employees.allEmployees}</option>
         {employees.map((employee) => (
           <option key={employee.id} value={employee.id}>
             {getEmployeeDisplayName(employee)} ({employeeRoleLabels[employee.role]})

@@ -1,5 +1,5 @@
-import { Button } from '../../../components/ui';
-import { dashboardCopy } from '../dashboard-copy';
+﻿import { Button } from '../../../components/ui';
+import { dashboardTranslations } from '../dashboard-translations';
 
 interface ConfirmActionDialogProps {
   open: boolean;
@@ -30,10 +30,10 @@ export function ConfirmActionDialog({
 
         <div className="mt-5 flex items-center justify-end gap-2">
           <Button type="button" variant="outline" onClick={onCancel} disabled={isConfirming}>
-            {dashboardCopy.common.cancel}
+            {dashboardTranslations.common.cancel}
           </Button>
           <Button type="button" variant="danger" onClick={onConfirm} disabled={isConfirming}>
-            {dashboardCopy.common.confirmAction}
+            {dashboardTranslations.common.confirmAction}
           </Button>
         </div>
       </div>

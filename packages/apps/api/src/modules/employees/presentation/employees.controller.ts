@@ -22,11 +22,14 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 import { CreateEmployeeDto, EmployeeResponseDto, UpdateEmployeeDto } from './dto';
 import { DEMO_AUTH_SCOPE_NOTE } from '../../../shared/docs/swagger-notes';
+import {
+  ApiBearerTokenUnauthorizedResponse,
+  ApiValidationBodyBadRequestResponse,
+} from '../../../shared/docs/swagger-responses';
 import { CreateEmployeeUseCase } from '../application/create-employee.use-case';
 import { DeleteEmployeeUseCase } from '../application/delete-employee.use-case';
 import { ListEmployeesUseCase } from '../application/list-employees.use-case';
@@ -48,7 +51,7 @@ export class EmployeesController {
     summary: 'List employees',
     description: `Returns all employees sorted by creation order. ${DEMO_AUTH_SCOPE_NOTE}`,
   })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid bearer token.' })
+  @ApiBearerTokenUnauthorizedResponse()
   @ApiOkResponse({
     description: 'Employees returned successfully.',
     type: EmployeeResponseDto,
@@ -84,9 +87,9 @@ export class EmployeesController {
     description: 'Employee created successfully.',
     type: EmployeeResponseDto,
   })
-  @ApiBadRequestResponse({ description: 'Validation failed for the request body.' })
+  @ApiValidationBodyBadRequestResponse()
   @ApiConflictResponse({ description: 'An employee with the given email already exists.' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid bearer token.' })
+  @ApiBearerTokenUnauthorizedResponse()
   @Post()
   createEmployee(@Body() dto: CreateEmployeeDto): Promise<Employee> {
     return this.createEmployeeUseCase.execute(dto);
@@ -123,7 +126,7 @@ export class EmployeesController {
   @ApiBadRequestResponse({ description: 'Invalid employee id or invalid request body.' })
   @ApiConflictResponse({ description: 'An employee with the given email already exists.' })
   @ApiNotFoundResponse({ description: 'Employee not found.' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid bearer token.' })
+  @ApiBearerTokenUnauthorizedResponse()
   @Patch(':id')
   updateEmployee(
     @Param('id', ParseIntPipe) id: number,
@@ -148,7 +151,7 @@ export class EmployeesController {
     description: 'Employee has assigned tasks and cannot be deleted.',
   })
   @ApiNotFoundResponse({ description: 'Employee not found.' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid bearer token.' })
+  @ApiBearerTokenUnauthorizedResponse()
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteEmployee(@Param('id', ParseIntPipe) id: number): Promise<void> {

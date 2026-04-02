@@ -2,13 +2,13 @@ import { AxiosInstance } from 'axios';
 
 import {
   CreateTaskRequest,
-  EmployeeResponse,
   TaskResponse,
   TaskStatus,
 } from './support/api-types';
 import { AuthContext, createAuthContext } from './support/auth-helpers';
-import { buildEmployeePayload, buildTaskPayload, buildUniqueSuffix } from './support/fixtures';
+import { buildTaskPayload, buildUniqueSuffix } from './support/fixtures';
 import { expectHttpError, expectHttpErrorCode } from './support/http-assertions';
+import { createEmployeeForTest, createTaskForTest } from './support/resource-helpers';
 
 describe('Tasks API', () => {
   let authContext: AuthContext;
@@ -20,32 +20,26 @@ describe('Tasks API', () => {
   });
 
   it('creates a task and filters by employeeId', async () => {
-    const employee = await client.post<EmployeeResponse>(
-      '/employees',
-      buildEmployeePayload(buildUniqueSuffix()),
-    );
-    const payload = buildTaskPayload(employee.data.id, buildUniqueSuffix());
+    const employee = await createEmployeeForTest(client);
+    const payload = buildTaskPayload(employee.id, buildUniqueSuffix());
 
     const createRes = await client.post<TaskResponse>('/tasks', payload);
     expect(createRes.status).toBe(201);
     expect(createRes.data.title).toBe(payload.title);
-    expect(createRes.data.employeeId).toBe(employee.data.id);
+    expect(createRes.data.employeeId).toBe(employee.id);
     expect(createRes.data.subtasks).toHaveLength(1);
 
-    const listRes = await client.get<TaskResponse[]>(`/tasks?employeeId=${employee.data.id}`);
+    const listRes = await client.get<TaskResponse[]>(`/tasks?employeeId=${employee.id}`);
     expect(listRes.status).toBe(200);
     expect(listRes.data.some((task) => task.id === createRes.data.id)).toBe(true);
   });
 
   it('returns 400 when dueDate is before startDate', async () => {
-    const employee = await client.post<EmployeeResponse>(
-      '/employees',
-      buildEmployeePayload(buildUniqueSuffix()),
-    );
+    const employee = await createEmployeeForTest(client);
 
     const invalidDatesPayload: CreateTaskRequest = {
       title: 'Invalid date task',
-      employeeId: employee.data.id,
+      employeeId: employee.id,
       startDate: '2026-04-10T08:00:00.000Z',
       dueDate: '2026-04-09T08:00:00.000Z',
     };
@@ -55,11 +49,8 @@ describe('Tasks API', () => {
   });
 
   it('updates task fields and subtasks', async () => {
-    const employee = await client.post<EmployeeResponse>(
-      '/employees',
-      buildEmployeePayload(buildUniqueSuffix()),
-    );
-    const payload = buildTaskPayload(employee.data.id, buildUniqueSuffix());
+    const employee = await createEmployeeForTest(client);
+    const payload = buildTaskPayload(employee.id, buildUniqueSuffix());
     const created = await client.post<TaskResponse>('/tasks', payload);
 
     const updatedTitle = `Updated-${buildUniqueSuffix()}`;
@@ -72,7 +63,7 @@ describe('Tasks API', () => {
         completed: true,
         startDate: subtask.startDate,
         endDate: subtask.endDate ?? undefined,
-        assigneeId: employee.data.id,
+        assigneeId: employee.id,
       })),
     });
 
@@ -83,18 +74,12 @@ describe('Tasks API', () => {
   });
 
   it('clears dueDate when patch payload sets dueDate to null', async () => {
-    const employee = await client.post<EmployeeResponse>(
-      '/employees',
-      buildEmployeePayload(buildUniqueSuffix()),
-    );
-    const created = await client.post<TaskResponse>(
-      '/tasks',
-      buildTaskPayload(employee.data.id, buildUniqueSuffix()),
-    );
+    const employee = await createEmployeeForTest(client);
+    const createdTask = await createTaskForTest(client, employee.id);
 
-    expect(created.data.dueDate).not.toBeNull();
+    expect(createdTask.dueDate).not.toBeNull();
 
-    const patchRes = await client.patch<TaskResponse>(`/tasks/${created.data.id}`, {
+    const patchRes = await client.patch<TaskResponse>(`/tasks/${createdTask.id}`, {
       dueDate: null,
     });
 
@@ -103,19 +88,13 @@ describe('Tasks API', () => {
   });
 
   it('deletes a task and returns 404 on second delete', async () => {
-    const employee = await client.post<EmployeeResponse>(
-      '/employees',
-      buildEmployeePayload(buildUniqueSuffix()),
-    );
-    const created = await client.post<TaskResponse>(
-      '/tasks',
-      buildTaskPayload(employee.data.id, buildUniqueSuffix()),
-    );
+    const employee = await createEmployeeForTest(client);
+    const createdTask = await createTaskForTest(client, employee.id);
 
-    const deleteRes = await client.delete(`/tasks/${created.data.id}`);
+    const deleteRes = await client.delete(`/tasks/${createdTask.id}`);
     expect(deleteRes.status).toBe(204);
 
-    const notFoundError = await expectHttpError(client.delete(`/tasks/${created.data.id}`), 404);
+    const notFoundError = await expectHttpError(client.delete(`/tasks/${createdTask.id}`), 404);
     expectHttpErrorCode(notFoundError, 'TASK_NOT_FOUND');
   });
 });

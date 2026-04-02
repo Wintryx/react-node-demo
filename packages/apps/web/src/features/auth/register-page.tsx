@@ -1,10 +1,10 @@
-import { useMutation } from '@tanstack/react-query';
+﻿import { useMutation } from '@tanstack/react-query';
 import { SyntheticEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from './auth-context';
-import { getAuthCopy } from './auth-copy';
 import { AuthPageShell } from './auth-page-shell';
+import { getAuthTranslations } from './auth-translations';
 import { getPasswordPolicyHint, passwordPolicyRegex } from './password-rules';
 import { Alert, Button, CardContent, Input, Label, Spinner } from '../../components/ui';
 import { useI18n } from '../i18n';
@@ -19,7 +19,7 @@ export function RegisterPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
   const { language } = useI18n();
-  const copy = getAuthCopy(language);
+  const translations = getAuthTranslations(language);
   const passwordPolicyHint = getPasswordPolicyHint(language);
 
   const [formValues, setFormValues] = useState<RegisterFormValues>({
@@ -41,7 +41,7 @@ export function RegisterPage() {
 
   const validateForm = (): boolean => {
     if (formValues.password !== formValues.confirmPassword) {
-      setFormError(copy.register.passwordMismatch);
+      setFormError(translations.register.passwordMismatch);
       return false;
     }
 
@@ -69,17 +69,17 @@ export function RegisterPage() {
 
   return (
     <AuthPageShell
-      title={copy.register.title}
-      description={copy.register.description}
-      footerLabel={copy.register.footerLabel}
-      footerLinkLabel={copy.register.footerLinkLabel}
+      title={translations.register.title}
+      description={translations.register.description}
+      footerLabel={translations.register.footerLabel}
+      footerLinkLabel={translations.register.footerLinkLabel}
       footerLinkTo="/login"
-      badgeText={copy.shell.badge}
+      badgeText={translations.shell.badge}
     >
       <CardContent>
         <form className="space-y-4" onSubmit={onSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="register-email">{copy.register.email}</Label>
+            <Label htmlFor="register-email">{translations.register.email}</Label>
             <Input
               id="register-email"
               type="email"
@@ -94,7 +94,7 @@ export function RegisterPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="register-password">{copy.register.password}</Label>
+            <Label htmlFor="register-password">{translations.register.password}</Label>
             <Input
               id="register-password"
               type="password"
@@ -111,7 +111,7 @@ export function RegisterPage() {
             <p className="text-xs text-muted-foreground">{passwordPolicyHint}</p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="register-password-confirm">{copy.register.confirmPassword}</Label>
+            <Label htmlFor="register-password-confirm">{translations.register.confirmPassword}</Label>
             <Input
               id="register-password-confirm"
               type="password"
@@ -131,10 +131,10 @@ export function RegisterPage() {
             {registerMutation.isPending ? (
               <span className="inline-flex items-center gap-2">
                 <Spinner />
-                {copy.register.submitting}
+                {translations.register.submitting}
               </span>
             ) : (
-              copy.register.submit
+              translations.register.submit
             )}
           </Button>
         </form>
